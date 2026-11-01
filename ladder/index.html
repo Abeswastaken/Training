@@ -141,7 +141,10 @@ details .group{gap:10px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hotw:#ff5a4f;--hotf:#5a1d1a}}
 :root[data-theme="dark"]{--hotw:#ff5a4f;--hotf:#5a1d1a}
 .wl{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-@media (min-width:1000px){.wl{grid-template-columns:290px minmax(0,1fr)}.side{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto;align-self:start}}
+@media (min-width:1000px){.wl{grid-template-columns:250px minmax(0,1fr) 280px}.side,.side2{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto;align-self:start}}
+.side2{display:flex;flex-direction:column;gap:10px;min-width:0}
+.side2 h3{font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:6px 0}
+.side2 .pcard{grid-template-columns:minmax(0,1fr)}
 .side{display:flex;flex-direction:column;gap:10px}
 .side h3,.mainCol h3{font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:6px 0}
 .mainCol{display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -187,6 +190,8 @@ details .group{gap:10px}
 .pcard .ill{width:100%;height:auto;display:block}.pcard p{margin:0 0 6px}
 @media (max-width:640px){.pcard{grid-template-columns:minmax(0,1fr)}}
 .pcard .ill{background:#eef1f3!important;border-radius:6px}
+.side2 .inl{flex-wrap:wrap}.side2 .inl select{max-width:100%;min-width:0}
+@media (max-width:999px){.mainCol{display:contents}.mainCol>.group:last-child{order:9}.side2{order:5}}
 </style>
 <style>.crumb{display:flex;gap:6px;align-items:center;font:600 13px "Barlow Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;color:var(--muted,#5b666d)}.crumb a{color:var(--brass,#9a6f1f);text-decoration:none}.crumb a:hover,.crumb a:focus-visible{text-decoration:underline}</style>
 </head>
@@ -209,6 +214,15 @@ details .group{gap:10px}
   <aside class="side">
     <div class="group"><h3>How to</h3><p class="note">Drag a part onto a rung, or tap a part and then tap a spot. Contacts and switches go on the left, one load (coil, motor, light) on the right. Drop a part in a dashed "branch" box under a rung to put it in parallel. Tap a placed part to see what it looks like, how to check it, and to press, set or remove it.</p></div>
     <div class="group" id="palette"></div>
+  </aside>
+  <div class="mainCol">
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ladWrap" id="wrapL"><svg id="ladder" role="img" aria-label="Ladder diagram"></svg></div>
+    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button></div>
+    <div class="group"><h3>Log</h3><div class="log" id="log" aria-live="polite"></div></div>
+  </div>
+  <aside class="side2">
+    <div class="group elSheet" id="elSheet" hidden></div>
     <div class="group">
       <h3>Supply and examples</h3>
       <div class="btns">
@@ -225,13 +239,6 @@ details .group{gap:10px}
       <div class="tRow"><span>Cool to <b id="tCs"></b></span><button class="btn" data-adj="cs:-1" aria-label="Cool setpoint down">−</button><button class="btn" data-adj="cs:1" aria-label="Cool setpoint up">+</button></div>
       <p class="note" id="tCall"></p></div>
   </aside>
-  <div class="mainCol">
-    <p class="hint" id="hint" aria-live="polite"></p>
-    <div class="ladWrap" id="wrapL"><svg id="ladder" role="img" aria-label="Ladder diagram"></svg></div>
-    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button></div>
-    <div class="group elSheet" id="elSheet" hidden></div>
-    <div class="group"><h3>Log</h3><div class="log" id="log" aria-live="polite"></div></div>
-  </div>
 </div>
 </div>
 <div class="modal" id="modal" hidden><div class="modalCard" role="alertdialog" aria-labelledby="mT"><h2 id="mT"></h2><div id="mB"></div><div class="modalRow"><button class="btn" id="mOk">Got it</button></div></div></div>
@@ -350,8 +357,8 @@ const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" 
   <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
   <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/><path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1" fill="none"/>
+const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
+  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
 // wall thermostat with an LCD
 const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
@@ -696,7 +703,18 @@ const LPIC={
  lps:()=>pswPic("LPS","#8fc3ff","LOW PRESSURE SWITCH","on the suction line; opens on loss of charge"),
  disc:(lbl,sub)=>zShade(170,200,60,6)+`<rect x="110" y="96" width="120" height="80" rx="10" fill="url(#zAluTop)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="128" y="110" width="84" height="52" rx="26" fill="url(#zSteelH)" stroke="#5f686d"/>`+
   `<circle cx="170" cy="136" r="18" fill="url(#zAlu)" stroke="#5f686d"/>`+[120,220].map(x=>`<rect x="${x-6}" y="168" width="12" height="40" fill="url(#zBrass)"/><path d="M${x} 208 v20" stroke="#1d2327" stroke-width="5"/>`).join("")+LT(170,60,lbl,14)+LT(170,246,sub,11,"#3b4449","middle",500),
- motor:()=>ZILL.motor3,
+ motor:()=>{const cl=(x1,x2,y)=>{let d=`M${x1} ${y}`;for(let i=0;i<5;i++)d+=` a${(x2-x1)/10} ${(x2-x1)/10} 0 0 1 ${(x2-x1)/5} 0`;return d};
+  return zShade(118,216,90,6)+`<circle cx="118" cy="130" r="80" fill="url(#zSteel)" stroke="#3b4247" stroke-width="2" filter="url(#zShadow)"/><circle cx="118" cy="130" r="70" fill="#eef1f3" stroke="#6f787e"/>`+
+  `<path d="M66 130 V100 H82 M148 100 H164 M66 130 V160 H82 M138 160 H154" stroke="#b5651d" stroke-width="3" fill="none"/>`+
+  `<path d="${cl(82,148,100)}" stroke="#b5651d" stroke-width="3.5" fill="none"/><path d="${cl(82,138,160)}" stroke="#b5651d" stroke-width="2.2" fill="none"/>`+
+  `<circle cx="66" cy="130" r="4" fill="#1d2327"/><circle cx="164" cy="100" r="4" fill="#1d2327"/><circle cx="154" cy="160" r="4" fill="#1d2327"/>`+
+  LT(54,134,"C",12)+LT(174,116,"R",12)+LT(164,176,"S",12)+LT(115,88,"RUN WINDING",10,"#3b4449")+LT(110,182,"START WINDING",10,"#3b4449")+
+  `<path d="M66 130 C40 40 200 20 252 70 M164 100 C210 100 262 110 270 86 M154 160 C230 176 296 130 288 86" stroke="#1d2327" stroke-width="2" fill="none"/>`+
+  `<rect x="238" y="58" width="64" height="40" rx="5" fill="url(#zPlasticDk)" stroke="#000"/>`+[252,270,288].map((x,i)=>LLUG(x,78)+LT(x,52,["C","R","S"][i],13)).join("")+
+  `<rect x="276" y="150" width="50" height="62" rx="8" fill="url(#zAlu)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="286" y="144" width="8" height="8" fill="url(#zBrassH)"/><rect x="308" y="144" width="8" height="8" fill="url(#zBrassH)"/>`+
+  LT(301,176,"RUN",10)+LT(301,190,"CAP",10)+LT(301,204,"5 µF",9,"#3b4449")+
+  `<path d="M290 144 C288 124 272 112 270 92 M312 144 C312 122 294 112 288 92" stroke="#c0281c" stroke-width="2" fill="none"/>`+
+  LT(170,22,"PSC MOTOR: C, R, S AND RUN CAPACITOR",13)+LT(170,240,"C to R = run winding (lowest ohms), C to S = start winding; the cap goes R to S",10.5,"#3b4449","middle",500)},
  lamp:()=>zShade(170,226,60,6)+`<rect x="140" y="140" width="60" height="80" rx="4" fill="url(#zPlasticDk)" stroke="#000"/><rect x="132" y="128" width="76" height="16" rx="3" fill="url(#zSteel)"/>`+
   `<circle cx="170" cy="96" r="38" fill="#3fdc6c" stroke="#1e7a3a" stroke-width="2" filter="url(#zGlow)"/><ellipse cx="158" cy="82" rx="12" ry="8" fill="rgba(255,255,255,.55)"/>`+LLUG(152,200)+LLUG(188,200)+LT(170,40,"PILOT LIGHT",14)+LT(170,246,"rated for the control voltage (24 V or 120 V)",11,"#3b4449","middle",500),
  sol:()=>zShade(170,226,110,6)+`<rect x="40" y="178" width="260" height="22" fill="url(#zCuH)" stroke="#5a2a12"/>`+LBOX(120,160,100,52,"url(#zBrassH)",5,"#5e400e")+`<rect x="150" y="128" width="40" height="34" fill="url(#zSteelH)"/>`+
@@ -743,7 +761,7 @@ const LFIELD={
  lps:["Where: suction line. Opens on low suction pressure (loss of charge, frozen coil, restriction).","Check: 24 V across it = open. Check the charge and airflow."],
  lim:["Where: furnace heat exchanger area or heat strips. NC snap disc.","Check: an open limit usually means low airflow: dirty filter, blower problem, closed registers."],
  tsw:["Where: fan controls, defrost or freeze stats. This one closes on temperature rise.","Check: ohms across it at known temperatures."],
- motor:["The motor itself. In the field the starter or contactor's T terminals feed it.","Check: amps against the nameplate RLA/FLA, voltage at the motor, and winding ohms (power off)."],
+ motor:["Drawn as a single-phase PSC motor (compressors, condenser fans, blowers): line voltage goes to C (common) and R (run); the run capacitor ties R to S (start) so the start winding stays in circuit, shifted in phase.","Check (power off): C–R is the lowest ohms, C–S is higher, R–S is the sum of the two. Check the cap in µF against its rating (±6%) and amps against the nameplate."],
  lamp:["Shows a circuit's state on a panel (running, fault).","Check: a dead lamp with voltage on it is a burned bulb."],
  sol:["Liquid line solenoid, gas valve or similar valve coil.","Check: coil voltage, coil ohms, and a magnetic pull on a screwdriver tip near the coil."],
  heat:["Electric strip heat or a crankcase heater.","Check: ohms (power off). R = V²/W, so a 5 kW 240 V strip reads about 11.5 Ω."],
@@ -765,12 +783,29 @@ const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mi
  if(k==="pbno"||k==="pbnc"){const d=c.st.down;return lineL+lineR+`<line x1="${x+40}" y1="${mid}" x2="${x+44}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${x+76}" y1="${mid}" x2="${x+80}" y2="${mid}" stroke="${col}" stroke-width="3"/><circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/>`+
   (k==="pbno"?`<line x1="${x+40}" y1="${mid-(d?3:12)}" x2="${x+80}" y2="${mid-(d?3:12)}" stroke="${col}" stroke-width="3"/>`:`<line x1="${x+40}" y1="${mid+(d?-12:4)}" x2="${x+80}" y2="${mid+(d?-12:4)}" stroke="${col}" stroke-width="3"/>`)+`<line x1="${x+60}" y1="${mid-(d?3:12)}" x2="${x+60}" y2="${mid-26}" stroke="${col}" stroke-width="2"/><rect x="${x+50}" y="${mid-32}" width="20" height="6" fill="${k==="pbno"?"var(--ok)":"var(--bad)"}"/>`+`<text x="${x+CW/2}" y="${mid-38}" class="tg">${k==="pbno"?"START":"STOP"}</text>`}
  if(k==="tterm")return `<line x1="${x}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/><circle cx="${x+60}" cy="${mid}" r="12" fill="var(--paper)" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+5}" class="tg" style="font-size:13px">${esc(c.tag||"?")}</text>`;
- if(["sw","tsw","ty","tw","tg","hps","lps","lim","tsc","tsh","tcc","thc","tfo","tfa"].includes(k)){const name={sw:"SWITCH",tsw:"TEMP SW",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",lim:"LIMIT",tsc:"SYS COOL",tsh:"SYS HEAT",tcc:"COOL CALL",thc:"HEAT CALL",tfo:"FAN ON",tfa:"FAN AUTO"}[k];
-  return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+78}" y2="${mid-(cl?2:16)}" stroke="${col}" stroke-width="3"/>`+(k==="hps"||k==="lps"?`<path d="M${x+60} ${mid+6} v10 m-8 0 h16" stroke="${col}" fill="none" stroke-width="2"/>`:"")+(k==="tsw"||k==="lim"||k==="tcc"||k==="thc"?`<path d="M${x+52} ${mid+14} q8 -8 16 0" stroke="${col}" fill="none" stroke-width="2"/>`:"")+`<text x="${x+CW/2}" y="${mid+34}" class="tg"${!cl&&(k==="hps"||k==="lps"||k==="lim")?' fill="var(--bad)"':""}>${name}${!cl&&(k==="hps"||k==="lps"||k==="lim")?" OPEN":""}</text>`}
+ if(k==="tsw"||k==="lim"||k==="tcc"||k==="thc"){const ncS=k==="lim"||k==="thc";const name={tsw:"TEMP SW",lim:"HIGH LIMIT",tcc:"COOL CALL",thc:"HEAT CALL"}[k];
+  const by=ncS?mid+(cl?2:16):mid-(cl?2:16),my=(mid+by)/2,sx=x+61;
+  const zz=ncS?`M${sx} ${my-1} V${mid-18}`:`M${sx} ${my+1} V${mid+12}`,ey=ncS?mid-22:mid+16;
+  return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+80}" y2="${by}" stroke="${col}" stroke-width="3"/>`+
+   `<path d="${zz}" stroke="${col}" stroke-width="1.6" stroke-dasharray="3 2" fill="none"/><path d="M${sx-10} ${ey} l3.3 -4 l3.3 8 l3.3 -8 l3.3 8 l3.3 -8 l3.4 4" stroke="${col}" stroke-width="2" fill="none" stroke-linejoin="round"/>`+
+   `<text x="${x+CW/2}" y="${mid+(ncS?34:38)}" class="tg"${!cl&&k==="lim"?' fill="var(--bad)"':""}>${name}${!cl&&k==="lim"?" OPEN":""}</text><text x="${x+CW/2}" y="${mid+(ncS?46:50)}" class="tg" style="font-size:9px;fill:var(--muted)">${ncS?"OPENS ON RISE":"CLOSES ON RISE"}</text>`}
+ if(["sw","ty","tw","tg","hps","lps","tsc","tsh","tfo","tfa"].includes(k)){const name={sw:"SWITCH",tsw:"TEMP SW",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",lim:"LIMIT",tsc:"SYS COOL",tsh:"SYS HEAT",tcc:"COOL CALL",thc:"HEAT CALL",tfo:"FAN ON",tfa:"FAN AUTO"}[k];
+  return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+78}" y2="${mid-(cl?2:16)}" stroke="${col}" stroke-width="3"/>`+(k==="hps"||k==="lps"?`<path d="M${x+60} ${mid+6} v10 m-8 0 h16" stroke="${col}" fill="none" stroke-width="2"/>`:"")+`<text x="${x+CW/2}" y="${mid+34}" class="tg"${!cl&&(k==="hps"||k==="lps"||k==="lim")?' fill="var(--bad)"':""}>${name}${!cl&&(k==="hps"||k==="lps"||k==="lim")?" OPEN":""}</text>`}
  // loads
  const lw=`<line x1="${x}" y1="${mid}" x2="${x+38}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${x+82}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/>`;
  if(E[k].coil){const t=timers[c.tag];return lw+`<circle cx="${x+60}" cy="${mid}" r="22" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+5}" class="tg" style="font-size:13px">${esc(c.tag)}</text>`+(k==="td"?`<text x="${x+60}" y="${mid+36}" class="tg">${t?(t.done?"DONE":(c.secs-t.t).toFixed(1)+" s"):c.secs+" s"}</text>`:"")}
- if(k==="motor"){const ol=motorOL[c.tag];return lw+`<circle cx="${x+60}" cy="${mid}" r="22" fill="var(--paper)" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+6}" class="tg" style="font-size:18px">M</text><g ${on&&!ol?`class="spin" style="transform-origin:${x+60}px ${mid}px"`:""}><path d="M${x+60} ${mid-27} v6 M${x+60} ${mid+21} v6 M${x+33} ${mid} h6 M${x+81} ${mid} h6" stroke="${col}" stroke-width="3"/></g><text x="${x+60}" y="${mid+38}" class="tg">${esc(c.tag)}${ol?" OL TRIPPED":""}</text>`}
+ if(k==="motor"){const ol=motorOL[c.tag],run=on&&!ol,wc=run?"var(--hotw)":col;
+  const coil=(x1,x2,yy)=>{let d=`M${x1} ${yy}`;const n=4,w=(x2-x1)/n;for(let i=0;i<n;i++)d+=` a${w/2} ${w/2} 0 0 1 ${w} 0`;return d};
+  const C=x+14,R=x+84,S=x+72,L1=x+26,L2=x+62;
+  return `<line x1="${x}" y1="${mid}" x2="${C}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${R}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/>`+
+   `<rect x="${x+4}" y="${mid-32}" width="94" height="62" rx="10" fill="${run?"var(--hotf)":"var(--paper)"}" fill-opacity=".45" stroke="${col}" stroke-width="1.4" stroke-dasharray="5 3"/>`+
+   `<path d="M${C} ${mid} V${mid-15} H${L1} M${L2} ${mid-15} H${R} V${mid} M${C} ${mid} V${mid+15} H${L1} M${L2} ${mid+15} H${S}" stroke="${wc}" stroke-width="2" fill="none"/>`+
+   `<path d="${coil(L1,L2,mid-15)}" stroke="${wc}" stroke-width="2.2" fill="none"/><path d="${coil(L1,L2,mid+15)}" stroke="${wc}" stroke-width="2.2" fill="none"/>`+
+   `<path d="M${S} ${mid+15} H${R} V${mid+10} M${R-7} ${mid+10} H${R+7} M${R-7} ${mid+5} q7 3.5 14 0 M${R} ${mid+5} V${mid}" stroke="${wc}" stroke-width="2" fill="none"/>`+
+   `<circle cx="${C}" cy="${mid}" r="3.2" fill="${col}"/><circle cx="${R}" cy="${mid}" r="3.2" fill="${col}"/><circle cx="${S}" cy="${mid+15}" r="2.6" fill="${col}"/>`+
+   `<text x="${C-6}" y="${mid-5}" class="tg" style="font-size:10px">C</text><text x="${R+6}" y="${mid-5}" class="tg" style="font-size:10px">R</text><text x="${S}" y="${mid+27}" class="tg" style="font-size:10px">S</text>`+
+   `<text x="${(L1+L2)/2}" y="${mid-21}" class="tg" style="font-size:8.5px">RUN</text><text x="${(L1+L2)/2}" y="${mid+27}" class="tg" style="font-size:8.5px">START</text><text x="${R+10}" y="${mid+12}" class="tg" style="font-size:8.5px;text-anchor:start">CAP</text>`+
+   `<text x="${x+51}" y="${mid+44}" class="tg">${esc(c.tag)}${ol?" OL TRIPPED":run?" RUNNING":""}</text>`}
  if(k==="lamp")return lw+`<circle cx="${x+60}" cy="${mid}" r="20" fill="${on?c.color:"var(--paper)"}" stroke="${col}" stroke-width="3" ${on?'filter="url(#glow)"':""}/><path d="M${x+46} ${mid-14} l28 28 M${x+74} ${mid-14} l-28 28" stroke="${col}" stroke-width="2"/>`;
  if(k==="sol")return lw+`<rect x="${x+40}" y="${mid-16}" width="40" height="32" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><path d="M${x+44} ${mid} q4 -10 8 0 q4 10 8 0 q4 -10 8 0 q4 10 8 0" stroke="${col}" fill="none" stroke-width="2"/><text x="${x+60}" y="${mid+34}" class="tg">SOL</text>`;
  if(k==="heat")return lw+`<path d="M${x+38} ${mid} l4 -12 l8 24 l8 -24 l8 24 l8 -24 l8 24 l4 -12" stroke="${on?"#ff5a1f":col}" fill="none" stroke-width="3"/><text x="${x+60}" y="${mid+34}" class="tg">HTR</text>`;
@@ -796,6 +831,8 @@ function render(){
     s+=`<g class="cell${placing?" drop":""}" data-r="${ri}" data-w="b" data-i="${i}"><rect x="${x+2}" y="${yb-30}" width="${CW-4}" height="60" fill="transparent"/>`;
     s+=c?`<g class="el${sel===c.id?" sel":""}" data-id="${c.id}">${sym(c,x,yb,energized.has(c.id)||(hot&&!E[c.k].load),1)}</g>`:`<line x1="${x}" y1="${yb}" x2="${x+CW}" y2="${yb}" stroke="${hot?"var(--hotw)":"var(--ink)"}" stroke-width="3"/>`;s+=`</g>`}}
   else if(placing){for(let i=0;i<COLS;i++){const x=X0+i*CW;s+=`<g class="cell drop br" data-r="${ri}" data-w="b" data-i="${i}"><rect x="${x+6}" y="${yb-22}" width="${CW-12}" height="40" rx="6" fill="transparent" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${x+CW/2}" y="${yb+4}" class="tg" fill="var(--muted)">branch</text></g>`}}
+  if(r.branch)for(let i=r.branch.from;i<=r.branch.to;i++){const a=r.cells[i],b2=r.branch.cells[i];if(a&&b2&&((a.k==="tfo"&&b2.k==="tfa")||(a.k==="tfa"&&b2.k==="tfo"))){const x=X0+i*CW+62;
+   s+=`<path d="M${x} ${y-(closed(a)?1:8)} V${yb-(closed(b2)?1:8)}" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 3"/><text x="${x+7}" y="${y+16}" class="tg" style="font-size:9px;text-anchor:start;fill:var(--muted)">ONE FAN SELECTOR</text>`}}
   if(shortRung===ri)s+=`<rect x="${X0}" y="${y-30}" width="${COLS*CW}" height="60" fill="none" stroke="var(--bad)" stroke-width="4" class="blinkR"/>`;
  });
  s+=`<g id="fx"></g>`;
@@ -814,7 +851,7 @@ function arc(ri){say(`ARC FLASH: rung ${ri+1} connects ${$("volt").value==="24"?
 function findEl(id){let f=null;rungs.forEach((r,ri)=>{r.cells.forEach((c,i)=>{if(c&&c.id===id)f={c,ri,w:"m",i}});if(r.branch)r.branch.cells.forEach((c,i)=>{if(c&&c.id===id)f={c,ri,w:"b",i}})});return f}
 function renderSheet(){const f=sel&&findEl(sel);const box=$("elSheet");if(!f){box.hidden=true;box.dataset.sel="";return}box.hidden=false;const c=f.c,t=E[c.k];
  if(box.dataset.sel===sel&&box.contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName))return;box.dataset.sel=sel;
- let h=`<h3>${esc(t.n)} <span class="note">rung ${f.ri+1}${f.w==="b"?", branch":""}</span></h3><p class="note">${esc(t.info)}</p>${partCardHTML(c.k)}<div class="btns">`;
+ let h=`<h3>${esc(t.n)} <span class="note">rung ${f.ri+1}${f.w==="b"?", branch":""}</span></h3><div class="btns">`;
  if(t.manual)h+=`<button class="btn blue" data-op="act">${t.manual==="push"?"Press":t.manual==="trip"?(c.st.trip?"Reset":"Trip it"):(c.st.on?"Turn off":"Turn on")}</button>`;
  if(t.motor)h+=`<button class="btn" data-op="ol">${motorOL[c.tag]?"Reset overload":"Trip overload"}</button>`;
  if(t.tagKind){const opts=tagsFor(t.tagKind);h+=`<label class="inl">Tied to <select data-op="tag">${opts.length?opts.map(o=>`<option${o===c.tag?" selected":""}>${o}</option>`).join(""):`<option value="">add a ${t.tagKind==="timer"?"timer coil":t.tagKind==="motor"?"motor":"coil"} first</option>`}</select></label>`}
@@ -825,7 +862,7 @@ function renderSheet(){const f=sel&&findEl(sel);const box=$("elSheet");if(!f){bo
  if(TSK.includes(c.k))h+=`<span class="note">Set the system, fan and room temperature in the Thermostat panel.</span>`;
  if(c.k==="no"||c.k==="nc")h+=`<button class="btn" data-op="flip">Make it ${c.k==="no"?"NC":"NO"}</button>`;
  if(f.w==="b"){const br=rungs[f.ri].branch;h+=`<button class="btn" data-op="bl">Branch ◀ wider</button><button class="btn" data-op="br">Branch wider ▶</button><button class="btn" data-op="bs">Narrower</button>`}
- h+=`<button class="btn red" data-op="del">Remove</button></div>`;box.innerHTML=h}
+ h+=`<button class="btn red" data-op="del">Remove</button></div><p class="note">${esc(t.info)}</p>${partCardHTML(c.k)}`;box.innerHTML=h}
 
 /* ---------- interaction ---------- */
 function place(k,ri,w,i){snap();const r=rungs[ri];const e=mk(k);
@@ -894,9 +931,9 @@ function loadEx(n){idn=1;coilOn={};timers={};motorOL={};shortRung=null;power=tru
   put(b,0,"tfo");put(b,3,"tterm",{tag:"G"});put(b,5,"coil",{tag:"BR"});br(b,0,2,[[0,"tfa"],[1,"tsc"],[2,"tcc"]]);
   put(c,0,"tsh");put(c,1,"thc");put(c,2,"tterm",{tag:"W"});put(c,5,"coil",{tag:"HR"});
   put(d,0,"no",{tag:"CC"});put(d,5,"motor",{tag:"COMP"});put(e,0,"no",{tag:"CC"});put(e,5,"motor",{tag:"OFAN"});
-  put(f,0,"no",{tag:"BR"});put(f,5,"motor",{tag:"BLWR"});put(g,0,"no",{tag:"HR"});put(g,5,"heat");
+  put(f,0,"no",{tag:"BR"});put(f,5,"motor",{tag:"BLWR"});br(f,0,0,[[0,"no",{tag:"HR"}]]);put(g,0,"no",{tag:"HR"});put(g,5,"heat");
   LTS.sys="cool";LTS.fan="auto";LTS.room=77;LTS.hs=68;LTS.cs=74;LTS.callC=false;LTS.callH=false;
-  say("Example: 24 V thermostat. The left rail is R, the right rail is C. Rung 1 is Y (compressor contactor CC), rung 2 is G (blower relay BR): Fan ON powers G straight from R; Fan AUTO powers it only with a cooling call. Rung 3 is W (heat relay HR). Rungs 4 to 7 show what each one runs. Change System, Fan and Room in the Thermostat panel and watch it cycle.")}
+  say("Example: 24 V thermostat. The left rail is R, the right rail is C. Rung 1 is Y (compressor contactor CC). Rung 2 is G (blower relay BR). The fan switch is one selector with two positions (the dashed line ties them together): ON connects R straight to G, AUTO connects G only during a cooling call. Rung 3 is W (heat relay HR). Rungs 4 to 7 show what each one runs; with electric heat the HR contact also starts the blower (rung 6), so the strips never run without air. Change System, Fan and Room in the Thermostat panel and watch it cycle.")}
  if(n==="short"){$("volt").value="24";rungs=[R(),R()];const[a,b]=rungs;put(a,0,"sw");put(a,2,"hps");put(b,0,"sw");put(b,5,"lamp");
   say("Example of a mistake: rung 1 has no load. Turn its switch on and see what happens.")}
 }

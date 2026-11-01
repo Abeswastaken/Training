@@ -187,7 +187,7 @@ details .group{gap:10px}
         <span><i class="ar" style="border-color:var(--air-warm)"></i>Warm air</span>
         <span><i class="ar" style="border-color:var(--air-cool)"></i>Cool air</span>
       </div>
-      <div class="hint" id="hint">Tap any part to see what it does. On a phone, swipe the drawing sideways.</div>
+      <div class="hint" id="hint">Tap any part to see what it does. Drag the gauge set to move it (double-tap puts it back). On a phone, swipe the drawing sideways.</div>
       <div class="boom" id="boom" hidden><div class="boomCard" role="alertdialog" aria-labelledby="boomT"><h2 id="boomT"></h2><div id="boomB"></div><button class="btn" id="boomReset">Reset the simulator</button></div></div>
     </div>
     <div class="strip">
@@ -425,8 +425,8 @@ const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" 
   <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
   <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/><path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1" fill="none"/>
+const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
+  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
 // wall thermostat with an LCD
 const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
@@ -642,6 +642,12 @@ function acSvg(p,hp){
 </defs>
 <line x1="10" y1="452" x2="790" y2="452" stroke="var(--line)" stroke-dasharray="2 4"/>
 <rect x="400" y="16" width="10" height="436" fill="url(#zBrick)" stroke="#8a7d66" stroke-width=".8"/>
+<!-- outdoor unit cabinet (behind the piping) -->
+${zShade(610,442,170,4)}
+<rect x="450" y="170" width="320" height="270" rx="5" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5"/>
+<rect x="456" y="178" width="308" height="256" rx="2" fill="url(#zCabIn)" stroke="#9aa3a9"/>
+${[[455,175],[765,175],[455,435],[765,435]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
+${hp?"":`<text class="zl" x="462" y="300">Outdoor unit</text>`}
 <text class="lbl" x="22" y="34">Indoors</text><text class="val" id="${p}roomTxt" x="22" y="52">75.0°F</text>
 <text class="lbl" x="414" y="150">Outdoors</text><text class="val" id="${p}outTxt" x="414" y="166">95°F</text>
 <g class="part" data-p="room" tabindex="0"><rect class="hl" x="16" y="18" width="380" height="430" fill="none" stroke="none"/></g>
@@ -705,13 +711,8 @@ ${[156,324].map(x=>[160,420].map(y=>zScrew(x-2,y,2.2)).join("")).join("")}
 </g>
 
 <!-- outdoor unit -->
-${zShade(610,442,170,4)}
-<rect x="450" y="170" width="320" height="270" rx="5" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5"/>
-<rect x="456" y="178" width="308" height="256" rx="2" fill="url(#zCabIn)" stroke="#9aa3a9"/>
-${[[455,175],[765,175],[455,435],[765,435]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
-${hp?"":`<text class="zl" x="462" y="300">Outdoor unit</text>`}
 
-<g class="part" data-p="disconnect" tabindex="0">${zDisc(413,196,30,40,p+"discH")}<text class="tag" x="428" y="252" text-anchor="middle" fill="var(--muted)">DISC.</text></g>
+<g class="part" data-p="disconnect" tabindex="0">${zDisc(411,196,22,40,p+"discH")}<text class="tag" x="422" y="252" text-anchor="middle" fill="var(--muted)">DISC.</text></g>
 
 <!-- control box -->
 <rect x="${cb.x}" y="${cb.y}" width="${cb.w}" height="${cb.h}" rx="2" fill="url(#zSteelH)" stroke="#6f787e" opacity=".95"/>
@@ -753,18 +754,15 @@ ${zScrew(cb.x+4,cb.y+4,2)}${zScrew(cb.x+cb.w-4,cb.y+4,2)}
 <g id="${p}burn" opacity="0"><g fill="#555" opacity=".85"><circle cx="600" cy="292" r="18"/><circle cx="586" cy="270" r="14"/><circle cx="612" cy="252" r="16"/><circle cx="596" cy="230" r="12"/></g><path d="M572 330 l14 20 -8 10 16 18" stroke="var(--bad)" stroke-width="3" fill="none"/></g>
 
 <g class="part" data-p="lps" tabindex="0">${zPswitch(lps.x,lps.y,p+"lpsLamp",lps.w,lps.h)}<text class="zt" x="${lps.tx}" y="${lps.ty}" text-anchor="middle">LPS</text></g>
-<text class="valD" fill="#1d2327" id="${p}slTxt" x="${hp?390:466}" y="${hp?392:388}" font-size="11">Suction line 46°F</text>
+<text class="valD" fill="#1d2327" id="${p}slTxt" x="466" y="${hp?412:388}" font-size="11">Suction line 46°F</text>
 
-<g class="part" data-p="drier" tabindex="0">${zDrier(412,436,34,16,p+"drierFrost")}<text class="tag" x="429" y="430" text-anchor="middle" fill="var(--muted)">DRIER</text></g>
+<g class="part" data-p="drier" tabindex="0">${zDrier(412,436,34,16,p+"drierFrost",hp?0:-1)}<text class="tag" x="429" y="466" text-anchor="middle" fill="var(--muted)">${hp?"BI-FLOW DRIER":"DRIER"}</text></g>
 <text class="valD" fill="#1d2327" id="${p}llTxt" x="466" y="432" font-size="11">Liquid line 106°F</text>
 
 <!-- gauges -->
 <g class="part" data-p="gauges" tabindex="0">
- ${hp?`<path d="M512 140 C520 200 480 300 528 330" fill="none" stroke="#1d3f8a" stroke-width="5"/><path d="M512 140 C520 200 480 300 528 330" fill="none" stroke="#3d7de0" stroke-width="3"/>`
-     :`<path d="M512 140 C480 220 440 300 452 360" fill="none" stroke="#1d3f8a" stroke-width="5"/><path d="M512 140 C480 220 440 300 452 360" fill="none" stroke="#3d7de0" stroke-width="3"/>`}
- <path d="M568 140 C600 300 470 360 452 436" fill="none" stroke="#7a1a10" stroke-width="5"/><path d="M568 140 C600 300 470 360 452 436" fill="none" stroke="#d23a26" stroke-width="3"/>
- <path d="M540 140 C540 160 548 170 556 176" fill="none" stroke="#9a8a1a" stroke-width="5"/><path d="M540 140 C540 160 548 170 556 176" fill="none" stroke="#e8c33a" stroke-width="3"/>
- ${hp?zHex(528,332,4.5):zHex(452,364,4.5)}${zHex(452,442,4.5)}
+ ${hoseSvg(p,hp?[528,332]:[452,364],[452,442],hp?"M500 140 C512 200 480 300 528 330":"M500 140 C490 175 446 165 446 205 V356 Q446 364 452 364","M580 140 C580 195 438 160 438 205 V418 Q438 428 448 428 Q452 428 452 436 V442")}
+ <g id="${p}man" class="man" style="cursor:grab;touch-action:none">
  <rect class="hl" x="506" y="120" width="68" height="20" rx="4" fill="url(#zAlu)" stroke="#5f686d"/>
  <rect x="494" y="124" width="12" height="12" rx="3" fill="#2f6fd6" stroke="#111"/><rect x="574" y="124" width="12" height="12" rx="3" fill="#d23a26" stroke="#111"/>
  <path d="M485 114 V120 M595 114 V120" stroke="#5f686d" stroke-width="5"/>
@@ -779,6 +777,7 @@ ${zScrew(cb.x+4,cb.y+4,2)}${zScrew(cb.x+cb.w-4,cb.y+4,2)}
  <text id="${p}gHiT" x="595" y="105" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="#4b555b">115°F sat</text>
  <text class="tag" x="485" y="22" text-anchor="middle" fill="#3d7de0">LOW SIDE</text>
  <text class="tag" x="595" y="22" text-anchor="middle" fill="#d23a26">HIGH SIDE</text>
+ </g>
 </g>
 <text class="val" id="${p}target" x="648" y="44" font-size="11"></text>
 <text class="val" id="${p}target2" x="648" y="58" style="font-size:11px" fill="var(--muted)"></text>
@@ -882,6 +881,31 @@ function refSliders(sim){const name=sim.ref||"R-410A";sim.sliders.forEach(s=>{if
   s.note=`${name}: about ${s.n[0]}–${s.n[1]} psig here (same trip temperatures as the usual R-410A settings). Check the data plate.`})}
 const refSwitch={l:S=>`Refrigerant: ${cur.ref||"R-410A"}`,on:()=>(cur.ref||"R-410A")!=="R-410A",act(sim){const i=REF_ORDER.indexOf(sim.ref||"R-410A");refSet(sim,REF_ORDER[(i+1)%REF_ORDER.length]);
   log(sim,`Refrigerant set to ${sim.ref}. Gauges, switch settings and the PT readings now follow ${sim.ref}.`);if(sim.ref==="R-134a"||sim.ref==="R-404A")log(sim,`${sim.ref} is not used in home AC or heat pumps (R-134a: cars and medium-temp; R-404A: commercial refrigeration). It is here for PT-chart practice.`,"w");renderControls();sim.draw(0)}};
+/* ---- gauge manifold: drag it anywhere, the hoses follow ---- */
+const MANP=(()=>{try{return JSON.parse(localStorage.getItem("rt-man")||"{}")}catch(e){return {}}})();
+const hoseLine=(id,d,c1,c2)=>`<path id="${id}1" data-d0="${d}" d="${d}" fill="none" stroke="${c1}" stroke-width="5" stroke-linecap="round"/><path id="${id}2" data-d0="${d}" d="${d}" fill="none" stroke="${c2}" stroke-width="3" stroke-linecap="round"/>`;
+function hoseSvg(p,lo,hi,dLo,dHi){return `<g id="${p}hoses" data-lo="${lo}" data-hi="${hi}">
+ ${hoseLine(p+"hY","M540 140 C540 160 548 170 556 176","#9a8a1a","#e8c33a")}
+ ${hoseLine(p+"hH",dHi,"#7a1a10","#d23a26")}
+ ${hoseLine(p+"hL",dLo,"#1d3f8a","#3d7de0")}
+ ${zHex(lo[0],lo[1],4.5)}${zHex(hi[0],hi[1],4.5)}</g>`}
+function hoseRoute(s,e){const L=Math.max(40,Math.abs(e[1]-s[1])*.55);return `M${s[0]} ${s[1]} C${s[0]} ${s[1]+L} ${e[0]} ${e[1]-L} ${e[0]} ${e[1]}`}
+function placeMan(p,dx,dy){const m=document.getElementById(p+"man"),h=document.getElementById(p+"hoses");if(!m||!h)return;
+ MANP[p]=[dx,dy];m.setAttribute("transform",`translate(${dx} ${dy})`);
+ const set=(k,d)=>[1,2].forEach(i=>{const e=document.getElementById(p+k+i);if(e)e.setAttribute("d",d===null?e.dataset.d0:d)});
+ if(!dx&&!dy){set("hL",null);set("hH",null);set("hY",null);return}
+ const lo=h.dataset.lo.split(",").map(Number),hi=h.dataset.hi.split(",").map(Number);
+ set("hL",hoseRoute([500+dx,140+dy],lo));set("hH",hoseRoute([580+dx,140+dy],hi));set("hY",`M${540+dx} ${140+dy} c0 20 8 30 16 36`)}
+let manDrag=null,manMoved=false;
+const svgPt=(svg,e)=>{const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())};
+document.addEventListener("pointerdown",e=>{const m=e.target.closest&&e.target.closest(".man");if(!m)return;const svg=m.ownerSVGElement,p=m.id.slice(0,-3),pt=svgPt(svg,e),[dx,dy]=MANP[p]||[0,0];
+ manDrag={p,svg,x0:pt.x-dx,y0:pt.y-dy,sx:e.clientX,sy:e.clientY};manMoved=false;try{m.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+document.addEventListener("pointermove",e=>{if(!manDrag)return;if(!manMoved&&Math.hypot(e.clientX-manDrag.sx,e.clientY-manDrag.sy)<5)return;manMoved=true;
+ const pt=svgPt(manDrag.svg,e);placeMan(manDrag.p,Math.round(Math.max(-440,Math.min(160,pt.x-manDrag.x0))),Math.round(Math.max(0,Math.min(318,pt.y-manDrag.y0))))});
+const manEnd=()=>{if(!manDrag)return;manDrag=null;try{localStorage.setItem("rt-man",JSON.stringify(MANP))}catch(e){}};
+document.addEventListener("pointerup",manEnd);document.addEventListener("pointercancel",manEnd);
+document.addEventListener("click",e=>{if(manMoved){manMoved=false;e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener("dblclick",e=>{const m=e.target.closest&&e.target.closest(".man");if(m){const p=m.id.slice(0,-3);placeMan(p,0,0);try{localStorage.setItem("rt-man",JSON.stringify(MANP))}catch(_){}}});
 
 /*AC-END*/
 
@@ -1280,6 +1304,10 @@ HP.parts=Object.assign({},SPLIT.parts,{
   y:"Second stage (W2) brings them on when the heat pump can't keep up, below the balance point. They also come on during defrost. Emergency heat runs strips only.",
   f:"An open element or tripped limit leaves the house cold on the coldest days.",
   src:["dfx","dfb"],faults:["auxFail"]},
+ drier:Object.assign({},SPLIT.parts.drier,{n:"Bi-flow filter drier",s:"A drier that filters in both directions, because the liquid line reverses on a heat pump.",
+  w:"A desiccant shell with two internal check valves, so the refrigerant passes through the core the right way in cooling and in heating. It is marked with a double arrow.",
+  y:"In cooling, liquid flows from the outdoor coil to the indoor metering device; in heating it flows the other way. A one-way drier would be backwards half the year, and debris it caught would wash out.",
+  src:["air","testo","em_hp"]}),
  compressor:Object.assign({},SPLIT.parts.compressor,{faults:["comp","olFail"]})
 });
 HP.init=function(){const V=this.V;const peq=psat(50)*Math.min(1,V.charge/15);
@@ -1488,7 +1516,7 @@ PHOTOS.cooler={compressor:[gimg("walk-in condensing unit hermetic compressor")],
  timer:[gimg("Paragon 8145 defrost timer")],cch:[gimg("compressor crankcase heater belly band")],tstat:[gimg("walk-in cooler thermostat")],gauges:[gimg("R-404A manifold gauges")],
  door:[gimg("walk-in cooler door gasket")],drain:[gimg("walk-in freezer drain line heater")],suction:[gimg("insulated suction line walk-in")],liquid:[gimg("refrigeration liquid line copper")],
  box:[gimg("walk-in cooler interior")]};
-PHOTOS.freezer=Object.assign({},PHOTOS.cooler,{heaters:[gimg("walk-in freezer evaporator defrost heater element")],ucool:[gimg("walk-in freezer evaporator low profile")],box:[gimg("walk-in freezer interior")]});
+PHOTOS.freezer=Object.assign({},PHOTOS.cooler,{term:[gimg("Heatcraft DTFD defrost termination fan delay")],heaters:[gimg("walk-in freezer evaporator defrost heater element")],ucool:[gimg("walk-in freezer evaporator low profile")],box:[gimg("walk-in freezer interior")]});
 
 ILL.receiver=`${box(16,46,128,40,"#7c858c",18)}<rect x="22" y="66" width="116" height="16" rx="8" fill="#e8892b" opacity=".85"/>${pipeV(124,14,46,8)}${pipeV(34,86,114,8)}${box(26,34,16,14,BR,3)}${label(80,62,"RECEIVER",WH,8)}${label(124,10,"FROM CONDENSER",K,6)}${label(58,112,"LIQUID OUT",K,6)}`;
 ILL.sglass=`${pipeH(4,56,60,8)}${pipeH(104,156,60,8)}${hexnut(80,60,28,BR)}<circle cx="80" cy="60" r="18" fill="#f4f8fb" stroke="${K}"/><circle cx="80" cy="60" r="7" fill="#3fa34d"/>${[0,1,2].map(i=>`<circle cx="${70+i*10}" cy="${50+i*3}" r="2.5" fill="none" stroke="#6fb3e8"/>`).join("")}${label(80,104,"GREEN = DRY   YELLOW = WET",K,6)}${label(80,116,"BUBBLES = FLASH GAS",K,6)}`;
@@ -1557,7 +1585,18 @@ ${zTstat(34,144,44,50,p+"tstatTxt",p+"tstatLamp","35")}
  <g id="${p}ice" opacity="0"><rect x="297" y="53" width="64" height="66" rx="4" fill="#cfe8f7"/><rect x="300" y="56" width="58" height="60" rx="3" fill="#f2faff"/><path d="M302 62 h54 M302 72 h54 M302 82 h54 M302 92 h54 M302 102 h54 M302 112 h54" stroke="#8fc3e6" stroke-dasharray="2 4"/></g>
  <text id="${p}iceTxt" x="329" y="90" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="12" fill="#2f6fd6" opacity="0">ICED</text>
 </g>
-${lt?`<g class="part" data-p="heaters" tabindex="0"><path id="${p}htr" d="M300 70 H358 M300 96 H358" stroke="var(--lamp-off)" stroke-width="3.5" fill="none"/><rect class="hl" x="298" y="64" width="62" height="38" fill="transparent" stroke="none"/></g>`:""}
+${lt?`<g class="part" data-p="heaters" tabindex="0">
+ <rect class="hl" x="290" y="62" width="78" height="44" fill="transparent" stroke="none"/>
+ <path d="M294 72 H364 M294 86 H364 M294 100 H364" stroke="#3a2a20" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+ <path id="${p}htr" d="M294 72 H364 M294 86 H364 M294 100 H364" stroke="#9a6a4a" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+ ${[72,86,100].map(y=>`<rect x="287" y="${y-3.5}" width="7" height="7" rx="1.5" fill="#d9d4c7" stroke="#3a3f44" stroke-width=".7"/><rect x="364" y="${y-3.5}" width="7" height="7" rx="1.5" fill="#d9d4c7" stroke="#3a3f44" stroke-width=".7"/>`).join("")}
+</g>
+<g class="part" data-p="term" tabindex="0">
+ <rect class="hl" x="164" y="58" width="30" height="58" fill="transparent" stroke="none"/>
+ <rect x="171" y="82" width="16" height="6" fill="url(#zSteelH)" stroke="#5f686d" stroke-width=".6"/>
+ <circle cx="179" cy="94" r="9" fill="url(#zSteel)" stroke="#3b4247"/><circle id="${p}termLamp" cx="179" cy="94" r="4" fill="var(--lamp-off)" stroke="#000" stroke-width=".5"/>
+ <text class="zt" x="179" y="68" text-anchor="middle">TERM /</text><text class="zt" x="179" y="77" text-anchor="middle">FAN DLY</text>
+</g>`:""}
 <path id="${p}pMix" class="rpipe" d="M329 142 V118" stroke="var(--r-mix)" stroke-width="5"/>
 <rect x="294" y="117" width="70" height="6" rx="2" fill="var(--line)"/>
 <rect id="${p}panIce" x="294" y="110" width="70" height="8" rx="2" fill="#eaf6ff" stroke="#8fc3e6" opacity="0"/>
@@ -1565,12 +1604,14 @@ ${lt?`<g class="part" data-p="heaters" tabindex="0"><path id="${p}htr" d="M300 7
 <!-- drain -->
 <g class="part" data-p="drain" tabindex="0">
  <path d="M364 120 H400 V440" fill="none" stroke="#b9c0c6" stroke-width="5"/>
- ${lt?`<path id="${p}dHtr" d="M364 117 H397 V440" fill="none" stroke="var(--lamp-off)" stroke-width="1.6" stroke-dasharray="4 3"/>`:""}
+ ${lt?`<path id="${p}dHtr" d="M364 117 H397 V440" fill="none" stroke="#9a6a4a" stroke-width="2.2" stroke-dasharray="5 3"/><text class="zt" x="386" y="250" text-anchor="middle" transform="rotate(-90 386 250)">DRAIN HEATER</text>`:""}
  <rect class="hl" x="392" y="436" width="18" height="8" rx="2" fill="#7a8288"/>
  <circle id="${p}drip" cx="400" cy="430" r="3" fill="#6fb3e8" opacity="0"/>
  <rect id="${p}dIce" x="395" y="380" width="10" height="60" rx="3" fill="#eaf6ff" stroke="#8fc3e6" opacity="0"/>
 </g>
 
+<!-- condensing unit cabinet (behind the piping) -->
+<rect x="446" y="176" width="330" height="264" rx="5" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="452" y="182" width="318" height="252" rx="2" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 <!-- suction line -->
 <g class="part" data-p="suction" tabindex="0">
  <path class="ins" d="M358 62 H425 V372 H560" stroke-width="14"/>
@@ -1605,7 +1646,6 @@ ${lt?`<g class="part" data-p="heaters" tabindex="0"><path id="${p}htr" d="M300 7
 <text class="val" id="${p}stTxt" x="166" y="162" font-size="11" font-weight="700">COOLING</text>
 
 <!-- outdoor condensing unit -->
-<rect x="446" y="176" width="330" height="264" rx="5" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="452" y="182" width="318" height="252" rx="2" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 <text class="zl" x="454" y="196">Condensing unit</text>
 <text class="lbl" x="454" y="148">Outdoors</text><text class="val" id="${p}outTxt" x="454" y="166">90°F</text>
 
@@ -1618,7 +1658,7 @@ ${zContactor(468,206,34,44,p+"contBar",p+"contLamp",218)}<text class="zt" x="485
  ${[0,6,12,18].map(h=>`<circle cx="${527+13*Math.sin(h*Math.PI/12)}" cy="${228-13*Math.cos(h*Math.PI/12)}" r="1.8" fill="var(--bad)"/>`).join("")}
  <line id="${p}tHand" x1="527" y1="228" x2="527" y2="214" stroke="#1d2327" stroke-width="2" stroke-linecap="round"/>
  <circle id="${p}defLamp" cx="527" cy="256" r="4" fill="var(--lamp-off)"/>
- <text class="zt" x="527" y="276" text-anchor="middle">TIMER</text>
+ <text class="zt" x="527" y="276" text-anchor="middle">DEFROST TIMER</text>
 </g>
 
 <!-- discharge -->
@@ -1675,7 +1715,7 @@ ${zCompressor(560,286,80,104)}<rect x="566" y="308" width="68" height="76" rx="4
 
 <!-- drier and sight glass -->
 <g class="part" data-p="drier" tabindex="0">
-${zDrier(548,438,36,16,p+"drierFrost")}
+${zDrier(548,438,36,16,p+"drierFrost",-1)}
  <text class="zt" x="566" y="432" text-anchor="middle">DRIER</text>
 </g>
 <g class="part" data-p="sglass" tabindex="0">
@@ -1688,9 +1728,8 @@ ${zDrier(548,438,36,16,p+"drierFrost")}
 
 <!-- gauges -->
 <g class="part" data-p="gauges" tabindex="0">
- <path d="M512 140 C470 200 430 250 425 300" fill="none" stroke="#1d3f8a" stroke-width="5"/><path d="M512 140 C470 200 430 250 425 300" fill="none" stroke="#3d7de0" stroke-width="3"/>
- <path d="M568 140 C640 300 455 330 455 446" fill="none" stroke="#7a1a10" stroke-width="5"/><path d="M568 140 C640 300 455 330 455 446" fill="none" stroke="#d23a26" stroke-width="3"/>
- ${zHex(425,300,4.5)}${zHex(455,444,4.5)}
+ ${hoseSvg(p,[425,300],[455,444],"M500 140 C470 200 430 250 425 300","M580 140 C640 300 455 330 455 444")}
+ <g id="${p}man" class="man" style="cursor:grab;touch-action:none">
  <rect class="hl" x="506" y="120" width="68" height="20" rx="4" fill="url(#zAlu)" stroke="#5f686d"/>
  <rect x="494" y="124" width="12" height="12" rx="3" fill="#2f6fd6" stroke="#111"/><rect x="574" y="124" width="12" height="12" rx="3" fill="#d23a26" stroke="#111"/>
  <path d="M485 114 V120 M595 114 V120" stroke="#5f686d" stroke-width="5"/>
@@ -1705,6 +1744,7 @@ ${zDrier(548,438,36,16,p+"drierFrost")}
  <text id="${p}gHiT" x="595" y="105" text-anchor="middle" font-family="var(--mono)" font-size="9.5" fill="#4b555b">110°F sat</text>
  <text class="tag" x="485" y="22" text-anchor="middle" fill="#3d7de0">LOW SIDE</text>
  <text class="tag" x="595" y="22" text-anchor="middle" fill="#d23a26">HIGH SIDE</text>
+ </g>
 </g>
 
 <text class="val" id="${p}target" x="648" y="44" font-size="11">Target SH 8–10°F</text>
@@ -1714,7 +1754,7 @@ ${zDrier(548,438,36,16,p+"drierFrost")}
  <text class="st" x="608" y="232" fill="var(--r-dis)">HOT GAS</text>
  <text class="st" x="610" y="466" fill="var(--r-liq)">WARM LIQUID, HIGH PRESSURE</text>
  <text class="st" x="166" y="182" fill="var(--r-mix)">COLD LIQUID + FLASH GAS TO COIL</text>
- <text class="st" x="466" y="366" fill="var(--r-suc)">COOL VAPOR</text>
+ <text class="st" x="466" y="359" fill="var(--r-suc)">COOL VAPOR</text>
 </g>`}
 
 function mkWalk(lt){
@@ -1788,6 +1828,10 @@ function mkWalk(lt){
     src:["rsg","em_cycle"],faults:["efan","defTimer"]},
    efans:{n:"Evaporator fans",s:"Move box air through the coil.",w:"Small shaded-pole or ECM motors with guards.",y:lt?"In a freezer they stop during defrost and stay off after it until the coil is cold again (fan delay), so they don't blow heat and water into the box.":"In a cooler they usually run all the time, including during off-cycle defrost, which uses box air to melt the frost.",f:"Dead fans: the coil can't pick up heat, suction drops, the box warms and liquid can flood back to the compressor.",src:["achrfd","kolpak"],faults:["efan"]},
    ...(lt?{heaters:{n:"Defrost heaters",s:"Electric rods in the coil that melt the frost.",w:"Resistance heaters threaded through the coil fins, plus a heater in the drain pan.",y:"The timer switches power from the solenoid and fans to the heaters. They stay on until the termination thermostat sees about 55°F or the fail-safe time runs out.",f:"Burned-out heaters: frost builds every cycle until the coil is a block of ice. A heater safety (limit) opens if they overheat.",src:["kolpak","achrfd"],faults:["heater","term"]}}:{}),
+   ...(lt?{term:{n:"Defrost termination / fan delay",s:"Ends each heater defrost and holds the fans off until the coil is cold again.",
+    w:"A snap-disc control clamped to the coil (for example a Heatcraft DTFD or Kolpak termination thermostat). One switch closes on a rise at about 55°F; the other closes on a fall at about 25°F.",
+    y:"When the coil reaches about 55°F the termination switch ends defrost early, before the fail-safe time. After the drip time, cooling restarts but the fan delay keeps the evaporator fans off until the coil drops to about 25°F, so the fans don't blow warm, wet air and leftover water into the box. Lamp: green = normal, amber = defrost or drip, blue = fan delay holding the fans.",
+    f:"Stuck open: every defrost runs the full fail-safe time and overheats the coil. Wrong place on the coil: defrost ends with ice still left in the coldest corner.",src:["achrfd","kolpak"],faults:["term"]}}:{}),
    timer:{n:"Defrost timer",s:lt?"Starts each heater defrost.":"Starts each off-cycle defrost.",
     w:"A 24-hour clock with pins for each defrost (often 4 a day) and a fail-safe time.",
     y:lt?"At a pin it cuts power to the thermostat, solenoid and fans, so the system pumps down, then powers the heaters. The termination thermostat ends defrost at about 55°F; then a short drip time, then cooling with the fans held off until the coil is cold.":"At a pin it closes the solenoid for a set time (about 35 minutes) while the fans keep blowing box air over the coil to melt the frost.",
@@ -1930,7 +1974,8 @@ function mkWalk(lt){
    at(p+"ice","opacity",clamp(S.frost*1.3,0,1).toFixed(2));at(p+"iceTxt","opacity",S.frost>0.6?1:0);
    at(p+"panIce","opacity",clamp(S.panIce*1.5,0,1).toFixed(2));at(p+"dIce","opacity",lt&&F.drainH&&S.panIce>0.05?1:0);
    at(p+"drip","opacity",S.Tcoil>32&&S.frost>0.01&&!(lt&&F.drainH)?(blink(500)?1:0):0);
-   if(lt){at(p+"htr","stroke",S.heatOn?(blink(600)?"#ff5a1f":"#e0662a"):S.heat?"var(--bad)":"var(--lamp-off)");at(p+"dHtr","stroke",F.drainH?"var(--lamp-off)":S.svc?"#e0662a":"var(--lamp-off)")}
+   if(lt){at(p+"htr","stroke",S.heatOn?(blink(600)?"#ff5a1f":"#ff8a3a"):S.heat?"var(--bad)":"#9a6a4a");at(p+"htr","stroke-width",S.heatOn?4.5:3.5);at(p+"dHtr","stroke",F.drainH?"#6b6b6b":S.svc?"#ff7a2a":"#9a6a4a");
+     at(p+"termLamp","fill",S.def===1?"var(--warn)":S.def===3?"#2f6fd6":S.def===2?"var(--warn)":"var(--ok)")}
    const slT=fed?S.sst+S.sh+(lt?15:8):S.Tbox*0.5+75*0.5,llT=run?S.sct-S.sc-2:V.out;
    at(p+"frost","opacity",fed&&slT<32?0.9:0);
    // air
@@ -2053,7 +2098,7 @@ function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=c
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
 function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=""}
-function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));
+function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
   const d=cur.S.dead;$("boom").hidden=!d;if(d){const r=cur.boom(d);$("boomT").textContent=r.t;$("boomB").innerHTML=r.b;if(r.wreck)at(cur.p+"burn","opacity",1)}

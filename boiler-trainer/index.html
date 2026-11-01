@@ -138,15 +138,15 @@ details .group{gap:10px}
 .modalRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .modalCard .note{font-size:12px;color:var(--muted)}
 </style>
-
 <style>.crumb{display:flex;gap:6px;align-items:center;font:600 13px "Barlow Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;color:var(--muted,#5b666d)}.crumb a{color:var(--brass,#9a6f1f);text-decoration:none}.crumb a:hover,.crumb a:focus-visible{text-decoration:underline}</style>
 </head>
 <body>
 <nav class="crumb" aria-label="Breadcrumb"><a href="/">← All trainers</a><span aria-hidden="true">/</span><span>Boiler</span></nav>
 
+
 <div class="wrap">
 <header>
-  <h1>Boiler Trainer</h1>
+  <h1>Boiler Trainer </h1>
   <div class="seg" role="group" aria-label="Simulator">
     <button id="simHyd" aria-pressed="true">Hot water</button>
     <button id="simSteam" aria-pressed="false">Steam</button>
@@ -321,8 +321,8 @@ const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" 
   <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
   <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/><path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1" fill="none"/>
+const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
+  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
 // wall thermostat with an LCD
 const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
@@ -872,8 +872,10 @@ const STEAM_SVG=`<defs>${BZ_DEFS}</defs><line x1="10" y1="452" x2="790" y2="452"
 <g class="part" data-p="ret" tabindex="0">
   <path id="s_retA" d="M760 92 V436 H405 V299 H370" class="pipe" stroke="#6b8fc9"/>
   <path id="s_retB" d="M760 92 V436 H405 V392 H370" class="pipe" stroke="#6b8fc9" opacity="0"/>
+  <path id="s_retA2" d="M760 92 V364 H464 V436 H405 V299 H370" class="pipe" stroke="#6b8fc9" opacity="0"/>
+  <path id="s_retB2" d="M760 92 V364 H464 V436 H405 V392 H370" class="pipe" stroke="#6b8fc9" opacity="0"/>
   <path id="s_fRet" d="M760 92 V436 H405 V299 H370" class="flow"/>
-  <text class="lbl" x="560" y="428">Wet return</text>
+  <text class="lbl" id="s_wetLbl" x="560" y="428">Wet return</text>
   <g id="s_leak" opacity="0"><circle cx="600" cy="446" r="3" fill="var(--cold)"/><circle cx="612" cy="448" r="2" fill="var(--cold)"/><circle cx="590" cy="448" r="2.5" fill="var(--cold)"/><text class="tag" x="600" y="462" text-anchor="middle" fill="var(--bad)">BROKEN</text></g>
 </g>
 <rect x="164" y="128" width="22" height="42" fill="url(#zSteel)" stroke="#5f686d"/>
@@ -889,7 +891,7 @@ const STEAM_SVG=`<defs>${BZ_DEFS}</defs><line x1="10" y1="452" x2="790" y2="452"
   <text class="lbl" x="378" y="266">Hartford loop</text>
   <text class="tag" x="380" y="284" fill="var(--muted)">CLOSE NIPPLE ↓</text>
 </g>
-<g class="part" data-p="mainvent" tabindex="0">
+<g class="part" data-p="mainvent" tabindex="0" id="s_mvG">
   <path d="M748 92 V76" class="pipe" stroke="#9aa3a9" stroke-width="5"/>
   <rect class="hl" x="738" y="52" width="20" height="26" rx="5" fill="url(#zSteel)" stroke="#4d555a" stroke-width="1.2" filter="url(#zShadow)"/>
   <ellipse cx="748" cy="52" rx="10" ry="3" fill="url(#zAluTop)" stroke="#4d555a" stroke-width=".7"/><rect x="745" y="45" width="6" height="7" fill="url(#zSteel)"/>
@@ -902,8 +904,28 @@ const STEAM_SVG=`<defs>${BZ_DEFS}</defs><line x1="10" y1="452" x2="790" y2="452"
   <rect class="hl" id="s_rad1" x="492" y="280" width="74" height="68" rx="5" fill="var(--panel)" stroke="#5a5f57" stroke-width="1.5" filter="url(#zShadow)"/>
   <rect class="hl" id="s_rad2" x="640" y="280" width="74" height="68" rx="5" fill="var(--panel)" stroke="#5a5f57" stroke-width="1.5" filter="url(#zShadow)"/>
   ${[492,640].map(x0=>Array.from({length:6},(_,i)=>`<rect x="${x0+2+i*12}" y="282" width="10" height="64" rx="5" fill="url(#bzRad)" stroke="rgba(0,0,0,.35)" stroke-width=".7"/>`).join("")+`<rect x="${x0+4}" y="348" width="6" height="8" fill="#5a5f57"/><rect x="${x0+64}" y="348" width="6" height="8" fill="#5a5f57"/>`).join("")}
-  ${bzVentCap(567,270,10,13)}${bzVentCap(715,270,10,13)}
+  <g id="s_radVents">${bzVentCap(567,270,10,13)}${bzVentCap(715,270,10,13)}</g>
   <text class="lbl" x="492" y="272">Radiator</text>
+</g>
+<!-- two-pipe parts: supply valves, radiator traps, F&T trap at the end of the main, dry return and its vent -->
+<g id="s_two" opacity="0">
+ <text class="lbl" x="560" y="388">Dry return</text>
+ <text class="tag" x="474" y="430" fill="var(--muted)">WET RETURN</text>
+ ${[480,628].map(x=>`<rect x="${x-6}" y="300" width="12" height="16" rx="2" fill="url(#zBrassH)" stroke="#6a4a12" stroke-width=".8"/><path d="M${x} 300 V292" stroke="#4d555a" stroke-width="2"/><ellipse cx="${x}" cy="291" rx="8" ry="2.6" fill="url(#bzRed)" stroke="#5a1410" stroke-width=".6"/>`).join("")}
+</g>
+<g class="part" data-p="trap" tabindex="0" id="s_trapG" opacity="0">
+ ${[566,714].map((x,i)=>`<path d="M${x} 342 H${x+12} V364" class="pipe" stroke="#6b8fc9" stroke-width="5"/><rect class="hl" x="${x+4}" y="334" width="16" height="16" rx="7" fill="url(#zBrass)" stroke="#6a4a12" stroke-width="1" filter="url(#zShadow)"/><rect x="${x+8}" y="330" width="8" height="5" fill="url(#zBrassH)" stroke="#6a4a12" stroke-width=".6"/><circle id="s_trap${i}" cx="${x+12}" cy="342" r="3" fill="var(--lamp-off)" stroke="#000" stroke-width=".5"/>`).join("")}
+</g>
+<g class="part" data-p="ft" tabindex="0" id="s_ftG" opacity="0">
+ <rect class="hl" x="746" y="296" width="28" height="34" rx="5" fill="url(#zShell)" stroke="#111" stroke-width="1.1" filter="url(#zShadow)"/>
+ <circle id="s_ftLamp" cx="760" cy="313" r="4" fill="var(--lamp-off)" stroke="#000" stroke-width=".5"/>
+ <text class="tag" x="778" y="304" fill="var(--muted)">F&amp;T</text><text class="tag" x="778" y="314" fill="var(--muted)">TRAP</text>
+</g>
+<g class="part" data-p="rvent" tabindex="0" id="s_rvG" opacity="0">
+ <path d="M464 364 V350" class="pipe" stroke="#9aa3a9" stroke-width="4"/>
+ ${bzVentCap(464,336,12,15)}
+ <g id="s_rvPuff" opacity="0" fill="var(--paper)" stroke="var(--muted)"><circle cx="464" cy="326" r="4"/><circle cx="472" cy="318" r="3"/></g>
+ <text class="tag" x="456" y="333" text-anchor="end" fill="var(--muted)">VENT</text>
 </g>
 <g class="part" data-p="tstat" tabindex="0">
   <rect class="hl" x="725" y="172" width="44" height="44" fill="transparent" stroke="none"/>
@@ -1179,7 +1201,7 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   {k:"sv",l:"Safety valve setting",u:" psi",min:5,max:100,step:1,v:15,n:[15,15],note:"Low pressure steam: 15 psi",more:1}],
  faults:[["lwco1Fail","Primary LWCO float stuck (won't trip)"],["lwco2Fail","Secondary LWCO fails"],["feedFail","Feeder fails (no makeup water)"],["feedStuck","Feeder stuck open (floods boiler)"],
   ["returnLeak","Wet return broken"],["pigtail","Pigtail plugged (gauge and pressuretrol)"],["ptStuck","Pressuretrol contacts stuck closed"],["hlFail","High-limit pressuretrol fails closed"],
-  ["mainVent","Main vent stuck shut"],["radVent","Radiator vents stuck shut"],["glassShut","Gauge glass valves shut"],["gasStuck","Gas valve stuck open"],["svStuck","Safety valve stuck shut"],["flameRod","Dirty flame rod"]],
+  ["mainVent","Main vent stuck shut"],["radVent","Radiator vents stuck shut"],["trapOpen","Radiator trap failed open (blowing steam)"],["trapShut","Radiator traps failed shut"],["ftFail","F&T trap stuck shut"],["glassShut","Gauge glass valves shut"],["gasStuck","Gas valve stuck open"],["svStuck","Safety valve stuck shut"],["flameRod","Dirty flame rod"]],
  hidden:["lwco1Fail","lwco2Fail","hlFail","svStuck","feedFail","glassShut"],
  scenarios:[{l:"Overpressure: gas valve stuck open, safety valve stuck shut",f:["gasStuck","svStuck"]},{l:"Dry fire: wet return broken, both LWCOs and feeder fail",f:["returnLeak","lwco1Fail","lwco2Fail","feedFail"]}],
  parts:{
@@ -1194,14 +1216,18 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   feeder:{n:"Automatic water feeder",s:"Adds water when the level drops.",w:"A valve that adds water when the level drops to its feed point, just above the cutoff. Its outlet is piped into the wet return below the Hartford loop's close nipple, so cold makeup water mixes with returning condensate instead of hitting hot sections directly.",y:"Makes up water lost to leaks and venting. In a tight system it should hardly run.",f:"Fails shut: no makeup, the level keeps falling. Stuck open: the boiler floods, water gets into the steam main, and you get water hammer and wet steam.",src:["mm67"],faults:["feedFail","feedStuck"]},
   sv:{n:"Safety valve",s:"Pops at 15 psi and vents steam.",w:"An ASME V-rated valve that pops at its set pressure (15 psi on a low pressure steam boiler) and vents steam.",y:"The last line of protection against overpressure. Spindle vertical; discharge piped near the floor, rated for the heat, never plugged or valved.",f:"Stuck shut, nothing limits the pressure if the controls or gas valve fail.",src:["oep","md","wm"],faults:["svStuck"]},
   hartford:{n:"Hartford loop",s:"Keeps a broken return from draining the boiler.",w:"The equalizer drops from the header back into the bottom of the boiler. The wet return joins it through a close nipple about 2 in. below the lowest water line, above the crown sheet.",y:"Balances pressure between the steam side and the return so water stays in the boiler.",f:"If the wet return breaks, the boiler can only drain down to the close nipple, which leaves the crown sheet covered. Remove the loop (switch in Controls) and a broken return can drain the boiler dry. It backs up the LWCO; it doesn't replace it.",src:["hh"],faults:["returnLeak"]},
-  ret:{n:"Wet return",s:"Brings condensate back to the boiler.",w:"The return pipe below the boiler water line. It is always full of water, and condensate flows back to the boiler through it.",y:"Closes the loop: the water that left as steam comes back here.",f:"A break can drain the boiler unless a Hartford loop is in place.",src:["hh"],faults:["returnLeak"]},
+  trap:{n:"Radiator steam trap (thermostatic)",s:"Lets air and condensate out of a two-pipe radiator, holds steam in.",w:"A small thermostatic trap on the radiator's outlet, at the bottom on the far end from the supply valve. Its bellows or disc is open when cool, so air and water drain into the dry return, and closes when steam reaches it.",y:"Keeps steam in the radiator until it condenses. On a two-pipe system the radiators have no air vents: the air leaves through the traps into the dry return and out the return vent.",f:"Failed open (the common failure): steam blows into the dry return, heats it, and causes water hammer and uneven heat. Failed shut: the radiator fills with water and air and stays cold at the bottom.",src:["hh","vent"],faults:["trapOpen","trapShut"]},
+  ft:{n:"F&amp;T trap (end of main)",s:"Drains the end of the steam main into the dry return.",w:"A float and thermostatic trap: the float drains condensate, and a thermostatic element vents air. Installed where the main drips into the return.",y:"Drains the water that forms in the main and lets the main's air out, while keeping steam out of the return.",f:"Stuck shut: the main can't drain or vent, steam arrives slowly and water builds up in the main (water hammer).",src:["hh"],faults:["ftFail"]},
+  rvent:{n:"Return vent",s:"Lets air out of the dry return on a two-pipe gravity system.",w:"An air vent at the top of the dry return, just before it drops below the water line into the wet return.",y:"All the air pushed through the traps leaves here, so steam can fill the main and radiators.",f:"Spitting steam means a trap upstream has failed open.",src:["vent"],faults:[]},
+  ret:{n:"Returns (dry and wet)",s:"Bring condensate back to the boiler.",w:"The wet return runs below the boiler water line and is always full of water. On a two-pipe system the traps drain into a dry return above the water line, which drops into the wet return near the boiler.",y:"Closes the loop: the water that left as steam comes back here.",f:"A break can drain the boiler unless a Hartford loop is in place.",src:["hh"],faults:["returnLeak"]},
   mainvent:{n:"Main vent",s:"Lets air out of the main so steam can get in.",w:"A large air vent at the end of the steam main, after the last radiator. It lets air out fast while the system fills, then closes when steam reaches it.",y:"Steam can only move into space the air has left. Good main venting gets steam to the radiators sooner.",f:"Stuck shut: air stays trapped, steam reaches the radiators slowly, pressure builds early and the pressuretrol short-cycles the burner while rooms stay cold. Some small systems skip the main vent and rely on the radiator vents alone, but a main vent is standard on residential one-pipe steam. Two-pipe systems are different: the end of each main drains through a float and thermostatic (F&amp;T) trap into the return, and air leaves through vents on the dry return. That trap comes later with a two-pipe steam sim.",src:["vent"],faults:["mainVent"]},
-  rad:{n:"Radiators and vents",s:"Where steam gives up its heat.",w:"Cast-iron radiators. Steam enters, gives up its heat and condenses; on a one-pipe system the water runs back out the same pipe. Each vent lets air out and closes when steam arrives.",y:"The radiators heat the room. The water they make returns to the boiler.",f:"Stuck vents keep the radiators from filling with steam, so they stay cool.",src:["vent"],faults:["radVent"]},
+  rad:{n:"Radiators",s:"Where steam gives up its heat.",w:"Cast-iron radiators. Steam enters, gives up its heat and condenses. One-pipe: the water runs back out the same pipe, and an air vent on each radiator lets the air out. Two-pipe: steam enters through a supply valve and the water and air leave through a trap into the dry return.",y:"The radiators heat the room. The water they make returns to the boiler.",f:"Stuck vents keep the radiators from filling with steam, so they stay cool.",src:["vent"],faults:["radVent"]},
   burner:BURNER, gas:GAS, tstat:TSTAT, room:ROOM},
- init(){return Object.assign(baseState(),{Tw:195,P:0,fs:0,L:0.6,Troom:66,ptOpen:false,hlTrip:false,lw2Trip:false,low1:false,blow:0,feedValve:true,hartford:true,queue:[],pFrozen:0,glassFrozen:0.6,m:0,venting:false,relief:false,feeding:false,flood:false,off:0,puff:null})},
+ init(){return Object.assign(baseState(),{two:true,Tw:195,P:0,fs:0,L:0.6,Troom:66,ptOpen:false,hlTrip:false,lw2Trip:false,low1:false,blow:0,feedValve:true,hartford:true,queue:[],pFrozen:0,glassFrozen:0.6,m:0,venting:false,relief:false,feeding:false,flood:false,off:0,puff:null})},
  switches:[
   {l:S=>`Service switch: ${S.svc?"on":"off"}`,on:S=>S.svc,act(sim){sim.S.svc=!sim.S.svc;log(sim,`Service switch ${sim.S.svc?"on":"off"}.`)}},
   {l:S=>`Feeder supply: ${S.feedValve?"open":"shut"}`,on:S=>S.feedValve,act(sim){sim.S.feedValve=!sim.S.feedValve;log(sim,`Feeder supply valve ${sim.S.feedValve?"opened":"shut"}.`)}},
+  {l:S=>`Piping: ${S.two?"two-pipe (traps)":"one-pipe"}`,on:S=>S.two,act(sim){sim.S.two=!sim.S.two;log(sim,sim.S.two?"Two-pipe system: steam in one pipe, condensate out through a trap on each radiator into a dry return. Air leaves through the traps and the return vent.":"One-pipe system: steam and condensate share one pipe. Each radiator and the main have air vents; no traps.")}},
   {l:S=>`Hartford loop: ${S.hartford?"installed":"removed"}`,on:S=>S.hartford,act(sim){sim.S.hartford=!sim.S.hartford;log(sim,sim.S.hartford?"Hartford loop installed.":"Hartford loop removed. The wet return now enters at the bottom of the boiler.","w")}}],
  actions:[
   {id:"blow",l:"Blow down LWCO",show:S=>!S.dead,act(sim){const S=sim.S;S.blow=10;S.blowFailLogged=false;log(sim,S.flame?"Blowing down the LWCO with the burner on.":"Blowing down the LWCO. (Do it with the burner on to prove it shuts the burner off.)")}},
@@ -1209,6 +1235,7 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   {id:"tcMid",l:"Try cock: middle",show:S=>!S.dead,act(sim){sim.tryCock(0.6,"middle")}},
   {id:"tcBot",l:"Try cock: bottom",show:S=>!S.dead,act(sim){sim.tryCock(0.45,"bottom")}},
   {id:"addWater",l:"Add cold water now",cls:"blue",show:S=>S.dry&&!S.dead,act(sim){log(sim,"Makeup water turned back on.","w");sim.S.feedValve=true;setFault(sim,"feedFail",false)}}],
+ na(k){return this.S.two?["radVent","mainVent"].includes(k):["trapOpen","trapShut","ftFail"].includes(k)},
  tryCock(lv,name){const S=this.S;const out=S.L>lv?(S.Tw>=211?"water, flashing as it leaves":"water"):(S.Tw>=211?"steam":"air: the boiler isn't steaming yet");
   S.puff={y:lvY(lv),water:S.L>lv,until:S.t+6};log(this,`${name[0].toUpperCase()+name.slice(1)} try cock: ${out}.`+(this.F.glassShut&&Math.abs(S.glassFrozen-S.L)>0.05?" That doesn't match the gauge glass.":""),this.F.glassShut&&Math.abs(S.glassFrozen-S.L)>0.05?"w":"")},
  resets(S){const r=[];
@@ -1243,11 +1270,13 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   else{S.Tw=Ts;m=Math.max(0,qin*wet-sb)/970;if(qin===0)S.Tw-=sb/C*dt}
   if(m>0&&!S.boiling)log(sim,"Water is boiling. Steam is pushing air out of the main.");
   S.boiling=m>0;S.m=m;
-  const qrad=c.UAR*S.fs*Math.max(0,Ts-S.Troom)*(S.flood?0.5:1)*(F.radVent?0.5:1);
-  const cond=qrad/970+0.0004*S.fs;
+  const two=S.two,rv=!two&&F.radVent,tS=two&&F.trapShut,tO=two&&F.trapOpen,ftS=two&&F.ftFail;
+  const qrad=c.UAR*S.fs*Math.max(0,Ts-S.Troom)*(S.flood?0.5:1)*(rv?0.5:1)*(tS?0.35:1);
+  const cond=qrad/970+0.0004*S.fs+(tO?0.0035*S.fs:0);S.trapBlow=tO&&S.fs>0.7;
   let left=m;S.venting=false;
-  if(S.fs<1&&m>0){const vent=(F.mainVent?1/2400:1/200)*(F.radVent?0.6:1);const dF=Math.min(m*dt/c.MS,vent*dt,1-S.fs);S.fs+=dF;left=m-dF*c.MS/dt;S.venting=dF>0;S.queue.push([S.t+c.DELAY,dF*c.MS/8.33])}
-  if(S.fs>=0.999&&!S.filled){S.filled=true;log(sim,"Steam reached the main vent. The system is full of steam.")}
+  if(S.fs<1&&m>0){const vent=two?(1/200)*(tS?0.4:1)*(ftS?0.5:1):(F.mainVent?1/2400:1/200)*(rv?0.6:1);const dF=Math.min(m*dt/c.MS,vent*dt,1-S.fs);S.fs+=dF;left=m-dF*c.MS/dt;S.venting=dF>0;S.queue.push([S.t+c.DELAY,dF*c.MS/8.33])}
+  if(S.fs>=0.999&&!S.filled){S.filled=true;log(sim,two?"Steam reached the end of the main and every radiator. The traps closed on steam.":"Steam reached the main vent. The system is full of steam.")}
+  if(S.trapBlow&&!S.trapBlowLog){S.trapBlowLog=true;log(sim,"A radiator trap is blowing steam into the dry return. The return pipe is hot and the return vent spits steam; expect water hammer in the return.","w")}if(!S.trapBlow)S.trapBlowLog=false;
   if(S.fs<0.9)S.filled=false;
   S.P+=(left-cond)*c.KP*dt;
   if(S.P<0){S.fs=Math.max(0,S.fs+S.P/c.KP/c.MS);S.P=0}
@@ -1295,12 +1324,19 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   const steamCol=tcol(Ts+20),airCol="var(--line)";
   at(p+"mainSteam","stroke-dasharray",`${(S.fs*100).toFixed(2)} 100`);at(p+"mainSteam","stroke",steamCol);
   at(p+"header","stroke",S.boiling||S.P>0?steamCol:airCol);
-  ["rad1","rad2"].forEach(r=>at(p+r,"fill",S.fs>0.75?tcol(lerp(S.Troom,Ts,clamp((S.fs-.75)*4,0,1))*(F.radVent?0.85:1)):"var(--panel)"));
+  const two=S.two;["rad1","rad2"].forEach(r=>at(p+r,"fill",S.fs>0.75?tcol(lerp(S.Troom,Ts,clamp((S.fs-.75)*4,0,1))*((two?F.trapShut:F.radVent)?0.85:1)):"var(--panel)"));
+  ["two","trapG","ftG","rvG"].forEach(k=>at(p+k,"opacity",two?1:0));at(p+"radVents","opacity",two?0:1);at(p+"mvG","opacity",two?0:1);
+  at(p+"retA","opacity",!two&&S.hartford?1:0);at(p+"retB","opacity",!two&&!S.hartford?1:0);at(p+"retA2","opacity",two&&S.hartford?1:0);at(p+"retB2","opacity",two&&!S.hartford?1:0);
+  {const fr=$(p+"fRet");if(fr)fr.setAttribute("d",(two?"M760 92 V364 H464 V436 H405 ":"M760 92 V436 H405 ")+(S.hartford?"V299 H370":"V392 H370"))}
+  at(p+"wetLbl","opacity",two?0:1);
+  [0,1].forEach(i=>at(p+"trap"+i,"fill",F.trapShut?"var(--bad)":F.trapOpen&&i===1?(blink(200)?"#ff5a3a":"var(--warn)"):S.back>0?"var(--cold)":"var(--lamp-off)"));
+  at(p+"ftLamp","fill",F.ftFail?"var(--bad)":S.back>0?"var(--cold)":"var(--lamp-off)");
+  at(p+"rvPuff","opacity",two&&(S.venting||S.trapBlow)?(blink(250)?1:.3):0);
+  if(two){const rc=S.trapBlow?tcol(Ts):"#6b8fc9";["retA2","retB2"].forEach(k=>at(p+k,"stroke",rc))}
   at(p+"ventPuff","opacity",S.venting&&!F.mainVent?(blink(250)?1:.3):0);
   at(p+"svPuff","opacity",S.relief?(blink(120)?1:.4):0);at(p+"svLever","y",S.relief?110:116);
   S.off-=dt*(S.back>0?25:0);const fr=$(p+"fRet");if(fr){fr.style.strokeDashoffset=S.off;fr.style.opacity=S.back>0&&!F.returnLeak?1:0}
   at(p+"leak","opacity",F.returnLeak?(blink(300)?1:.5):0);
-  at(p+"retA","opacity",S.hartford?1:0);at(p+"retB","opacity",S.hartford?0:1);
   at(p+"feedX","opacity",S.feedValve&&!F.feedFail?0:1);
   const pg=F.pigtail?S.pFrozen:S.P;const ang=(-135+Math.min(30,pg)/30*270)*Math.PI/180;
   at(p+"needle","x2",262+12*Math.sin(ang));at(p+"needle","y2",108-12*Math.cos(ang));txt(p+"gP",`${pg.toFixed(1)} psi`);
@@ -1424,7 +1460,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("button,.part");i
   if(t.dataset.part){openPart(t.dataset.part);return}
   if(t.dataset.tab){showTab(t.dataset.tab);return}
   switch(t.id){
-    case "mystery":{cur.faults.forEach(f=>setFault(cur,f[0],false,true));const pool=cur.faults.filter(f=>!cur.hidden.includes(f[0]));cur.mystery=pool[Math.floor(Math.random()*pool.length)];cur.revealed=null;setFault(cur,cur.mystery[0],true,true);log(cur,"Mystery fault started.","w");syncFaults();break}
+    case "mystery":{cur.faults.forEach(f=>setFault(cur,f[0],false,true));const pool=cur.faults.filter(f=>!cur.hidden.includes(f[0])&&!(cur.na&&cur.na(f[0])));cur.mystery=pool[Math.floor(Math.random()*pool.length)];cur.revealed=null;setFault(cur,cur.mystery[0],true,true);log(cur,"Mystery fault started.","w");syncFaults();break}
     case "reveal":if(cur.mystery){log(cur,`The fault was: ${cur.mystery[1]}.`,"w");cur.revealed=cur.mystery[1];cur.mystery=null;syncFaults()}break;
     case "clearF":cur.mystery=null;cur.revealed=null;cur.faults.forEach(f=>setFault(cur,f[0],false));syncFaults();break;
     case "run":if(cur.S.dead)break;running=!running;t.textContent=running?"Pause":"Run";break;
