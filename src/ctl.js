@@ -60,7 +60,7 @@ function mechSvg(p,el){
   <text class="zt lbx" x="${x-6}" y="336" text-anchor="end">${lbl}</text></g>`;
  return `
 <!-- duct -->
-<rect x="206" y="236" width="434" height="80" fill="#cdd3d7" stroke="#6f787e" stroke-width="1.5"/><rect x="206" y="236" width="434" height="6" fill="#e6eaec"/><rect x="206" y="310" width="434" height="6" fill="#aab2b7"/>
+<path d="M206 236 L218 228 H652 L640 236 Z" fill="url(#r_galvT)"/><path d="M640 236 L652 228 V308 L640 316 Z" fill="url(#r_galvS)"/><rect x="206" y="236" width="434" height="80" fill="#cdd3d7" stroke="#6f787e" stroke-width="1.5"/><rect x="206" y="236" width="434" height="6" fill="#e6eaec"/><rect x="206" y="310" width="434" height="6" fill="#aab2b7"/>
 <rect x="600" y="196" width="40" height="44" fill="#cdd3d7" stroke="#6f787e" stroke-width="1.5"/><rect x="601" y="236" width="38" height="8" fill="#cdd3d7"/>
 <rect x="248" y="242" width="12" height="68" fill="url(#zPleat)" stroke="#8a8170"/>
 <path id="${p}a1" class="zFlow" d="M216 276 H322" stroke="#888" opacity="0"/><path id="${p}a2" class="zFlow" d="M356 276 H422" stroke="#888" opacity="0"/><path id="${p}a3" class="zFlow" d="M456 276 H592 Q620 276 620 248 V206" stroke="#888" opacity="0"/>
