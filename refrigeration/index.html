@@ -920,7 +920,7 @@ cch:{s:(()=>`${rSh(170,236,90,8)}${rCylV(170,40,210,64,"black",{ry:14})}<path d=
  <path d="M106 176 A64 14 0 0 0 234 176 V192 A64 14 0 0 1 106 192 Z" fill="url(#r_alH)"/>${Array.from({length:12},(_,k)=>`<line x1="${112+k*10}" y1="${180+Math.sin(k)*1}" x2="${112+k*10}" y2="${196}" stroke="#7d868c"/>`).join("")}
  ${rWire("M234 184 C270 184 290 160 340 150","#2a2f33")}
  ${rL(150,190,60,226,6,238,"Belly-band heater")}${rL(300,160,300,226,336,238,"On in the off cycle","end")}${RT(6,100,"Keeps refrigerant")}${RT(6,113,"out of the oil")}`)()},
-door:{s:(()=>`${rSh(170,240,120,6)}${rBox(60,20,220,220,10,"white",{r:2})}<rect x="72" y="32" width="196" height="196" fill="url(#r_whiteF)"/>
+"cooler:door":{s:(()=>`${rSh(170,240,120,6)}${rBox(60,20,220,220,10,"white",{r:2})}<rect x="72" y="32" width="196" height="196" fill="url(#r_whiteF)"/>
  <rect x="72" y="32" width="196" height="196" fill="none" stroke="#3a3f43" stroke-width="7"/>${rBox(232,110,24,50,10,"chrome",{r:3})}${[50,190].map(y=>rBox(62,y,14,26,6,"chrome",{r:2})).join("")}
  <circle cx="170" cy="130" r="0"/>${rCut("M268 60 H300 V120 H268 Z")}${rClip("rq_g",`M268 60 H300 V120 H268 Z`,`<rect x="268" y="60" width="32" height="60" fill="#e9eef0"/><rect x="272" y="64" width="14" height="52" rx="5" fill="#2a2f33"/><rect x="276" y="76" width="6" height="28" fill="#6b7a86"/><rect x="288" y="64" width="8" height="52" fill="#c0281c" opacity=".5"/>`)}
  ${rL(276,90,300,20,336,14,"Gasket with magnet","end")}${rL(292,110,310,160,336,170,"Heater wire (freezer)","end")}${rL(244,136,200,236,336,244,"Latch and handle","end")}${rL(70,200,30,230,6,240,"Hinges")}`)()},
@@ -940,6 +940,182 @@ RILL["cooler:tstat"]=RILL["freezer:tstat"]={s:(()=>`${rSh(170,224,80,6)}<rect x=
  <rect x="164" y="64" width="12" height="72" rx="5" fill="url(#r_blackV)" transform="rotate(-40 170 100)"/><circle cx="170" cy="100" r="6" fill="url(#r_chromeV)"/>
  ${rHose("M170 210 C170 240 260 230 300 180 V60","#b8693a",1.6)}${rCylV(300,40,80,5,"cu",{ry:1.6})}
  ${rL(170,100,60,40,6,36,"Set point dial")}${rL(300,60,300,20,336,14,"Remote bulb in the box air","end")}${rL(200,190,262,210,336,222,"Switches the liquid solenoid","end")}`)()};
+/* shared art pieces reused by several cards */
+const rArtGasValve=()=>GVART;
+const GVART=`${rCylH(0,92,150,9,"iron")}${rThrH(82,92,150,9)}${rCylH(256,340,150,9,"iron")}${rHexH(254,150,10,13,"al")}
+ ${rBox(90,110,150,70,40,"al",{r:6,grain:true})}${rBox(100,84,70,22,24,"black",{r:3})}
+ ${rWire("M116 0 C114 40 118 70 118 90","#f2f2ee")}${rWire("M134 0 C138 40 132 70 132 90","#c0281c")}
+ ${rCylV(198,92,104,12,"red",{ry:4})}<rect x="186" y="90.5" width="24" height="3" rx="1.5" fill="#7e160d"/>
+ ${rHexV(228,98,6,8,"al")}${rCylV(228,86,99,6.5,"black",{ry:2.2})}
+ <circle cx="104" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M101.5 168 h5" stroke="#4c3407" stroke-width="1.1"/><circle cx="224" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M221.5 168 h5" stroke="#4c3407" stroke-width="1.1"/>`;
+/* printed circuit board */
+const rPcb=(x,y,w,h)=>`${rBox(x,y,w,h,6,"blue",{r:3})}<rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h-6}" rx="2" fill="#1f6b3a"/>${Array.from({length:Math.floor(w/12)},(_,k)=>`<path d="M${x+8+k*12} ${y+8} V${y+h-8}" stroke="#2e8a50" stroke-width=".8" opacity=".6"/>`).join("")}`;
+Object.assign(RILL,{
+"furnace:board":{s:(()=>`${rSh(170,226,130,6)}${rPcb(50,40,240,170)}
+ ${rBox(80,60,46,34,10,"black",{r:2})}${rBox(140,60,46,34,10,"black",{r:2})}${rBox(214,64,50,30,8,"white",{r:2})}
+ ${Array.from({length:7},(_,k)=>`<rect x="${70+k*18}" y="170" width="12" height="16" fill="#e8e8e2"/>${rTermS(76+k*18,178)}<text x="${76+k*18}" y="198" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#e9f5ec">${["R","W","Y","G","C","",""][k]}</text>`).join("")}
+ <circle cx="248" cy="130" r="5" fill="#d0312d"/><circle cx="248" cy="130" r="5" fill="url(#rGlass)"/><rect x="200" y="146" width="16" height="10" fill="#e8c33a"/>
+ ${rL(103,74,60,24,6,20,"Relays: inducer, igniter, blower")}${rL(250,134,300,160,336,170,"LED: flash codes","end")}${rL(208,150,300,214,336,226,"3 A fuse","end")}${rL(130,178,90,232,6,244,"Thermostat terminals")}`)()},
+inducer:{s:(()=>`${rSh(170,226,120,6)}
+ <path d="M80 160 C80 90 130 66 180 70 C240 74 270 110 270 150 V200 H220 V176 C210 196 190 210 170 210 C120 210 80 196 80 160 Z" fill="url(#r_galvV)" filter="url(#rGrain)"/>
+ ${rCylV(176,40,128,30,"black",{ry:8})}<rect x="150" y="68" width="50" height="22" rx="2" fill="#e9e6da"/>${rCylV(244,210,250,12,"white",{top:false})}${rBand(232,214,13,24,"white")}
+ ${rArr("M120 140 Q150 150 180 140","#e0662a")}${rArr("M244 210 V246","#e0662a")}
+ ${rL(176,80,100,40,6,36,"Motor pulls flue gas through")}${rL(110,180,60,226,6,238,"Housing (blower wheel inside)")}${rL(250,226,290,226,336,214,"To the vent","end")}${rL(220,110,280,90,336,86,"Pressure tap","end")}`)()},
+ps:{s:(()=>`${rSh(170,214,90,6)}${rBox(110,60,120,120,20,"black",{r:60})}<circle cx="170" cy="120" r="44" fill="url(#r_blackV)"/><circle cx="170" cy="120" r="30" fill="#26292c"/>
+ ${rCylH(230,280,120,5,"white")}${rHose("M280 120 C320 120 320 60 340 40","#cfe3ea",4)}${[150,170,190].map(x=>`<rect x="${x-4}" y="166" width="8" height="18" fill="url(#r_chromeV)"/>`).join("")}
+ ${rL(170,120,60,40,6,36,"Diaphragm senses the inducer's suction")}${rL(260,120,280,180,336,190,"Hose to the inducer tap","end")}${rL(170,182,120,226,6,238,"Normally open; closes on draft")}`)()},
+igniter:{only:["furnace"],s:(()=>`${rSh(170,214,120,6)}${rBox(70,110,70,40,14,"white",{r:4})}
+ <path d="M140 118 H290 Q300 118 300 128 V132 Q300 142 290 142 H140 Z" fill="#7a7e80"/><path d="M180 122 H290 V138 H180 Z" fill="#ff8a3a"/><path d="M180 122 H290 V126 H180 Z" fill="#ffd0a0"/>
+ ${rWire("M70 124 C40 124 30 160 0 170","#f2f2ee")}${rWire("M70 136 C44 136 36 180 0 190","#f2f2ee")}
+ ${rL(240,130,240,70,336,64,"Silicon nitride: glows at about 2,500°F","end")}${rL(100,130,60,80,6,76,"Ceramic base")}${RT(6,236,"Never touch the element: skin oil cracks it")}`)()},
+fsensor:{s:(()=>`${rSh(170,214,120,6)}${rBox(60,110,60,40,10,"white",{r:4})}<path d="M120 126 H230 Q260 126 270 96" fill="none" stroke="#7d868c" stroke-width="5"/><path d="M120 126 H230 Q260 126 270 96" fill="none" stroke="url(#r_chromeH)" stroke-width="3.6"/>
+ ${rFlameC(276,120,70,18)}${rWire("M60 130 C30 130 20 170 0 180","#2f6fd6")}
+ ${rL(250,118,200,70,6,66,"Rod sits in the flame")}${rL(276,90,300,40,336,36,"Flame conducts a µA signal","end")}${RT(6,236,"Dirty rod: clean with fine abrasive pad")}`)()},
+"furnace:gv":{s:GVART+`${rL(134,30,80,30,6,34,"24 V wires")}${rL(206,92,262,70,336,66,"Gas knob","end")}${rL(228,86,262,44,336,40,"Regulator cap: 3.5 in. w.c.","end")}${rL(104,168,60,232,6,240,"Inlet tap")}${rL(224,168,270,226,336,238,"Outlet (manifold) tap","end")}`},
+"furnace:burners":{s:(()=>`${rSh(170,214,130,6)}${rCylV(170,40,52,0,"al")}${[60,110,160,210].map(y=>"").join("")}
+ ${[0,1,2,3].map(k=>{const y=60+k*36;return `${rCylH(80,230,y,12,"al",{end:true})}<ellipse cx="80" cy="${y}" rx="4" ry="12" fill="url(#r_alV)"/>${rFlameC(260,y+6,0,0)}<path d="M232 ${y-8} Q300 ${y} 232 ${y+8} Z" fill="url(#rFlame)" opacity=".9"/><path d="M232 ${y-4} Q262 ${y} 232 ${y+4} Z" fill="#bfe1ff"/>${rHexH(60,y,12,5,"brass")}`}).join("")}${rCylV(52,40,200,6,"al",{top:false})}
+ ${rL(150,60,150,24,6,20,"In-shot burners fire sideways")}${rL(60,96,30,220,6,232,"Manifold + orifices")}${RT(336,244,"Flames go into the heat exchanger","end")}`)()},
+"furnace:hx":{s:(()=>`${rSh(170,236,120,6)}${[0,1,2,3].map(k=>{const x=70+k*52;return `<path d="M${x} 220 V80 Q${x} 50 ${x+22} 44 Q${x+44} 50 ${x+44} 80 V220 Z" fill="url(#r_paintV)" filter="url(#rGrain)"/><path d="M${x+10} 210 V80" stroke="#fff" stroke-opacity=".2" stroke-width="4"/>${rArr(`M${x+22} 210 C${x+30} 160 ${x+14} 120 ${x+22} 70`,"#e0662a")}`}).join("")}
+ ${rArr("M30 230 V90","#2f6fd6")}${rArr("M310 230 V90","#2f6fd6")}
+ ${rL(92,150,40,40,6,30,"Flue gas inside the clamshells")}${rL(310,150,320,40,336,30,"Room air outside","end")}${RT(170,248,"A crack lets flue gas into the house air","middle")}`)()},
+hx2:{s:(()=>`${rSh(170,232,130,6)}${rBox(50,50,240,150,30,"cab",{r:3})}${rFins(62,62,216,126,2.4)}${Array.from({length:8},(_,k)=>`<path d="M62 ${74+k*15} H278" stroke="#7a8a96" stroke-width="3" opacity=".5"/>`).join("")}
+ ${rCylV(270,200,246,6,"white",{top:false})}<path d="M266 222 q4 6 0 12" stroke="#5aa0ff" stroke-width="2" fill="none"/>
+ ${rL(150,110,80,20,6,16,"Stainless tubes and fins")}${rL(270,226,300,230,336,240,"Condensate drains out","end")}${RT(6,244,"Pulls latent heat: 90%+ furnaces")}`)()},
+trap:{s:(()=>`${rSh(170,232,110,6)}<path d="M120 40 V150 Q120 200 170 200 Q220 200 220 150 V90 H300" fill="none" stroke="#bcbfb8" stroke-width="30"/><path d="M120 40 V150 Q120 200 170 200 Q220 200 220 150 V90 H300" fill="none" stroke="url(#r_whiteV)" stroke-width="26"/>
+ <path d="M120 150 Q120 196 170 196 Q216 196 216 150" fill="none" stroke="#5aa0ff" stroke-width="18" opacity=".6"/>
+ ${rL(120,60,60,40,6,36,"From the secondary HX")}${rL(170,196,100,230,6,240,"Water seal blocks flue gas")}${rL(280,90,300,140,336,150,"To a drain or pump","end")}`)()},
+limit:{s:(()=>`${rSh(170,214,110,6)}${rBox(90,100,150,40,8,"galv",{r:2})}${rBox(130,70,70,40,8,"white",{r:20})}<circle cx="165" cy="90" r="12" fill="url(#r_alV)"/>${rCylH(240,320,120,4,"chrome")}
+ ${rWire("M140 70 C120 40 80 30 0 30","#c0281c")}${rWire("M190 70 C210 40 250 30 340 30","#c0281c")}
+ ${rL(165,90,60,80,6,76,"Bimetal disc")}${rL(290,120,300,170,336,180,"Senses supply air near the HX","end")}${RT(6,236,"Opens on overheat: dirty filter, slow blower")}`)()},
+rollout:{s:(()=>`${rSh(170,214,90,6)}${rBox(120,90,100,60,10,"white",{r:24})}<circle cx="170" cy="120" r="18" fill="url(#r_alV)"/><rect x="200" y="96" width="20" height="14" rx="3" fill="url(#r_redV)"/>
+ ${rFlameC(80,200,60,16,true)}${rArr("M96 170 Q120 150 140 140","#e0662a")}
+ ${rL(210,100,280,60,336,56,"Manual reset button","end")}${rL(170,120,250,180,336,190,"Trips on flame rolling out","end")}${RT(6,24,"Reset only after finding why")}`)()},
+bcap:{s:(()=>`${rSh(170,214,60,6)}${rCylV(170,60,200,40,"al",{ry:10})}${[150,190].map(x=>`<rect x="${x-4}" y="44" width="8" height="18" fill="url(#r_chromeV)"/>`).join("")}<rect x="132" y="110" width="76" height="40" fill="#f4f1ea"/><text x="170" y="130" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="700" fill="#333">7.5 µF</text><text x="170" y="144" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" fill="#333">370 VAC</text>
+ ${rL(150,50,80,30,6,26,"Two terminals")}${rL(208,130,270,130,336,126,"Match µF and voltage","end")}${RT(6,236,"Weak cap: slow, hot blower motor")}`)()},
+flue:{s:(()=>`${rSh(170,226,140,6)}${rCylV(90,30,222,18,"galv",{top:true})}${[90,150,210].map(y=>`<path d="M72 ${y} H108" stroke="#000" stroke-opacity=".2" stroke-width="2"/>`).join("")}
+ ${rCylV(240,30,222,16,"white",{top:true})}${[80,160].map(y=>`<rect x="222" y="${y}" width="36" height="12" rx="3" fill="url(#r_whiteV)"/>`).join("")}
+ ${rArr("M90 208 V50","#e0662a")}${rArr("M240 208 V50","#9aa3a9")}
+ ${RT(90,20,"80%: B-vent","middle")}${RT(240,20,"90%+: PVC","middle")}${RT(170,246,"Hot, dry flue vs cool, wet flue","middle")}`)()},
+gasline:{s:(()=>`${rSh(170,232,120,6)}${rCylV(80,0,120,7,"iron",{top:false})}${rCylH(80,180,126,13,"iron",{grain:true})}${rCylV(80,112,140,13,"iron",{top:false,grain:true})}${rCylV(80,140,200,7,"iron",{top:false})}${rCylV(80,198,214,10,"iron")}
+ ${rCylH(94,140,126,7,"iron")}${rBox(140,110,26,32,10,"brass",{r:3})}<rect x="146" y="98" width="40" height="6" rx="2" fill="url(#r_yelH)"/>${rFlex("M166 126 C220 126 220 180 290 180")}
+ ${rL(80,60,40,40,6,36,"Gas drop")}${rL(80,206,40,230,6,240,"Sediment trap")}${rL(160,100,220,60,226,56,"Shutoff")}${rL(260,178,300,210,336,220,"To the furnace gas valve","end")}`)()},
+door:{only:["furnace"],s:(()=>`${rSh(170,232,120,6)}${rBox(70,30,150,190,20,"cab",{r:2})}<rect x="80" y="40" width="130" height="170" fill="none" stroke="#8a9094"/>${rBox(220,100,30,40,8,"white",{r:3})}<rect x="208" y="112" width="14" height="14" rx="2" fill="url(#r_whiteV)"/>
+ ${rWire("M250 106 C290 100 300 80 340 70","#2a2f33")}${rWire("M250 130 C290 140 300 160 340 170","#2a2f33")}
+ ${rL(215,118,260,30,336,26,"Plunger switch","end")}${RT(6,240,"Door off = 120 V off to the furnace")}`)()},
+coalarm:{s:(()=>RILL.coal?RILL.coal.s:"")()},
+});
+RILL.coal={s:`${rSh(170,214,80,6)}${rBox(100,40,140,160,18,"white",{r:24})}${Array.from({length:6},(_,k)=>`<rect x="${122+k*16}" y="56" width="8" height="30" rx="4" fill="#cfd4d6"/>`).join("")}${rLcd(128,104,84,34,["0","PPM"],18)}<circle cx="170" cy="168" r="14" fill="url(#r_chromeV)"/><text x="170" y="171" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="7" font-weight="700" fill="#333">TEST</text><circle cx="208" cy="168" r="4" fill="#1e9a4a"/>${rL(128,130,60,226,6,238,"Shows ppm, keeps the peak")}${rL(208,168,262,168,336,164,"Power light","end")}${rL(180,70,262,40,336,36,"UL 2034 sensor","end")}`,only:["furnace","oil"]};
+RILL.coalarm=RILL.coal;RILL["freezer:door"]=RILL["cooler:door"];
+/* ---------- oil furnace ---------- */
+Object.assign(RILL,{
+"oil:primary":{s:(()=>`${rSh(170,222,120,6)}${rBox(70,60,180,130,20,"paint",{r:4})}<rect x="84" y="74" width="152" height="40" rx="3" fill="#2f383f"/><text x="160" y="99" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="700" fill="#dfe5e8">OIL PRIMARY</text>
+ <circle cx="214" cy="146" r="13" fill="url(#r_redV)"/><circle cx="214" cy="146" r="13" fill="url(#rGlass)"/><circle cx="108" cy="140" r="5" fill="#e8c33a"/><circle cx="108" cy="140" r="5" fill="url(#rGlass)"/>
+ ${[0,1,2,3].map(k=>`<rect x="${100+k*30}" y="166" width="20" height="14" fill="#e8e8e2"/>${rTermS(110+k*30,173)}`).join("")}${["T","T","F","F"].map((t,k)=>`<text x="${110+k*30}" y="162" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#e8ecee">${t}</text>`).join("")}
+ ${rWire("M170 180 C170 214 120 222 70 240","#e8c33a")}${rWire("M200 180 C200 214 230 222 280 240","#e8c33a")}${rWire("M110 180 C100 206 40 206 0 214","#c0281c")}
+ ${rL(214,146,280,124,336,120,"Reset button","end")}${rL(108,140,60,140,6,136,"LED codes")}${rL(126,173,60,180,6,176,"T T: thermostat")}${rL(230,190,300,200,336,196,"F F: cad cell","end")}${RT(170,30,"No flame proven in time: lockout","middle")}`)()},
+"oil:cad":{s:(()=>`${rSh(170,226,100,6)}${rCylH(80,190,130,40,"black",{rx:12})}<ellipse cx="190" cy="130" rx="14" ry="40" fill="url(#r_blackV)"/><ellipse cx="192" cy="130" rx="11" ry="34" fill="#d9a441"/>
+ ${[-18,-9,0,9,18].map(dy=>`<path d="M186 ${130+dy} q3 -3 6 0 t6 0" stroke="#8a5a1a" stroke-width="1.6" fill="none"/>`).join("")}<ellipse cx="192" cy="130" rx="11" ry="34" fill="url(#rGlass)"/>
+ ${rWire("M80 116 C40 116 30 70 0 60","#e8c33a")}${rWire("M80 144 C40 144 30 196 0 206","#e8c33a")}${rFlameC(290,170,60,28,1)}${rArr("M276 130 H214","#f2a53a")}
+ ${rL(196,108,240,40,336,36,"CdS face looks at the flame","end")}${RT(6,20,"Yellow leads to F F")}${RT(170,226,"Dark: over 20 kΩ   Flame: under 1600 Ω","middle")}`)()},
+"oil:igniter":{s:(()=>`${rSh(170,226,130,6)}${rBox(70,70,190,70,26,"paint",{r:4})}<text x="165" y="110" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="700" fill="#e8ecee">14,000+ V</text>
+ ${rCylH(40,70,104,6,"chrome")}${rCylV(46,104,124,8,"chrome")}
+ ${[130,200].map(x=>`<path d="M${x} 140 ${Array.from({length:6},(_,k)=>`l${k%2?-6:6} 6`).join(" ")}" stroke="url(#r_chromeV)" stroke-width="3" fill="none"/>`).join("")}${rCylH(110,240,190,4,"chrome")}${rCylH(110,240,206,4,"chrome")}
+ ${rL(46,120,30,170,6,182,"Hinge: tips up to open the burner")}${rL(204,160,270,200,336,222,"Springs touch the electrode rods","end")}${rL(200,90,260,40,336,36,"Solid-state spark","end")}`)()},
+electrodes:{s:(()=>`${rSh(170,222,130,6)}${rCylH(30,250,100,5,"chrome")}${rCylH(30,250,150,5,"chrome")}
+ <path d="M250 100 L284 120 M250 150 L284 130" stroke="url(#r_chromeV)" stroke-width="7" stroke-linecap="round"/><path d="M250 100 L284 120 M250 150 L284 130" stroke="#c9ced1" stroke-width="5" stroke-linecap="round"/>
+ ${rCylH(70,200,100,11,"white",{end:true})}${rCylH(70,200,150,11,"white",{end:true})}${rCylH(170,262,190,13,"brass")}${rHexH(262,190,14,14,"brass")}<path d="M276 184 H290 L296 190 L290 196 H276 Z" fill="url(#r_brassH)"/>
+ <path d="M284 121 l3 3 -3 3 3 3" stroke="#4aa8ff" stroke-width="2" fill="none"/>
+ ${rL(130,90,110,40,6,36,"Ceramic insulators")}${rL(286,125,300,70,336,66,"Gap about 1/8–5/32 in.","end")}${rL(240,190,200,232,6,240,"Nozzle below: tips ahead of and above it")}`)()},
+nozzle:{s:(()=>`${rSh(130,200,100,6)}<rect x="40" y="110" width="50" height="40" rx="4" fill="url(#r_brassH)"/>${Array.from({length:8},(_,k)=>`<line x1="${44+k*6}" y1="110" x2="${44+k*6}" y2="150" stroke="#6a4a08" stroke-width="1"/>`).join("")}
+ ${rHexH(90,130,44,30,"brass")}${rCylH(134,170,130,22,"brass")}<path d="M170 108 L196 120 V140 L170 152 Z" fill="url(#r_brassH)"/><circle cx="196" cy="130" r="2.5" fill="#222"/>
+ <path d="M198 130 L330 50 M198 130 L330 210" stroke="#d9a441" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M260 92 Q270 130 260 168" stroke="#d9a441" stroke-width="10" stroke-opacity=".3" fill="none"/>
+ <text x="112" y="134" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#4a3205">.65 80°A</text>
+ ${rL(60,112,40,60,6,56,"Strainer")}${rL(112,120,140,40,150,36,"Stamped: 0.65 GPH, 80°, A (hollow)")}${rL(268,130,300,240,336,240,"Fine hollow cone of spray","end")}`)()},
+"oil:pump":{s:(()=>`${rSh(170,222,130,6)}${rBox(80,70,150,120,18,"paint",{r:8})}<circle cx="155" cy="130" r="44" fill="url(#r_paintV)"/><circle cx="155" cy="130" r="44" fill="none" stroke="#000" stroke-opacity=".3"/>${[0,1,2,3,4,5].map(k=>rBolt(155+36*Math.cos(k*Math.PI/3),130+36*Math.sin(k*Math.PI/3))).join("")}
+ ${rCylH(20,80,130,8,"chrome")}${rHexH(66,130,14,9,"brass")}${rCylH(240,300,92,5,"cu")}${rHexH(232,92,12,8,"brass")}${rHexV(110,48,22,9,"brass")}<rect x="104" y="40" width="12" height="4" fill="#222"/>${rCylH(20,72,180,6,"cu")}${rHexH(72,180,12,8,"brass")}
+ ${rL(40,130,30,40,6,36,"Shaft to the motor coupling")}${rL(110,46,170,18,180,12,"Pressure adjusting screw")}${rL(270,92,300,140,336,150,"Nozzle line","end")}${rL(40,180,40,226,6,238,"Inlet from the tank")}${RT(336,200,"100–200 psi","end")}`)()},
+"oil:burner":{s:(()=>`${rSh(170,232,150,6)}${rCylV(70,70,170,34,"red",{ry:10})}${rBox(100,80,100,110,20,"red",{r:8})}<circle cx="150" cy="135" r="30" fill="#5a1209"/>${[0,1,2,3,4,5,6,7].map(k=>`<path d="M150 135 L${150+28*Math.cos(k*Math.PI/4)} ${135+28*Math.sin(k*Math.PI/4)}" stroke="#9a1d12" stroke-width="5"/>`).join("")}
+ ${rBox(110,56,80,24,14,"paint",{r:3})}${rCylH(200,300,140,22,"galv",{end:true,bore:true})}${rCylH(140,180,206,10,"paint")}${rFlameC(316,140,16,14)}
+ <rect x="120" y="190" width="60" height="10" fill="#1d2124"/>
+ ${rL(60,120,30,50,6,46,"Motor: fan + pump")}${rL(150,64,190,30,200,24,"Igniter (on top)")}${rL(250,140,280,90,336,86,"Air tube","end")}${rL(300,140,310,190,336,214,"Retention head","end")}${rL(160,206,120,240,6,240,"Pump under the housing")}`)()},
+"oil:tank":{s:(()=>`${rSh(170,232,140,6)}<rect x="70" y="40" width="200" height="170" rx="40" fill="url(#r_paintH)" filter="url(#rGrain)"/><rect x="70" y="40" width="200" height="170" rx="40" fill="none" stroke="#000" stroke-opacity=".3"/>
+ <path d="M90 210 V232 M250 210 V232" stroke="#2c3237" stroke-width="6"/>${rCylV(110,14,42,7,"iron")}${rCylV(150,20,42,5,"iron")}<rect x="200" y="22" width="30" height="20" rx="3" fill="url(#rGlass)" stroke="#555"/><rect x="204" y="28" width="22" height="10" fill="#e8c33a"/>
+ ${rCylH(270,300,196,5,"cu")}${rCylV(310,170,214,12,"red",{ry:4})}
+ ${rL(110,30,70,20,64,16,"Fill","end")}${rL(150,28,170,14,176,10,"Vent")}${rL(228,32,290,40,336,40,"Gauge: check first","end")}${rL(310,190,300,240,336,240,"Filter at the outlet","end")}${RT(170,130,"275 gal","middle","#e8ecee")}`)()},
+ofilter:{s:(()=>`${rSh(170,222,90,6)}${rBox(110,40,120,30,14,"red",{r:3})}${rCylV(170,70,200,52,"red",{ry:12,top:false})}<path d="M118 70 H222" stroke="#000" stroke-opacity=".3"/>
+ ${rCylH(40,110,55,5,"cu")}${rHexH(98,55,12,8,"brass")}${rCylH(230,300,55,5,"cu")}${rHexH(230,55,12,8,"brass")}${rBolt(170,38,5)}${rBolt(126,48)}${rBolt(214,48)}
+ ${rArr("M50 50 H90","#c98a2a")}${rArr("M250 50 H300","#c98a2a")}
+ ${rL(170,40,200,14,210,10,"Lid bolt")}${rL(170,140,90,170,6,180,"Cartridge inside")}${rL(222,140,280,140,336,130,"Changed every year","end")}${RT(170,232,"Clogged: high vacuum at the pump","middle")}`)()},
+oilline:{s:(()=>`${rSh(170,224,140,6)}${rHose("M0 200 C80 200 100 140 160 140 H230","#7a8288",14)}${rHose("M0 200 C80 200 100 140 160 140 H230","#b87346",5)}
+ ${rBox(230,110,80,70,14,"paint",{r:8})}${rCylV(200,80,140,4,"brass",{top:false})}${rGauge(200,60,30,"chrome",-60,"in. Hg")}
+ ${rL(60,190,40,120,6,110,"Copper line in a sleeve")}${rL(270,140,300,220,336,236,"Fuel pump","end")}${rL(226,50,280,20,336,16,"Vacuum gauge","end")}${RT(6,236,"Single pipe: keep it under 6 in. Hg")}`)()},
+chamber:{s:(()=>`${rSh(170,232,140,6)}${rBox(60,40,220,180,16,"iron",{r:4})}<rect x="80" y="60" width="180" height="150" rx="8" fill="#d9c7a8"/><rect x="96" y="76" width="148" height="134" rx="6" fill="#2a1a12"/>
+ <path d="M106 150 Q170 80 236 150 Q170 196 106 150 Z" fill="url(#rFlame)"/><path d="M130 150 Q170 116 210 150 Q170 172 130 150 Z" fill="#ffd27a" opacity=".8"/>${rCylH(0,96,150,16,"galv",{end:true})}
+ ${rCylH(270,300,120,5,"iron",{end:true})}
+ ${rL(88,70,60,20,6,16,"Ceramic fiber liner")}${rL(40,150,30,200,6,240,"Air tube fires in here")}${rL(290,120,310,200,336,228,"Overfire draft port","end")}${RT(336,242,"-0.01 to -0.02 in. w.c.","end")}`)()},
+"oil:hx":{s:(()=>`${rSh(170,232,110,6)}${rCylV(170,40,210,70,"iron",{ry:16,grain:true})}${rCylH(240,320,80,16,"galv",{end:true})}
+ ${rArr("M170 200 V70 H240","#e0662a")}${rArr("M70 220 V60","#3d7de0")}${rArr("M270 220 V120","#3d7de0")}
+ ${rL(130,120,60,20,6,16,"Flue gas inside")}${rL(290,80,300,30,336,26,"To the flue","end")}${rL(270,180,300,226,336,240,"House air outside","end")}${RT(6,240,"Net stack 350–500°F")}`)()},
+baro:{s:(()=>`${rSh(170,222,150,6)}${rCylH(20,320,80,26,"galv",{end:true})}${rCylV(170,106,150,26,"galv",{top:false})}<ellipse cx="170" cy="170" rx="44" ry="44" fill="url(#r_galvV)"/><ellipse cx="170" cy="170" rx="36" ry="36" fill="url(#r_blackV)"/>
+ <path d="M170 134 V206" stroke="#555" stroke-width="2"/><rect x="138" y="166" width="64" height="8" fill="url(#r_galvH)"/>${rCylH(196,226,170,7,"iron")}
+ ${rL(150,180,90,210,6,220,"Gate swings in")}${rL(220,170,280,200,336,212,"Weight sets the draft","end")}${rArr("M60 160 Q120 150 136 166","#3d7de0")}${RT(6,150,"Room air")}${RT(170,30,"Holds breech at -0.02 to -0.04 in.","middle")}${rArr("M60 80 H300","#e0662a")}`)()},
+"oil:chimney":{s:(()=>`${rSh(190,236,90,6)}${rBox(150,20,100,210,24,"tan",{r:0})}${Array.from({length:14},(_,k)=>`<path d="M150 ${34+k*14} H250" stroke="#7a5532" stroke-width="1"/>${Array.from({length:4},(_,j)=>`<path d="M${(k%2?162:176)+j*28} ${20+k*14} v14" stroke="#7a5532"/>`).join("")}`).join("")}
+ ${rCylV(200,10,210,30,"white",{ry:8})}${rCylH(20,170,150,16,"galv")}${rBox(164,196,30,20,6,"iron",{r:1})}
+ ${rArr("M200 200 V20","#e0662a")}${rArr("M40 150 H170","#e0662a")}
+ ${rL(220,60,280,40,336,36,"Flue liner","end")}${rL(80,150,60,110,6,100,"Flue pipe")}${rL(178,206,100,232,6,240,"Cleanout door")}${RT(336,140,"Hot gas rises","end")}`)()},
+fanlimit:{s:(()=>`${rSh(170,232,110,6)}${rBox(90,40,150,120,16,"cab",{r:4})}<circle cx="165" cy="98" r="44" fill="#fbfaf4" stroke="#666"/>${[["100",-60],["125",-20],["200",60]].map(([t,a])=>{const r=a*Math.PI/180;return `<path d="M165 98 L${165+40*Math.sin(r)} ${98-40*Math.cos(r)}" stroke="${t=="200"?"#c0281c":"#2a6db8"}" stroke-width="3"/><text x="${165+52*Math.sin(r)}" y="${101-52*Math.cos(r)}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#333">${t}</text>`}).join("")}<circle cx="165" cy="98" r="4" fill="#333"/>
+ ${rCylV(165,160,236,6,"chrome",{top:false})}
+ ${rL(132,72,60,40,6,36,"Fan off 100°F")}${rL(152,62,170,20,180,16,"Fan on 125°F")}${rL(200,78,280,60,336,56,"Limit 200°F: burner off","end")}${rL(165,210,240,220,336,236,"Probe in the plenum","end")}`)()},
+"oil:analyzer":{s:(()=>`${rSh(130,232,90,6)}${rBox(70,30,120,190,14,"black",{r:12})}${rLcd(84,46,92,100,["O2 4.0%","CO2 12.6% · CO 12","Stack 420°F · 84%"],12)}
+ ${[0,1,2].map(k=>`<circle cx="${100+k*30}" cy="180" r="9" fill="url(#r_paintV)"/>`).join("")}${rHose("M190 180 C230 180 230 120 270 120","#2a2f33",5)}${rCylH(270,330,120,3,"chrome",{end:true})}
+ <circle cx="290" cy="200" r="22" fill="#fbfaf4" stroke="#999"/><circle cx="290" cy="200" r="7" fill="#efe9dc"/>
+ ${rL(300,120,300,80,336,70,"Probe in the flue","end")}${rL(290,200,250,236,336,240,"Smoke spot: 0","end")}${rL(84,80,40,24,6,14,"Reads O2, CO2, CO, stack")}`)()}
+});
+/* ---------- hydronic air handler ---------- */
+const rTherm=(cx,cy,t)=>`${rCylV(cx,cy-12,cy+2,5,"brass",{top:false})}<circle cx="${cx}" cy="${cy-34}" r="22" fill="url(#r_chromeV)"/><circle cx="${cx}" cy="${cy-34}" r="18" fill="#fbfaf4"/><text x="${cx}" y="${cy-30}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#333">${t}</text><circle cx="${cx}" cy="${cy-34}" r="18" fill="url(#rGlass)"/>`;
+Object.assign(RILL,{
+"ahu:board":{s:(()=>`${rSh(170,226,130,6)}${rPcb(50,50,240,160)}${rBox(80,70,46,34,10,"black",{r:2})}${rBox(140,70,46,34,10,"black",{r:2})}${rBox(214,70,50,40,8,"paint",{r:2})}
+ ${Array.from({length:8},(_,k)=>`<rect x="${64+k*26}" y="166" width="18" height="16" fill="#e8e8e2"/>${rTermS(73+k*26,174)}<text x="${73+k*26}" y="196" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="7.5" font-weight="700" fill="#e9f5ec">${["R","W","G","C","ZV","ZV","ES","ES"][k]}</text>`).join("")}
+ ${rL(103,82,60,30,6,26,"Relays: zone valve, blower")}${rL(238,90,280,30,336,26,"24 V transformer","end")}${rL(99,174,60,230,6,240,"W: heat call")}${rL(242,174,300,230,336,240,"End switch: fires boiler + pump","end")}`)()},
+"ahu:zv":{s:(()=>`${rSh(170,226,140,6)}${rCylH(0,340,180,14,"cu")}${rHexH(110,180,16,20,"brass")}${rHexH(214,180,16,20,"brass")}<rect x="126" y="160" width="88" height="40" rx="6" fill="url(#r_brassH)"/>
+ ${rCylV(170,130,160,10,"brass",{top:false})}${rBox(110,60,120,70,18,"white",{r:6})}<path d="M232 96 L268 84" stroke="url(#r_chromeH)" stroke-width="6" stroke-linecap="round"/>
+ ${rWire("M130 60 C120 30 60 30 30 20","#c0281c")}${rWire("M150 60 C140 36 80 40 50 36","#e8c33a")}${rWire("M190 60 C200 36 260 36 300 30","#e8c33a")}${rArr("M20 210 H90","#d0312d")}
+ ${rL(170,96,110,140,6,140,"Motor head")}${rL(260,86,300,110,336,120,"Manual-open lever","end")}${rL(280,32,300,50,336,60,"End switch leads","end")}${rL(170,180,190,230,336,240,"Opens in about 30 s","end")}`)()},
+"ahu:circ":{s:(()=>`${rSh(170,226,140,6)}${rCylH(0,90,180,14,"cu")}${rCylH(250,340,180,14,"cu")}<rect x="84" y="156" width="14" height="48" rx="3" fill="url(#r_ironH)"/><rect x="242" y="156" width="14" height="48" rx="3" fill="url(#r_ironH)"/>
+ <path d="M98 166 H242 V194 H98 Z" fill="url(#r_ironH)"/><ellipse cx="170" cy="150" rx="56" ry="40" fill="url(#r_ironV)"/>${rCylV(170,60,140,46,"paint",{ry:14})}${rBox(196,74,40,30,8,"paint",{r:3})}
+ ${rArr("M110 180 H140","#d0312d")}${rArr("M200 180 H236","#d0312d")}
+ ${rL(170,90,110,30,6,26,"Wet-rotor motor")}${rL(91,190,60,230,6,240,"Flanges")}${rL(216,90,280,40,336,36,"Wiring box","end")}${RT(336,226,"Pump away from the tank","end")}`)()},
+"ahu:coil":{s:(()=>`${rSh(170,232,150,6)}${rBox(50,50,230,160,14,"galv",{r:2})}${rFins(60,60,210,140,3)}
+ ${[76,104,132,160,188].map(y=>`<path d="M60 ${y} H270" stroke="url(#r_cuH)" stroke-width="6"/>`).join("")}${rCylV(296,40,200,9,"cu")}${rCylH(296,340,58,6,"cu")}${rCylH(296,340,190,6,"cu")}
+ ${rArr("M340 58 H306","#d0312d")}${rArr("M306 190 H340","#3d7de0")}
+ ${rL(150,104,110,24,6,16,"Copper tubes, aluminum fins")}${rL(320,58,320,26,336,20,"Hot water in","end")}${rL(320,190,320,220,336,240,"Cooler water out","end")}${RT(6,240,"House air goes across the fins")}`)()},
+"ahu:vent":{s:(()=>`${rSh(170,226,100,6)}${rCylH(30,310,200,14,"cu")}${rCylV(170,150,190,8,"brass",{top:false})}${rHexV(170,140,12,14,"brass")}${rCylV(170,60,140,30,"brass",{ry:9})}${rCylV(170,40,62,8,"chrome")}<circle cx="170" cy="38" r="5" fill="url(#r_redV)"/>
+ ${rArr("M180 40 Q200 20 230 20","#9aa3a9")}
+ ${rL(150,100,90,80,6,76,"Float inside")}${rL(170,50,240,40,336,36,"Cap: air out","end")}${rL(100,200,80,232,6,240,"Coil's high point")}${RT(336,150,"Bleed till solid water","end")}`)()},
+"ahu:trid":{s:(()=>`${rSh(170,226,90,6)}${rGauge(170,110,72,"brass",-70,"PSI · °F")}<line x1="170" y1="110" x2="${170+54*Math.sin(.6)}" y2="${110-54*Math.cos(.6)}" stroke="#2a6db8" stroke-width="2" stroke-linecap="round"/>${rCylV(170,186,222,7,"brass",{top:false})}
+ ${rL(130,90,60,40,6,36,"Red: about 12 psi cold")}${rL(205,82,270,40,336,36,"Blue: water °F","end")}${RT(170,240,"Pressure climbs a few psi when hot","middle")}`)()},
+"ahu:aquastat":{s:(()=>`${rSh(170,226,120,6)}${rBox(80,40,160,130,18,"cab",{r:4})}${rDial(160,100,34,250)}<text x="160" y="148" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#333">HIGH LIMIT</text>
+ ${rCylH(40,80,160,8,"brass")}${rCylH(0,40,160,5,"cu",{end:true})}${rBox(160,170,60,30,6,"black",{r:2})}
+ ${rL(170,100,250,30,336,26,"Set about 180°F","end")}${rL(30,160,30,210,6,222,"Bulb in the boiler well")}${rL(200,186,290,210,336,222,"Wiring","end")}`)()},
+"ahu:boiler":{s:(()=>`${rSh(170,236,130,6)}${rBox(70,50,180,180,26,"cab",{r:2})}<rect x="90" y="150" width="140" height="70" fill="#1e2226"/>${[0,1,2,3,4].map(k=>rFlameC(110+k*25,214,22,9)).join("")}
+ ${rCylV(120,10,40,12,"cu",{top:false})}${rCylV(210,10,40,12,"cu",{top:false})}${rCylV(165,6,30,24,"galv")}${rBox(90,66,140,64,4,"iron",{r:1})}${[0,1,2,3,4,5].map(k=>`<path d="M${104+k*22} 70 V126" stroke="#000" stroke-opacity=".5"/>`).join("")}
+ ${rL(120,20,60,16,6,12,"Supply")}${rL(210,20,280,16,336,12,"Return","end")}${rL(100,98,40,200,6,240,"Cast iron sections")}${rL(160,206,280,226,336,240,"Burners","end")}`)()},
+"ahu:expt":{s:(()=>`${rSh(170,232,90,6)}${rCylH(0,340,40,10,"cu")}${rCylV(170,40,70,6,"brass",{top:false})}${rClip("ex","M110 90 H230 V220 H110 Z",rCylV(170,90,210,60,"blue",{ry:16}))}<path d="M110 90 Q170 70 230 90 V150 H110 Z" fill="#9bc4e6" opacity=".9"/><path d="M110 150 Q170 170 230 150" stroke="#222" stroke-width="3" fill="none"/>
+ <ellipse cx="170" cy="90" rx="60" ry="16" fill="url(#r_blueT)"/>${rCylV(170,226,236,4,"brass")}
+ ${rL(140,120,60,110,6,106,"Water side")}${rL(200,154,280,140,336,130,"Diaphragm","end")}${rL(178,230,260,226,336,240,"Air valve: charge to fill psi","end")}`)()},
+"ahu:fill":{s:(()=>`${rSh(170,226,140,6)}${rCylH(0,340,180,12,"cu")}${rBox(110,150,120,60,12,"brass",{r:8})}${rCylV(170,90,150,26,"brass",{ry:8})}${rBolt(170,86,6)}<path d="M196 110 L250 80" stroke="url(#r_chromeH)" stroke-width="6" stroke-linecap="round"/>
+ ${rBox(30,160,50,40,10,"brass",{r:6})}${rArr("M240 230 H320","#3d7de0")}
+ ${rL(160,80,110,40,6,36,"Adjusting screw: about 12 psi")}${rL(246,84,290,80,336,70,"Fast-fill lever","end")}${rL(56,180,40,226,6,238,"Backflow preventer")}`)()},
+"ahu:bal":{s:(()=>`${rSh(170,226,140,6)}${rCylH(0,340,180,12,"cu")}${rHexH(110,180,14,18,"brass")}${rHexH(216,180,14,18,"brass")}<rect x="124" y="160" width="92" height="40" rx="8" fill="url(#r_brassH)"/>${rCylV(170,110,160,12,"brass",{top:false})}${rCylH(130,210,104,8,"red",{end:true})}
+ ${[138,202].map(x=>`${rCylV(x,200,224,5,"brass",{top:false})}<circle cx="${x}" cy="226" r="6" fill="url(#r_redV)"/>`).join("")}<rect x="150" y="164" width="40" height="12" fill="#fbfaf4"/><text x="170" y="174" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="#222">0 1 2 3 4</text>
+ ${rL(190,104,250,60,336,56,"Handle sets the flow","end")}${rL(170,170,110,120,6,116,"Turns scale")}${rL(138,226,80,232,6,240,"Pressure taps (meter)")}${RT(336,240,"About 4 GPM here","end")}`)()},
+fdelay:{s:(()=>`${rSh(170,226,140,6)}${rCylH(0,340,150,14,"cu")}${rBox(130,120,70,44,8,"black",{r:4})}<path d="M126 164 Q170 180 214 164" stroke="url(#r_chromeH)" stroke-width="3" fill="none"/>
+ ${rWire("M200 130 C240 110 260 80 320 70","#e8c33a")}${rWire("M200 140 C240 120 270 100 330 96","#e8c33a")}
+ ${rL(160,140,100,60,6,56,"Strapped to the coil supply")}${rL(310,74,300,40,336,36,"To the control","end")}${RT(6,236,"Blower on about 110°F, off about 10°F lower")}`)()},
+readout:{s:(()=>`${rSh(170,232,150,6)}${rCylH(0,340,120,10,"cu")}${rCylH(0,340,210,10,"cu")}${rTherm(80,110,"180°")}${rTherm(80,200,"160°")}${rBox(220,96,70,48,8,"white",{r:4})}${rLcd(230,106,50,26,["4.0","GPM"],12)}
+ ${rArr("M140 120 H200","#d0312d")}${rArr("M200 210 H140","#3d7de0")}
+ ${rL(102,76,140,40,150,36,"EWT: entering water")}${rL(102,166,140,170,150,170,"LWT: leaving water")}${RT(336,186,"Btu/h = 500 × GPM × ΔT","end")}`)()}
+});
 
 /*RZ-END*/
 const SPLIT_LAMPS=[["call","Cool call","g"],["delay","Delay","a"],["comp","Compressor","g"],["fan","Outdoor fan","g"],["blower","Blower","g"],["hps","High press.","r"],["lps","Low press.","r"],["ol","Overload","r"],["lock","Lockout","r"]];

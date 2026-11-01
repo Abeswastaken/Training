@@ -67,7 +67,7 @@ ${zTstat(720,230,44,50,p+"tstatTxt",p+"tstatLamp","70")}
 <text class="lblS" x="440" y="430">Return air</text><text class="val" id="${p}retTxt" x="440" y="424" font-size="12" text-anchor="start" dy="-14">68°F</text>
 
 <!-- furnace cabinet -->
-<rect x="150" y="90" width="270" height="362" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="156" y="96" width="258" height="350" fill="url(#zCabIn)" stroke="#9aa3a9"/>
+<path d="M420 92 L432.0 83.6 V443.6 L420 452 Z" fill="url(#r_cabS)"/><path d="M300 90 L312.0 81.6 H432.0 L420 90 Z" fill="url(#r_cabT)"/><rect x="150" y="90" width="270" height="362" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="156" y="96" width="258" height="350" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 <rect x="156" y="148" width="240" height="152" fill="url(#zInside)" opacity=".18"/>
 <line x1="150" y1="304" x2="420" y2="304" stroke="#6f787e" stroke-width="3"/>${[[154,94],[416,94],[154,448],[416,448]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
 <text class="zl" x="160" y="110">Gas furnace</text>
@@ -90,7 +90,7 @@ ${zCap(366,404,20,34,p+"capBulge")}<text class="zt" x="376" y="396" text-anchor=
 <g class="part" data-p="board" tabindex="0">
  <rect class="hl" x="178" y="314" width="66" height="50" rx="2" fill="url(#zGreen)" stroke="#0e2414" filter="url(#zShadow)"/><rect x="184" y="318" width="10" height="6" fill="#111"/><rect x="198" y="318" width="10" height="6" fill="#111"/><rect x="186" y="330" width="14" height="10" fill="#1b1f22"/><rect x="236" y="342" width="6" height="18" fill="#e8e8e8"/>
  <circle id="${p}led" cx="232" cy="326" r="4.5" fill="var(--lamp-off)"/>
- <text id="${p}brdTxt" x="211" y="346" text-anchor="middle" font-family="var(--mono)" font-size="7.5" fill="#e9ecee">STANDBY</text>
+ <text id="${p}brdTxt" x="211" y="346" text-anchor="middle" font-family="var(--mono)" font-size="6.2" fill="#e9ecee">STANDBY</text>
  <text x="211" y="358" text-anchor="middle" font-family="var(--display)" font-size="7" fill="#c4cacf">CONTROL BOARD</text>
 </g>
 <g class="part" data-p="door" tabindex="0">
