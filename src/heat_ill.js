@@ -1,0 +1,34 @@
+
+// Parts-card drawings for the Heating tabs that had none (160x120)
+const capIll=`<rect x="56" y="24" width="48" height="74" rx="8" fill="url(#zSteelH)" stroke="${K}" stroke-width="1.2" filter="url(#zShadow)"/><rect x="56" y="24" width="48" height="10" rx="5" fill="#59626a"/><rect x="66" y="16" width="8" height="10" fill="url(#zBrass)"/><rect x="86" y="16" width="8" height="10" fill="url(#zBrass)"/>${label(80,58,"7.5 µF",K,9)}${label(80,70,"370 VAC",K,6)}${label(80,112,"BLOWER RUN CAPACITOR",K,7)}`;
+const filtIll=`<rect x="30" y="16" width="100" height="80" fill="url(#zPleat)" stroke="${K}" stroke-width="1.2" filter="url(#zShadow)"/><rect x="30" y="16" width="100" height="80" fill="none" stroke="#c9b48a" stroke-width="4"/>${label(80,30,"16×25×1",K,7)}<path d="M136 56 h18" stroke="${K}" stroke-width="2" marker-end="url(#zArrow)"/>${label(146,48,"airflow",K,6)}${label(80,114,"PLEATED AIR FILTER",K,7)}`;
+const houseIll=`<path d="M20 60 L80 16 L140 60" fill="#8a6d4d" stroke="${K}" stroke-width="1.4"/><rect x="30" y="58" width="100" height="48" fill="${WH}" stroke="${K}" stroke-width="1.2"/><rect x="42" y="68" width="20" height="16" fill="#cfe4f5" stroke="${K}"/><rect x="98" y="68" width="20" height="16" fill="#cfe4f5" stroke="${K}"/><path d="M72 106 v-26 h16 v26" fill="#8a6d4d" stroke="${K}"/><path d="M140 70 q8 -6 14 0 M140 82 q8 -6 14 0" fill="none" stroke="#e0662a" stroke-width="1.6"/>${label(80,118,"HEAT LEAKS OUT; THE SYSTEM REPLACES IT",K,6)}`;
+
+FURNACE.ill={
+ bcap:capIll,
+ flue:`<rect x="20" y="10" width="34" height="96" fill="url(#zSteelH)" stroke="${K}"/>${[30,54,78].map(y=>`<line x1="20" y1="${y}" x2="54" y2="${y}" stroke="${K}"/>`).join("")}${label(37,116,"80%: B-vent",K,6)}<rect x="106" y="10" width="26" height="96" fill="${WH}" stroke="${K}"/>${[34,70].map(y=>`<rect x="104" y="${y}" width="30" height="8" fill="#e8ebe6" stroke="${K}"/>`).join("")}${label(119,116,"90%+: PVC",K,6)}<path d="M37 98 V20" stroke="#e0662a" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#zArrow)"/><path d="M119 98 V20" stroke="#9aa3aa" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#zArrow)"/>${label(80,50,"hot, dry",K,6)}${label(80,60,"vs cool, wet",K,6)}`,
+ door:`<rect x="30" y="20" width="60" height="80" fill="url(#zCab)" stroke="${K}"/><rect x="90" y="46" width="30" height="28" rx="3" fill="url(#zPlasticDk)" stroke="${K}"/><rect x="78" y="54" width="14" height="12" rx="2" fill="${WH}" stroke="${K}"/><path d="M120 54 C140 54 140 40 154 40 M120 66 C140 66 140 80 154 80" fill="none" stroke="#2c3034" stroke-width="2"/>${label(105,40,"plunger switch",K,6)}${label(80,114,"DOOR OFF = 120 V OFF",K,7)}`,
+ house:houseIll
+};
+
+OIL.ill={
+ burner:`${box(12,30,40,40,"url(#zMotor)",6)}${label(32,54,"MOTOR",WH,6)}${box(52,26,34,48,"#c0281c",4)}${label(69,52,"PUMP",WH,6)}<rect x="86" y="40" width="64" height="20" fill="url(#zSteelH)" stroke="${K}"/><path d="M150 42 l8 8 -8 8 z" fill="#59626a"/><rect x="60" y="74" width="24" height="26" fill="#3a3f44" stroke="${K}"/>${label(72,108,"air band",K,6)}${box(48,8,30,16,"#2f3337",3)}${label(63,19,"primary",WH,5.5)}${label(118,34,"air tube",K,6)}${label(118,72,"retention head",K,6)}`,
+ oilline:`<path d="M6 100 H90 C110 100 110 70 130 70 H150" fill="none" stroke="url(#zCuH)" stroke-width="5"/><rect x="40" y="94" width="30" height="12" rx="3" fill="#d8cfa8" stroke="${K}" opacity=".85"/>${label(55,90,"sleeve",K,6)}${dial(118,36,16,"in. Hg",0.18)}${pipeV(118,56,66,4,"url(#zBrassH)")}${label(80,114,"SINGLE-PIPE LINE + VACUUM GAUGE",K,6)}`,
+ chimney:`<rect x="56" y="10" width="48" height="100" fill="url(#zBrick)" stroke="${K}"/><rect x="66" y="4" width="28" height="8" fill="#59626a" stroke="${K}"/><rect x="70" y="10" width="20" height="100" fill="url(#zSteelH)" opacity=".85"/><path d="M80 100 V20" stroke="#e0662a" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#zArrow)"/>${label(130,50,"lined",K,6)}${label(130,60,"masonry",K,6)}${label(80,118,"HOT GAS RISES: DRAFT",K,6)}`,
+ bcap:capIll,
+ afilter:filtIll,
+ analyzer:`${box(14,14,56,90,"url(#zPlastic)",8)}<rect x="22" y="22" width="40" height="40" rx="2" fill="url(#zLcd)" stroke="${K}"/>${label(42,34,"CO2 12.5%",K,6)}${label(42,44,"CO 30",K,6)}${label(42,54,"T 420°F",K,6)}<rect x="86" y="20" width="58" height="34" rx="3" fill="#3a3f44" stroke="${K}"/><rect x="138" y="30" width="16" height="12" fill="#59626a"/>${label(115,42,"smoke pump",WH,6)}<circle cx="114" cy="80" r="16" fill="${WH}" stroke="${K}"/><circle cx="114" cy="80" r="5" fill="#d8dcdf"/>${label(114,108,"smoke spot 0",K,6)}`,
+ house:houseIll
+};
+
+AHU.ill={
+ aquastat:`${box(40,14,80,84,"#e8ebe6",4)}<circle cx="80" cy="44" r="18" fill="${WH}" stroke="${K}"/><line x1="80" y1="44" x2="92" y2="34" stroke="${RD}" stroke-width="2"/>${label(80,74,"HI 180°F",K,7)}${label(80,86,"DIFF 15",K,6)}${pipeV(80,98,116,8,"url(#zBrassH)")}${label(130,108,"well",K,6)}${label(80,8,"L8148-STYLE AQUASTAT",K,6)}`,
+ boiler:`${box(36,14,88,88,"url(#zCab)",4)}<rect x="48" y="30" width="64" height="40" fill="#5a2a12" stroke="${K}"/>${Array.from({length:4},(_,i)=>`<rect x="${52+i*15}" y="34" width="10" height="32" fill="#7a3a1a"/>`).join("")}${[0,1,2].map(i=>`<path d="M${60+i*20} 92 q4 -12 8 0 z" fill="#3d7de0"/>`).join("")}${pipeH(124,156,30,8)}${pipeH(124,156,80,8)}${label(144,22,"supply",K,6)}${label(144,98,"return",K,6)}${label(80,114,"CAST-IRON BOILER",K,7)}`,
+ fill:`${pipeH(4,156,60,10)}<path d="M60 48 H100 V72 H60 Z" fill="url(#zBrass)" stroke="${BRD}"/><path d="M66 48 Q80 24 94 48 Z" fill="url(#zBrass)" stroke="${BRD}"/><rect x="76" y="20" width="8" height="10" fill="#59626a"/><rect x="104" y="56" width="10" height="16" fill="#e8c33a" stroke="${K}"/>${label(80,90,"FILL VALVE, 12 PSI",K,7)}${label(28,50,"city water",K,6)}${label(136,50,"to boiler",K,6)}${label(109,84,"fast fill",K,6)}`,
+ fdelay:`${pipeH(4,156,60,14)}<rect x="56" y="44" width="40" height="18" rx="3" fill="url(#zPlasticDk)" stroke="${K}"/><rect x="52" y="52" width="48" height="4" fill="#59626a"/><path d="M96 50 C120 40 130 30 150 30" fill="none" stroke="#2c3034" stroke-width="1.6"/>${label(80,36,"strap-on sensor",K,6)}${label(80,90,"BLOWER WAITS FOR HOT WATER",K,7)}`,
+ afilter:filtIll,
+ readout:`${box(14,16,132,80,"#1a1d20",4)}${["EWT 180°F","LWT 160°F","GPM 4.0","40,000 Btu/h"].map((t,i)=>`<text x="24" y="${34+i*16}" font-family="monospace" font-size="9" fill="#9fe0a8">${t}</text>`).join("")}${label(80,112,"BTU/H = 500 × GPM × ΔT",K,7)}`,
+ house:houseIll
+};
+const tstatHeat=`<rect x="44" y="22" width="72" height="72" rx="10" fill="#efe9dc" stroke="${K}" stroke-width="1.2" filter="url(#zShadow)"/><rect x="54" y="34" width="52" height="28" rx="4" fill="#2a2d30"/>${label(80,55,"70°",WH,14)}${label(80,78,"HEAT AUTO",K,7)}`;
+FURNACE.ill.tstat=tstatHeat;OIL.ill.tstat=tstatHeat;AHU.ill.tstat=tstatHeat;
