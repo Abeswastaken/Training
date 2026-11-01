@@ -629,13 +629,21 @@ SRC.ieee43=["IEEE 43 minimums: 5 MΩ for random-wound stators, about 500 V DC te
 SRC.flc=["Elliott Electric (NEC 430.250): 10 hp, 460 V, three-phase full load current 14 A","https://static.elliottelectric.com/StaticPages/ElectricalReferences/ElectricalTables/FullLoad_Current.aspx"];
 SRC.lra=["Fabrico: Locked rotor current, about 6 to 8 times full load current across the line","https://www.fabrico.io/blog/locked-rotor-current/"];
 SRC.induct=["Electrical4U: Three-phase induction motor working principle (synchronous speed, slip)","https://www.electrical4u.com/working-principle-of-three-phase-induction-motor/"];
+SRC.nec430=["NEC 430.6(A) (Mike Holt): table FLC sizes wire and short-circuit protection; nameplate FLA sets the overload","https://www.mikeholt.com/files/PDF/20UNEC1_430.6.pdf"];
+SRC.lrmax=["KEB America: NEMA MG 1 maximum locked-rotor current, Design B, 10 hp: 81 A at 460 V","https://www.kebamerica.com/blog/nema-b-three-phase-squirrel-cage-motors-locked-rotor-current/"];
+SRC.motor10=["Marathon 10 hp, 460 V, 1800 rpm TEFC data: 13.3 A, 91.7%, code H, 81 A locked rotor (Baldor EM3714T: 12.4 A, 91.7%)","https://marathonelectric.com/product/215THFND9026/severe-duty-motor-10-hp-3-ph-60-hz-460-v-1800-rpm-215t-frame-tefc"];
+SRC.bypint=["Plant Services: bypass contactors with VFDs (drive output contactor, electrical and mechanical interlocks)","https://plantservices.com/equipment/industrial-motors/article/33005614/considerations-for-using-bypass-contactors-with-vfds"];
+SRC.refl=["Eaton: the reflected wave phenomenon (peaks up to about 2× the DC bus on long leads; NEMA MG 1 Part 31 motors withstand 1600 V)","https://www.eaton.com/content/dam/eaton/products/industrialcontrols-drives-automation-sensors/variable-frequency-drives/the-reflective-wave-phenomena-ap040013en.pdf"];
+SRC.brgcur=["Pumps & Systems: reducing bearing failure on VFD motors (EDM fluting, shaft grounding rings, insulated bearings)","https://www.pumpsandsystems.com/reducing-bearing-failure-variable-frequency-drives"];
+SRC.yol=["Yaskawa P1000 manual, L1-01: for a standard fan-cooled motor the overload level (oL1) is automatically reduced below rated speed; drive-duty and vector motors keep it","https://www.manualslib.com/manual/1233525/Yaskawa-P1000.html?page=251"];
+SRC.abbol=["ABB ACS580 firmware manual, 35.51 to 35.53: motor load curve, zero speed load and break point (45 Hz) for the motor thermal model","https://www.manualslib.com/manual/1636864/Abb-Acs580.html?page=274"];
 SRC.affin=["Fan affinity laws for VFD control (flow ∝ speed, power ∝ speed³)","https://industrialmonitordirect.com/blogs/knowledgebase/fan-affinity-laws-for-vfd-control-centrifugal-vs-axial-comparison"];
 
 PHOTOS.vfd={disconnect:[gimg("fused disconnect switch 3 phase 480V")],contactor:[gimg("VFD bypass contactor panel")],rectifier:[gimg("VFD diode bridge rectifier module")],
  dcbus:[gimg("VFD DC bus capacitors")],inverter:[gimg("IGBT module VFD")],keypad:[gimg("VFD keypad display")],hsfan:[gimg("VFD heatsink cooling fan")],
  motor:[gimg("10 hp TEFC three phase motor")],fanload:[gimg("centrifugal fan wheel belt drive")],conveyor:[gimg("belt conveyor gearmotor")],plate:[gimg("electric motor nameplate")],scope:[gimg("VFD output PWM waveform oscilloscope")]};
 
-const VM={FLA:14,Tr:40.5,xm:200,xc:253,ILR:84,Im:4.9,C:0.0022,Rb:50000,OV:810,OVC:760,UV:380};
+const VM={FLA:13.3,Tr:40.5,xm:200,xc:253,ILR:80,Im:4.65,C:0.0022,Rb:50000,OV:810,OVC:760,UV:380};
 const VLAMP=[["pwr","Drive power","g"],["run","Run","g"],["spd","At speed","g"],["ilim","Current limit","a"],["ovc","OV control","a"],["byp","Bypass","a"],["flt","Fault","r"]];
 
 function vSvg(p){
@@ -741,9 +749,9 @@ ${L.map(y=>`<circle cx="190" cy="${y}" r="3" fill="var(--ink)"/>`).join("")}
 <g class="part" data-p="plate" tabindex="0">
  <rect class="hl" x="560" y="352" width="230" height="76" rx="3" fill="url(#zAlu)" stroke="#5f686d" filter="url(#zShadow)"/>${zScrew(565,357,2)}${zScrew(785,357,2)}${zScrew(565,423,2)}${zScrew(785,423,2)}
  <text x="568" y="368" font-family="var(--mono)" font-size="10" fill="#1d2327">10 HP  3 PH  460 V  60 Hz</text>
- <text x="568" y="383" font-family="var(--mono)" font-size="10" fill="#1d2327">FLA 14.0 A   1760 RPM  SF 1.15</text>
+ <text x="568" y="383" font-family="var(--mono)" font-size="10" fill="#1d2327">FLA 13.3 A   1760 RPM  SF 1.15</text>
  <text x="568" y="398" font-family="var(--mono)" font-size="10" fill="#1d2327">TEFC  INS CLASS F  NEMA DES B</text>
- <text x="568" y="413" font-family="var(--mono)" font-size="10" fill="#1d2327">CODE G   EFF 91.7%   40°C AMB</text>
+ <text x="568" y="413" font-family="var(--mono)" font-size="10" fill="#1d2327">CODE H   EFF 91.7%   40°C AMB</text>
 </g>
 <text class="val" id="${p}loadTxt" x="560" y="448" font-size="12"></text>
 <!-- scope -->
@@ -760,7 +768,7 @@ ${L.map(y=>`<circle cx="190" cy="${y}" r="3" fill="var(--ink)"/>`).join("")}
 `}
 
 const VMET=(()=>{const lock=S=>S.disc||S.bus>50;const no="Refused: disconnect off and DC bus under 50 V first";
- const ohm=(S,F,pair)=>{if(lock(S))return no;if(F.lead&&pair.includes("2"))return "OL (open circuit)";if(F.turn&&pair.includes("1"))return "0.98 Ω";return "1.25 Ω"};
+ const ohm=(S,F,pair)=>{if(lock(S))return no;if(F.lead&&pair.includes("2"))return "OL (open circuit)";if(F.turn&&pair.includes("1"))return "1.17 Ω";return "1.25 Ω"};
  const halfIn=(S,F)=>`${f0(F.fuse&&S.vl?S.vl*0.5:S.vl)} V AC`;
  return [
  ["Supply L1–L2 (line side of disconnect), V AC",(S,F,V)=>`${f0(V.line*(F.brown?0.72:1))} V AC`],
@@ -777,7 +785,7 @@ const VMET=(()=>{const lock=S=>S.disc||S.bus>50;const no="Refused: disconnect of
  ["Motor T1–T2 (leads lifted), Ω",(S,F)=>ohm(S,F,"12")],
  ["Motor T2–T3 (leads lifted), Ω",(S,F)=>ohm(S,F,"23")],
  ["Motor T1–T3 (leads lifted), Ω",(S,F)=>ohm(S,F,"13")],
- ["Megger T1 to ground at 500 V DC (leads lifted), MΩ",(S,F)=>lock(S)?no:F.gnd?"0.06 MΩ (fail: IEEE 43 minimum is 5)":"1850 MΩ (pass)"],
+ ["Megger T1 to ground at 500 V DC (leads lifted), MΩ",(S,F)=>lock(S)?no:F.gnd?"0.00 MΩ (dead short to ground: fail, IEEE 43 minimum is 5)":"1850 MΩ (pass)"],
  ["Drive T1 to DC− (diode test, power off)",(S,F)=>lock(S)?no:F.igbt?"0.000 V (shorted)":"0.38 V (normal diode drop)"],
  ["Motor frame (IR thermometer), °F",(S,F,V)=>`${f0((S.mt*0.8+(V.amb-32)/1.8*0.2)*1.8+32)}°F`]]})();
 
@@ -788,7 +796,7 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
   {k:"dec",l:"Decel time (60 to 0 Hz)",u:" s",min:0.5,max:60,step:0.5,v:20,n:[8,60],note:"Too short and the spinning fan drives the motor as a generator, pumping up the DC bus."},
   {k:"load",l:"Load at full speed",u:"%",min:0,max:150,step:5,v:80,n:[0,100],note:"Percent of the motor's rated torque at 1760 rpm."},
   {k:"line",l:"Supply voltage",u:" V",min:300,max:560,step:5,v:480,n:[432,528],note:"480 V ±10%",more:1},
-  {k:"ol",l:"Motor overload setting",u:" A",min:5,max:25,step:0.5,v:14,n:[13,16.1],note:"Set it to the nameplate FLA: 14 A.",more:1},
+  {k:"ol",l:"Motor overload setting",u:" A",min:5,max:25,step:0.1,v:13.3,n:[13,16.6],note:"Set it to the nameplate FLA: 13.3 A. NEC 430.32 allows up to 125% (16.6 A) on a 1.15 service factor motor.",more:1},
   {k:"amb",l:"Room temperature",u:"°F",min:30,max:130,step:1,v:86,n:[32,104],note:"Drives are usually rated for 104°F (40°C) without derating.",more:1}],
  faults:[["fuse","Supply fuse F3 blown (phase loss)"],["brown","Supply sags (brownout)"],["caps","DC bus capacitors worn out"],["hsfan","Drive cooling fan failed"],
   ["igbt","Output transistor (IGBT) shorted"],["lead","Motor lead T2 loose in the motor box"],["gnd","Motor winding shorted to ground"],["turn","Turn-to-turn short in the T1 winding"],
@@ -797,7 +805,7 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
  scenarios:[{l:"Single-phased in bypass with the overload relay jumpered out",f:["fuse","olJump"],s:{bypass:true,cmd:true},speed:5},
   {l:"Conveyor at 15 Hz, full load, drive overload set to 25 A",f:[],v:{fref:15,load:110,ol:25},s:{ltype:"conv",cmd:true},speed:60}],
  startMsg(){return "Drive powered up on a 480 V supply, driving a 10 hp fan motor. Turn the Run command on to start it."},
- init(){const V=this.V;return {t:0,dead:null,disc:true,cmd:false,dir:1,dirOut:1,bypass:false,ltype:"fan",stopMode:"ramp",stall:true,labels:true,
+ init(){const V=this.V;return {t:0,dead:null,disc:true,invDuty:false,cmd:false,dir:1,dirOut:1,bypass:false,ltype:"fan",stopMode:"ramp",stall:true,labels:true,
   f:0,out:false,n:0,bus:V.line*1.414,charged:true,vl:0,ripple:0,I:0,Ia:[0,0,0],T:0,Tl:0,Vout:0,th:0.3,hs:30,mt:30,fault:null,faultTxt:"",ilim:false,ovc:false,
   olr:false,olrTh:0.3,fuses:false,ang:0,hsAng:0,aoff:0,boxX:0,scph:0,tLead:0,logs2:{pc:1}}},
  switches:[
@@ -810,6 +818,7 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
   {l:S=>`Direction: ${S.dir>0?"forward":"reverse"}`,on:S=>S.dir<0,act(sim){const S=sim.S;S.dir=-S.dir;log(sim,`Direction set to ${S.dir>0?"forward":"reverse"}.`+(S.bypass?" (In bypass the motor turns whichever way its wiring makes it.)":""))}},
   {l:S=>`Mode: ${S.bypass?"bypass":"drive"}`,on:S=>S.bypass,act(sim){const S=sim.S;if(S.cmd||Math.abs(S.n)>20){log(sim,"Stop the motor before switching between drive and bypass.","w");return}S.bypass=!S.bypass;log(sim,S.bypass?"Bypass selected: the motor will run across the line at full speed, protected by the overload relay.":"Drive mode selected.")}},
   {l:S=>`Load: ${S.ltype==="fan"?"fan":"conveyor"}`,on:S=>S.ltype==="conv",act(sim){const S=sim.S;if(Math.abs(S.n)>5){log(sim,"Stop the motor before changing the load.","w");return}S.ltype=S.ltype==="fan"?"conv":"fan";log(sim,S.ltype==="fan"?"Fan load: torque rises with speed squared, heavy wheel.":"Conveyor load: same torque at every speed.")}},
+  {l:S=>`Motor: ${S.invDuty?"inverter duty":"standard"}`,on:S=>S.invDuty,act(sim){const S=sim.S;if(Math.abs(S.n)>5){log(sim,"Stop the motor before changing it.","w");return}S.invDuty=!S.invDuty;log(sim,S.invDuty?"Inverter-duty motor: rated for full torque down to low speed (separate blower), spike-resistant insulation. The drive's overload no longer derates at low speed.":"Standard motor: its shaft fan cools less at low speed, so the drive lowers its overload trip point below 45 Hz.")}},
   {l:S=>`Stop mode: ${S.stopMode}`,on:S=>S.stopMode==="coast",act(sim){const S=sim.S;S.stopMode=S.stopMode==="ramp"?"coast":"ramp";log(sim,`Stop mode set to ${S.stopMode}.`)}},
   {l:S=>`Stall prevention: ${S.stall?"on":"off"}`,on:S=>S.stall,act(sim){const S=sim.S;S.stall=!S.stall;log(sim,S.stall?"Stall prevention on: the drive holds its ramp at current limit and on a high DC bus.":"Stall prevention off: the drive trips instead of riding through.",S.stall?"":"w")}},
   {l:S=>`Labels: ${S.labels===false?"off":"on"}`,on:S=>S.labels!==false,act(sim){sim.S.labels=sim.S.labels===false}}],
@@ -895,8 +904,10 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
    else if(S.bus<VM.UV)trip("UV",`DC bus undervoltage (${f0(S.bus)} V)`);
    else if(S.ripple>60)trip("PHL",`Input phase loss (DC bus ripple ${f0(S.ripple)} V)`);
    else if(I>2.5*FLA)trip("OC",`Overcurrent (${I.toFixed(0)} A)`)}
-  S.th+=((S.bypass?0:Imax/V.ol)**2-S.th)*h/200;
-  if(!S.bypass&&S.out&&S.th>=1.3225)trip("OL",`Motor overload (${Imax.toFixed(1)} A against a ${V.ol} A setting)`);
+  // drive's electronic overload: a standard motor's limit drops below 45 Hz (60% at zero speed in this sim)
+  const olEff=V.ol*(S.invDuty?1:Math.min(1,0.6+0.4*S.f/45));S.olEff=olEff;
+  S.th+=((S.bypass?0:Imax/olEff)**2-S.th)*h/200;
+  if(!S.bypass&&S.out&&S.th>=1.3225)trip("OL",`Motor overload (${Imax.toFixed(1)} A against ${olEff<V.ol-0.05?`${olEff.toFixed(1)} A, the ${V.ol} A setting lowered for low speed`:`a ${V.ol} A setting`})`);
   const hsT=ambC+(S.out?6+28*(Imax/FLA)**2:0)*(F.hsfan?3.2:1);S.hs+=(hsT-S.hs)*h/60;
   if(S.out&&S.hs>=95)trip("OH",`Heatsink overtemperature (${f0(S.hs)}°C)`);
   if(S.bus<150){if(S.fault){S.fault=null;log(sim,"Drive control powered down. The fault clears on power-up.")}if(!S.bypass)S.cmd=false}
@@ -904,7 +915,7 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
   S.olrTh+=((S.bypass&&on?Imax/V.ol:0)**2-S.olrTh)*h/200;
   if(S.bypass&&!F.olJump&&!S.olr&&S.olrTh>=1.3225){S.olr=true;log(sim,`Bypass overload relay tripped at ${Imax.toFixed(0)} A. Contactor dropped out. Manual reset.`,"b")}
   // ---- motor heating (TEFC: the shaft fan cools less at low speed) ----
-  const cool=0.35+0.65*Math.min(1,Math.abs(S.n)/1760);
+  const cool=S.invDuty&&!S.bypass?1:0.4+0.6*Math.min(1,Math.abs(S.n)/1760);
   const rise=90*(Imax/FLA)**2*(F.bearing?1.15:1)*(F.turn?1.35:1)/cool;
   S.mt+=(ambC+rise-S.mt)*h/900;
   if(S.mt>=155&&!S.logs2.mt){S.logs2.mt=1;log(sim,"Motor winding past 311°F, its Class F insulation rating.","b")}
@@ -963,23 +974,23 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
   if(kind==="shock")return{t:"Shocked by the DC bus",b:`<p>The disconnect was off, but the drive's DC bus capacitors still held ${f0(S.bus)} V DC. That is enough to kill.</p><ul>${li(1,"Opened the drive without measuring the DC bus first.","")}</ul><p>After you lock out, wait the time on the drive's warning label (often 5 to 15 minutes), then measure DC bus + to − with a meter rated for it before you touch anything.</p><small>Simplified: in this sim the bus bleeds down with about a 2 minute time constant.</small>`,wreck:0};
   return{t:"Motor winding burned up",b:`<p>The stator winding reached ${f0(S.mt*1.8+32)}°F. The insulation charred and the winding shorted. The motor needs a rewind or a replacement.</p><ul>
    ${S.bypass&&(F.fuse||F.lead)?li(1,"Single-phased across the line: a stalled motor draws locked-rotor current with no cooling."):""}
-   ${S.bypass?li(F.olJump,"Overload relay jumpered out: nothing opened the contactor.","Overload relay."):li(V.ol>16.1,`Drive overload set to ${V.ol} A instead of the 14 A nameplate FLA.`,"Drive motor overload setting.")}
-   ${!S.bypass&&Math.abs(S.n)<900?li(1,"Ran slow under a heavy constant-torque load: the motor's own shaft fan barely moves air at low speed."):""}
+   ${S.bypass?li(F.olJump,"Overload relay jumpered out: nothing opened the contactor.","Overload relay."):li(V.ol>16.6,`Drive overload set to ${V.ol} A instead of the 13.3 A nameplate FLA.`,"Drive motor overload setting.")}
+   ${!S.bypass&&Math.abs(S.n)<900&&!S.invDuty?li(1,"Ran slow under a heavy constant-torque load: the motor's own shaft fan barely moves air at low speed."):""}
    ${F.jam?li(1,"Load jammed."):""}</ul><p>Set the overload to the nameplate FLA. For long low-speed runs at high torque, use an inverter-duty motor, a separate blower or a winding thermostat.</p><small>Simplified: heating is sped up.</small>`,wreck:1};
  },
  parts:{
-  disconnect:{n:"Fused disconnect",s:"Isolates the drive from the 480 V supply and protects it.",w:"A three-pole switch with a fuse on each line. Semiconductor-rated fuses are common ahead of drives.",y:"Turning it off removes the supply, but the drive's DC bus stays charged for minutes.",f:"One blown fuse is a phase loss: the drive sees heavy DC bus ripple and trips on input phase loss when loaded. Across the line, the motor single-phases.",src:["emvfd","yask"],faults:["fuse","brown"]},
-  contactor:{n:"Bypass contactor and overload relay",s:"Runs the motor straight across the line if the drive fails.",w:"A three-pole contactor with a thermal or electronic overload relay (class 10 here), set to the motor's FLA.",y:"In bypass the motor starts at full voltage and 60 Hz: about 6 times FLA inrush and full speed only.",f:"A jumpered or oversized overload relay lets a stalled or single-phased motor burn up.",src:["lra","flc"],faults:["olJump"]},
+  disconnect:{n:"Fused disconnect",s:"Isolates the drive from the 480 V supply and protects it.",w:"A three-pole switch with a fuse on each line. Use the fuse class the drive manual lists, often Class J or semiconductor fuses.",y:"Turning it off removes the supply, but the drive's DC bus stays charged for minutes.",f:"One blown fuse is a phase loss: the drive sees heavy DC bus ripple and trips on input phase loss when loaded. Across the line, the motor single-phases.",src:["emvfd","yask"],faults:["fuse","brown"]},
+  contactor:{n:"Bypass contactor and overload relay",s:"Runs the motor straight across the line if the drive fails.",w:"A three-pole contactor with a thermal or electronic overload relay (class 10 here), set to the motor's FLA.",y:"In bypass the motor starts at full voltage and 60 Hz: about 6 times FLA inrush (80 A here; NEMA allows up to 81 A for 10 hp at 460 V) and full speed only. A real bypass package also has a drive output contactor. The two are interlocked electrically and often mechanically, so line power can never reach the drive output, which would destroy the IGBTs.",f:"A jumpered or oversized overload relay lets a stalled or single-phased motor burn up. A failed interlock that closes both contactors at once backfeeds the drive output.",src:["lrmax","bypint","lra"],faults:["olJump"]},
   rectifier:{n:"Rectifier",s:"Turns three-phase AC into DC.",w:"Six diodes in a bridge, two per phase.",y:"Each diode conducts when its phase is the highest (or lowest), charging the DC bus to about 1.35 to 1.41 times the line voltage: about 650 V DC on 480 V.",f:"A blown diode or a missing phase makes the bus sag and ripple under load.",src:["emvfd"],faults:["fuse"]},
   dcbus:{n:"DC bus capacitors",s:"Store energy and smooth the DC.",w:"Large electrolytic capacitors across the + and − bus.",y:"They hold the bus steady between rectifier pulses and soak up energy the motor sends back when slowing down. Normal: about 650 V on 480 V. The drive trips at about 800 V (overvoltage) and about 380 V (undervoltage).",f:"Aged capacitors lose capacitance: more ripple and faster overvoltage trips. They hold a lethal charge after power is removed.",src:["yask","acs580","dcov"],faults:["caps"]},
   inverter:{n:"Inverter (IGBTs)",s:"Switches the DC bus into variable-frequency AC.",w:"Six insulated gate bipolar transistors, two per output phase.",y:"They switch thousands of times a second (pulse width modulation). The width of the pulses sets the voltage, their pattern sets the frequency, and the motor's inductance smooths the current into a sine wave.",f:"A shorted IGBT trips the drive instantly on short circuit or desaturation. Check with a diode test from each output to DC+ and DC− with the power off.",src:["emvfd"],faults:["igbt"]},
-  keypad:{n:"Keypad and display",s:"Run, stop, reset, and the readouts.",w:"Shows output frequency, current, voltage and DC bus, plus fault codes.",y:"Parameters set the accel and decel times, the motor's nameplate data and overload, the stop mode and stall prevention.",f:"Read the fault code and the fault history first: they say where to look.",src:["emvfd"],faults:[]},
+  keypad:{n:"Keypad and display",s:"Run, stop, reset, and the readouts.",w:"Shows output frequency, current, voltage and DC bus, plus fault codes.",y:"Parameters set the accel and decel times, the motor's nameplate data and overload, the stop mode and stall prevention. The motor type matters: for a standard motor the drive lowers its overload trip point at low speed because the shaft fan cools less (Yaskawa does this automatically; on ABB you set the load curve, zero speed load and break point).",f:"Read the fault code and the fault history first: they say where to look. An overload trip at low speed on a correctly set drive usually means the motor is working too hard for its cooling.",src:["emvfd","yol","abbol"],faults:[]},
   hsfan:{n:"Drive cooling fan",s:"Cools the heatsink under the IGBTs.",w:"A fan blowing across the aluminum heatsink.",y:"Drive losses are a few percent of the power and end up as heat in the heatsink.",f:"A dead fan or dirty heatsink trips the drive on overtemperature under load. High room temperature does the same.",src:["emvfd"],faults:["hsfan"]},
-  motor:{n:"Induction motor",s:"10 hp, 460 V, 4-pole, TEFC.",w:"A stator winding makes a rotating magnetic field; the rotor bars are dragged along slightly slower than the field (slip).",y:"Synchronous speed = 120 × frequency ÷ poles: 1800 rpm at 60 Hz. At full load it slips to about 1760 rpm. The drive keeps volts per hertz constant (460 ÷ 60 = 7.7 V/Hz) up to 60 Hz.",f:"Check winding resistance (all three equal), insulation to ground with a megger (IEEE 43: at least 5 MΩ), current balance, bearings and temperature. A megger won't find a turn-to-turn short; unequal resistance and current will.",src:["induct","ieee43","flc"],faults:["gnd","turn","lead","bearing","swap"]},
-  fanload:{n:"Fan",s:"A variable-torque load.",w:"A heavy centrifugal fan wheel.",y:"Affinity laws: airflow follows speed, pressure follows speed squared, power follows speed cubed. At 80% speed the fan needs only about half the power.",f:"Its heavy wheel keeps spinning: a short decel time turns the motor into a generator and pumps up the DC bus. Two leads swapped run it backward with far less airflow.",src:["affin","dcov"],faults:["jam","swap"]},
+  motor:{n:"Induction motor",s:"10 hp, 460 V, 4-pole, TEFC.",w:"A stator winding makes a rotating magnetic field; the rotor bars are dragged along slightly slower than the field (slip).",y:"Synchronous speed = 120 × frequency ÷ poles: 1800 rpm at 60 Hz. At full load it slips to about 1760 rpm. The drive keeps volts per hertz constant (460 ÷ 60 = 7.7 V/Hz) up to 60 Hz.",f:"Check winding resistance (all three equal), insulation to ground with a megger (IEEE 43: at least 5 MΩ), current balance, bearings and temperature. A megger won't find a turn-to-turn short; unequal resistance (more than about 5% apart) and current will. Drive-fed motors have two extra failure modes: bearing currents that pit the races into a washboard pattern (EDM fluting; prevented with a shaft grounding ring or insulated bearing), and voltage spikes at the motor on long leads (up to about twice the DC bus; use an inverter-duty motor rated to NEMA MG 1 Part 31, or a dV/dt filter).",src:["induct","ieee43","brgcur","refl"],faults:["gnd","turn","lead","bearing","swap"]},
+  fanload:{n:"Fan",s:"A variable-torque load.",w:"A heavy centrifugal fan wheel.",y:"Affinity laws: airflow follows speed, pressure follows speed squared, power follows speed cubed. At 80% speed the fan needs only about half the power.",f:"Its heavy wheel keeps spinning: a short decel time turns the motor into a generator and pumps up the DC bus. Two leads swapped run it backward: a centrifugal fan still blows the same direction, but with far less airflow.",src:["affin","dcov"],faults:["jam","swap"]},
   conveyor:{n:"Conveyor",s:"A constant-torque load.",w:"A belt conveyor through a gearbox.",y:"It needs about the same torque at every speed, so the motor draws near full current even when slow.",f:"At low speed the motor's shaft fan barely cools it. A jam stalls it and trips the overload.",src:["induct"],faults:["jam"]},
-  plate:{n:"Nameplate",s:"The motor's ratings.",w:"Horsepower, voltage, full load amps, rpm, service factor, insulation class, enclosure.",y:"Enter the nameplate FLA in the drive and set the overload to it. 14 A matches the NEC full load current for a 10 hp, 460 V motor.",f:"",src:["flc"],faults:[]},
-  scope:{n:"Scope",s:"What the drive's output actually looks like.",w:"Yellow: voltage between T1 and T2. Cyan: current in T1.",y:"The voltage is a train of full-bus pulses whose width follows a sine wave. The current is close to a smooth sine. In bypass both are the plain 60 Hz line.",f:"Because of the pulses, measure drive output voltage with a meter's low-pass or VFD mode.",src:["emvfd"],faults:[]}}
+  plate:{n:"Nameplate",s:"The motor's ratings.",w:"Horsepower, voltage, full load amps, rpm, service factor, insulation class, enclosure.",y:"Enter the nameplate FLA (13.3 A) in the drive and set the overload to it. Wire and breaker sizing use the NEC table instead (14 A for 10 hp at 460 V), which is usually a bit higher than the nameplate. Code H means 6.3 to 7.1 kVA per hp locked rotor: 79 to 89 A for this motor.",f:"",src:["nec430","flc","motor10"],faults:[]},
+  scope:{n:"Scope",s:"What the drive's output actually looks like.",w:"Yellow: voltage between T1 and T2. Cyan: current in T1.",y:"The voltage is a train of full-bus pulses whose width follows a sine wave. The current is close to a smooth sine. In bypass both are the plain 60 Hz line.",f:"Because of the pulses, measure drive output voltage with a meter's low-pass or VFD mode. Real drives switch at about 2 to 16 kHz; this scope draws the pulses far slower so you can see them.",src:["emvfd","refl"],faults:[]}}
 };
 VFD.lampOn=S=>({pwr:S.bus>=200,run:S.out||(S.bypass&&S.Vout>0),spd:S.out&&Math.abs(S.f-(S.cmd?VFD.V.fref:0))<0.2,ilim:S.ilim,ovc:S.ovc,byp:S.bypass,flt:!!S.fault||S.olr||S.fuses});
 
@@ -1045,7 +1056,7 @@ function partHTML(k){const sim=cur,d=sim.parts[k];const im=ill(sim.id,k)+(k==="r
 function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
-function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts="__"}
+function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=null}
 function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
@@ -1054,7 +1065,7 @@ function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur
   cur.draw(0)}
 function showTab(t){tab=t;document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));["controls","failures","parts","log"].forEach(x=>$("p-"+x).hidden=x!==t);try{localStorage.setItem("vt-tab",t)}catch(e){}}
 function setSpeed(s){speed=s;$("speed").value=String(s)}
-let lastAlerts="";
+let lastAlerts=null;
 function syncStrip(){const S=cur.S;
   const rd=cur.reads(S).map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");if($("reads").innerHTML!==rd)$("reads").innerHTML=rd;
   const on=cur.lampOn(S);cur.lamps.forEach(l=>{const e=$("L_"+l[0]);if(e)e.classList.toggle("on",!!on[l[0]])});
