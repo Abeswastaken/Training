@@ -1,5 +1,5 @@
 
-const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" text-anchor="${anchor}">${t}</text>`;
+const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>{const w=String(t).length*6.6;if(anchor==="start"&&tx+w>336){anchor="end";tx=336}if(anchor==="end"&&tx-w<4){anchor="start";tx=4}return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" stroke="#fff" stroke-width="3" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" text-anchor="${anchor}">${t}</text>`};
 const zFA=(d,col)=>`<path d="${d}" stroke="${col}" class="zFlow"/>`;
 function zSpiral(cx,cy,a0,turns,b,rot){let d="";for(let i=0;i<=turns*48;i++){const t=i/48*2*Math.PI,r=4+b*t,x=cx+r*Math.cos(t+a0+rot),y=cy+r*0.62*Math.sin(t+a0+rot);d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return d}
 ZILL.compressor=`

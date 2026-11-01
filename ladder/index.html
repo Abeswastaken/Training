@@ -141,6 +141,15 @@ details .group{gap:10px}
 .ticket{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--paper)}
 .ticket p{margin:6px 0}.ticket select{width:100%;margin:4px 0 8px}.ticket .hint{color:var(--warn);font-weight:600}
 .ticket .good{color:var(--ok);font-weight:700}.svcmeta{font-size:12px;color:var(--muted)}
+/* System tabs: separate raised buttons so it is obvious there is more than one page */
+.seg{gap:6px;border:0;border-radius:0;overflow:visible;flex-wrap:wrap;align-items:center}
+.seg::before{content:"Systems:";font-family:var(--display);font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+.seg button{border:1.5px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);box-shadow:0 2px 0 var(--panel-edge)}
+.seg button:hover{border-color:var(--brass)}
+.seg button[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
+.tabs button{background:var(--paper);color:var(--ink);border:1px solid var(--panel-edge);box-shadow:0 1px 0 var(--panel-edge)}
+.tabs button:hover{border-color:var(--brass)}
+.tabs button[aria-selected="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
 :root{--hotw:#d0312d;--hotf:#ffd3cf}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hotw:#ff5a4f;--hotf:#5a1d1a}}
 :root[data-theme="dark"]{--hotw:#ff5a4f;--hotf:#5a1d1a}
@@ -393,7 +402,7 @@ function zGauge(cx,cy,r,col,needleId,maxLbl){let t="";for(let i=0;i<=20;i++){con
 const ZILL={};
 const zillSvg=k=>ZILL[k]?`<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${typeof ZILL[k]==="function"?ZILL[k]():ZILL[k]}</svg>`:"";
 
-const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" text-anchor="${anchor}">${t}</text>`;
+const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>{const w=String(t).length*6.6;if(anchor==="start"&&tx+w>336){anchor="end";tx=336}if(anchor==="end"&&tx-w<4){anchor="start";tx=4}return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" stroke="#fff" stroke-width="3" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" text-anchor="${anchor}">${t}</text>`};
 const zFA=(d,col)=>`<path d="${d}" stroke="${col}" class="zFlow"/>`;
 function zSpiral(cx,cy,a0,turns,b,rot){let d="";for(let i=0;i<=turns*48;i++){const t=i/48*2*Math.PI,r=4+b*t,x=cx+r*Math.cos(t+a0+rot),y=cy+r*0.62*Math.sin(t+a0+rot);d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return d}
 ZILL.compressor=`

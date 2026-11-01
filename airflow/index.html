@@ -141,6 +141,15 @@ details .group{gap:10px}
 .ticket{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--paper)}
 .ticket p{margin:6px 0}.ticket select{width:100%;margin:4px 0 8px}.ticket .hint{color:var(--warn);font-weight:600}
 .ticket .good{color:var(--ok);font-weight:700}.svcmeta{font-size:12px;color:var(--muted)}
+/* System tabs: separate raised buttons so it is obvious there is more than one page */
+.seg{gap:6px;border:0;border-radius:0;overflow:visible;flex-wrap:wrap;align-items:center}
+.seg::before{content:"Systems:";font-family:var(--display);font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+.seg button{border:1.5px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);box-shadow:0 2px 0 var(--panel-edge)}
+.seg button:hover{border-color:var(--brass)}
+.seg button[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
+.tabs button{background:var(--paper);color:var(--ink);border:1px solid var(--panel-edge);box-shadow:0 1px 0 var(--panel-edge)}
+.tabs button:hover{border-color:var(--brass)}
+.tabs button[aria-selected="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
 /* Refrigeration additions */
 :root{--r-dis:#d23a26;--r-liq:#e8892b;--r-mix:#2f6fd6;--r-suc:#6fb3e8;--air-warm:#e0662a;--air-cool:#3d8fe0;--ice:#eef6fb}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:4px 10px 2px;font-size:12px;color:var(--muted)}
@@ -320,7 +329,7 @@ const ILL={
  tstat:`${box(36,20,88,80,"#efece4",10)}${box(48,32,64,34,"#2f3337",4)}${label(80,55,"74°",WH,16)}${label(80,82,"COOL  AUTO",K,7)}`,
  room:`<path d="M20 60 L80 16 L140 60 V110 H20 Z" fill="#e9e6dd" stroke="${K}" stroke-width="1.2"/>${box(66,74,28,36,"#8a6a4a",2)}${box(34,70,20,18,"#cfe6f5",1)}${box(106,70,20,18,"#cfe6f5",1)}${label(80,52,"74°F",K,10)}`
 };
-const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
+const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const big=cur&&cur.id===simId&&cur.illL&&cur.illL[k];if(big)return `<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${big}</svg>`;const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
 
 /*RZ-BEGIN*/
 /* ============ REALISTIC PARTS LIBRARY (shared by every trainer) ============ */
@@ -455,7 +464,7 @@ function zGauge(cx,cy,r,col,needleId,maxLbl){let t="";for(let i=0;i<=20;i++){con
 const ZILL={};
 const zillSvg=k=>ZILL[k]?`<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${typeof ZILL[k]==="function"?ZILL[k]():ZILL[k]}</svg>`:"";
 
-const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" text-anchor="${anchor}">${t}</text>`;
+const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>{const w=String(t).length*6.6;if(anchor==="start"&&tx+w>336){anchor="end";tx=336}if(anchor==="end"&&tx-w<4){anchor="start";tx=4}return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" stroke="#fff" stroke-width="3" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" text-anchor="${anchor}">${t}</text>`};
 const zFA=(d,col)=>`<path d="${d}" stroke="${col}" class="zFlow"/>`;
 function zSpiral(cx,cy,a0,turns,b,rot){let d="";for(let i=0;i<=turns*48;i++){const t=i/48*2*Math.PI,r=4+b*t,x=cx+r*Math.cos(t+a0+rot),y=cy+r*0.62*Math.sin(t+a0+rot);d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return d}
 ZILL.compressor=`
