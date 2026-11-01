@@ -54,6 +54,7 @@ h1{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.04e
 .reads div{display:flex;flex-direction:column;gap:1px;min-width:0}
 .reads span{font-family:var(--display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
 .reads b{font-family:var(--mono);font-weight:500;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){.reads b{white-space:normal;overflow-wrap:anywhere;font-size:17px;line-height:1.15}}
 .lamps{display:flex;flex-wrap:wrap;gap:6px 12px}
 .lamp{display:flex;align-items:center;gap:5px}
 .lamp i{width:11px;height:11px;border-radius:50%;background:var(--lamp-off);flex:none}
