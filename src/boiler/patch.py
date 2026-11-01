@@ -22,6 +22,8 @@ B('''feeder:{n:"Automatic water feeder",s:"Adds water when the level drops.",w:"
 B('''fill:{n:"Fill valve",s:"Adds city water to hold fill pressure.",w:"A pressure-reducing valve. It lowers city water pressure and adds water whenever system pressure drops below its setting.",''',
 '''fill:{n:"Fill valve",s:"Adds city water to hold fill pressure.",w:"A pressure-reducing valve. It lowers city water pressure and adds water whenever system pressure drops below its setting. Piping order: city water, backflow preventer, fill valve, then a tee into the expansion tank line under the air separator. That's the point of no pressure change, so the fill valve holds the pressure there.",''')
 exec(open('patch_two.py').read())
+# tag boiler feedback like the other trainers do
+B('body.append(FEEDBACK.entry,text);','body.append(FEEDBACK.entry,"[Boiler] "+text);')
 open('../dist/boiler-trainer.html','w').write(b)
 full='<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
 i=b.index('<div class="wrap">')

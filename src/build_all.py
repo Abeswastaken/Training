@@ -13,4 +13,13 @@ def run(script,cwd='.'):
     print('==',script);subprocess.run([sys.executable,script],cwd=os.path.join(here,cwd),check=True)
 for s in ['build.py','build_heat.py','build_ctl.py','build_wiring.py','build_ladder.py','build_vfd.py']:run(s)
 run('patch.py','boiler')
+# every page gets the feedback About picker
+fa='<script>\n'+open('fb_about.js').read()+'</script>\n'
+import glob
+for f in glob.glob('dist/*-trainer.html')+glob.glob('dist/full*.html'):
+    s=open(f).read()
+    if 'fbAbout' in s:continue
+    i=s.rfind('</body>')
+    s=s[:i]+fa+s[i:] if i>=0 else s+fa
+    open(f,'w').write(s)
 run('build_site.py')
