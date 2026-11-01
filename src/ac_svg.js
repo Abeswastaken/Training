@@ -17,7 +17,7 @@ function acSvg(p,hp){
 <rect x="400" y="16" width="10" height="436" fill="url(#zBrick)" stroke="#8a7d66" stroke-width=".8"/>
 <!-- outdoor unit cabinet (behind the piping) -->
 ${zShade(610,442,170,4)}
-<rect x="450" y="170" width="320" height="270" rx="5" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5"/>
+<path d="M770 170 L782 162 V432 L770 440 Z" fill="url(#r_paintS)"/><path d="M450 170 L462 162 H782 L770 170 Z" fill="url(#r_paintT)"/><rect x="450" y="170" width="320" height="270" rx="4" fill="url(#r_paintF)" filter="url(#rGrain)" stroke="#3a444c" stroke-width="1"/>
 <rect x="456" y="178" width="308" height="256" rx="2" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 ${[[455,175],[765,175],[455,435],[765,435]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
 ${hp?"":`<text class="zl" x="462" y="300">Outdoor unit</text>`}
@@ -28,8 +28,8 @@ ${hp?"":`<text class="zl" x="462" y="300">Outdoor unit</text>`}
 <g class="part" data-p="tstat" tabindex="0">${zTstat(30,72,46,50,p+"tstatTxt",p+"tstatLamp")}<text class="lblS" x="53" y="138" text-anchor="middle">Thermostat</text></g>
 
 <!-- air handler cabinet (cut away) -->
-<g filter="url(#zShadow)"><rect x="150" y="150" width="180" height="280" rx="3" fill="url(#zCab)" stroke="#6f787e" stroke-width="1.4"/>
-<rect x="196" y="96" width="88" height="56" fill="url(#zCab)" stroke="#6f787e" stroke-width="1.4"/></g>
+${rSh(250,434,110,6)}<path d="M330 150 L342 142 V422 L330 430 Z" fill="url(#r_cabS)"/><path d="M150 150 L162 142 H196 V150 Z M284 150 V142 H342 L330 150 Z" fill="url(#r_cabT)"/><path d="M284 96 L296 88 V142 L284 150 Z" fill="url(#r_cabS)"/><path d="M196 96 L208 88 H296 L284 96 Z" fill="url(#r_cabT)"/><g filter="url(#zShadow)"><rect x="150" y="150" width="180" height="280" rx="3" fill="url(#r_cabF)" stroke="#6f787e" stroke-width="1"/>
+<rect x="196" y="96" width="88" height="56" fill="url(#r_cabF)" stroke="#6f787e" stroke-width="1"/></g>
 <rect x="157" y="157" width="166" height="266" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 <rect x="202" y="100" width="76" height="52" fill="url(#zCabIn)"/>
 ${[156,324].map(x=>[160,420].map(y=>zScrew(x-2,y,2.2)).join("")).join("")}
@@ -103,7 +103,7 @@ ${zScrew(cb.x+4,cb.y+4,2)}${zScrew(cb.x+cb.w-4,cb.y+4,2)}
 <!-- condenser / outdoor coil -->
 <g class="part" data-p="condenser" tabindex="0">
  <rect class="hl" x="724" y="200" width="40" height="224" rx="2" fill="#5f686d" stroke="#3b4247"/>
- <rect x="726" y="202" width="36" height="220" fill="url(#zFins)"/>
+ ${rFins(726,202,36,220,2.2)}
  ${coilRows}
  <path d="M726 204 V420" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
  <rect id="${p}cDirt" x="724" y="200" width="40" height="224" fill="#6b5a3a" opacity="0"/>

@@ -329,7 +329,7 @@ const ILL={
  tstat:`${box(36,20,88,80,"#efece4",10)}${box(48,32,64,34,"#2f3337",4)}${label(80,55,"74°",WH,16)}${label(80,82,"COOL  AUTO",K,7)}`,
  room:`<path d="M20 60 L80 16 L140 60 V110 H20 Z" fill="#e9e6dd" stroke="${K}" stroke-width="1.2"/>${box(66,74,28,36,"#8a6a4a",2)}${box(34,70,20,18,"#cfe6f5",1)}${box(106,70,20,18,"#cfe6f5",1)}${label(80,52,"74°F",K,10)}`
 };
-const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const big=cur&&cur.id===simId&&cur.illL&&cur.illL[k];if(big)return `<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${big}</svg>`;const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
+const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const v="0 0 340 250";const big=cur&&cur.id===simId&&cur.illL&&cur.illL[k];if(big)return `<svg class="ill" viewBox="${v}" aria-hidden="true">${big}</svg>`;if((ZSKIP[simId]||[]).includes(k)){const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];return own?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`:""}if(typeof RILL!=="undefined"&&(RILL[simId+":"+k]||RILL[k]&&(!RILL[k].only||RILL[k].only.includes(simId)))){const r=(RILL[simId+":"+k]||RILL[k]).s;return `<svg class="ill" viewBox="${v}" aria-hidden="true">${typeof r==="function"?r():r}</svg>`}const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
 
 /*RZ-BEGIN*/
 /* ============ REALISTIC PARTS LIBRARY (shared by every trainer) ============ */
@@ -404,42 +404,47 @@ const zCuStubH=(x1,x2,y,w=6)=>`<rect x="${x1}" y="${y-w/2}" width="${x2-x1}" hei
 // leader-line label
 const zLead=(x1,y1,x2,y2,tx,ty,t,anchor="start",cls="zt")=>`<path class="zlead" d="M${x1} ${y1} L${x2} ${y2}"/><circle cx="${x1}" cy="${y1}" r="1.8" fill="#4a5257"/><text class="${cls}" x="${tx}" y="${ty}" text-anchor="${anchor}">${t}</text>`;
 // hermetic compressor shell; ids optional
-function zCompressor(x,y,w,h,o={}){const cx=x+w/2,r=w/2;
-  return `${zShade(cx,y+h+2,w*.62,5)}
-  <rect x="${x-6}" y="${y+h-8}" width="${w+12}" height="9" rx="2" fill="url(#zSteelH)" stroke="#3b4247" stroke-width=".8"/>
-  ${[x-2,x+w-10].map(fx=>`<rect x="${fx}" y="${y+h-3}" width="12" height="6" rx="1.5" fill="#2a2f33"/>`).join("")}
-  <path class="hl" d="M${x} ${y+r*.9} Q${x} ${y} ${cx} ${y} Q${x+w} ${y} ${x+w} ${y+r*.9} V${y+h-8} H${x} Z" fill="url(#zShell)" stroke="#111" stroke-width="1"/>
-  <path d="M${x+4} ${y+r*.9} Q${x+6} ${y+6} ${cx} ${y+5}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3"/>
-  <rect x="${x}" y="${y+h*.42}" width="${w}" height="3" fill="#15181a" opacity=".7"/>
-  ${o.term?`<rect x="${x+w-4}" y="${y+h*.5}" width="10" height="16" rx="2" fill="url(#zPlasticDk)" stroke="#111"/>`:""}`}
+function zCompressor(x,y,w,h,o={}){const cx=x+w/2,r=w/2,ry=Math.max(3,w*.12);
+  return `${rSh(cx,y+h+3,w*.66,5)}
+  <path d="M${x-4} ${y+h-6} L${x-8} ${y+h+1} H${x+w+8} L${x+w+4} ${y+h-6} Z" fill="url(#r_blackV)"/>${[x-6,x+w-6].map(fx=>`<rect x="${fx}" y="${y+h-1}" width="12" height="4" rx="1.5" fill="#1a1d20"/>`).join("")}
+  <path class="hl" d="M${x} ${y+r*.8} Q${x} ${y} ${cx} ${y} Q${x+w} ${y} ${x+w} ${y+r*.8} V${y+h-8} A${r} ${ry} 0 0 1 ${x} ${y+h-8} Z" fill="url(#r_blackV)" filter="url(#rGrain)"/>
+  <path d="M${x+w*.18} ${y+r*.8} Q${x+w*.2} ${y+w*.12} ${cx} ${y+w*.08}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>
+  <path d="M${x} ${y+h*.42} A${r} ${ry} 0 0 0 ${x+w} ${y+h*.42}" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="2.4"/><path d="M${x} ${y+h*.42+2} A${r} ${ry} 0 0 0 ${x+w} ${y+h*.42+2}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1"/>
+  ${o.term?`${rBox(x+w-4,y+h*.5,10,16,5,"black",{r:2})}`:""}`}
+
 // pressure switch on a tube (lamp shows state)
-const zPswitch=(x,y,lampId,w=24,h=20)=>`<g filter="url(#zShadow)"><rect x="${x+w/2-3}" y="${y+h-2}" width="6" height="6" fill="url(#zBrass)"/><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2.6}" fill="url(#zPlasticDk)" stroke="#111"/></g><path d="M${x+3} ${y+3} q-6 -6 -10 -2" stroke="#e8e8e8" stroke-width="1.6" fill="none"/><circle id="${lampId}" cx="${x+w/2}" cy="${y+h/2}" r="4" fill="var(--lamp-off)" stroke="#000" stroke-width=".6"/>`;
+const zPswitch=(x,y,lampId,w=24,h=20)=>`${rHexV(x+w/2,y+h-1,5,4,"brass")}${rCylV(x+w/2,y+h+3,y+h+7,2.6,"brass",{top:false})}<g class="hl">${rBox(x,y,w,h,6,"black",{r:h/3})}</g><path d="M${x+3} ${y+3} q-6 -6 -10 -2" stroke="#e8e8e8" stroke-width="1.6" fill="none"/><circle id="${lampId}" cx="${x+w/2}" cy="${y+h/2}" r="4" fill="var(--lamp-off)" stroke="#000" stroke-width=".6"/>`;
+
 // definite-purpose contactor; bar is the moving armature contact, seen through the window
-const zContactor=(x,y,w,h,barId,lampId,barY)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="url(#zPlasticDk)" stroke="#111"/></g>
-  <rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h*.36}" rx="2" fill="#15181a"/>
-  <rect id="${barId}" x="${x+4}" y="${barY}" width="${w-8}" height="6" rx="1" fill="url(#zSteelH)"/>
-  ${zScrew(x+6,y+h*.55,2.6)}${zScrew(x+w-6,y+h*.55,2.6)}
-  <rect x="${x+w/2-7}" y="${y+h*.66}" width="14" height="${h*.26}" rx="2" fill="#cfa640" stroke="#6a4a12" stroke-width=".6"/>
+const zContactor=(x,y,w,h,barId,lampId,barY)=>`${rSh(x+w/2,y+h+2,w*.6,3)}<g class="hl">${rBox(x,y,w,h,8,"black",{r:3})}</g>
+  <rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h*.36}" rx="2" fill="#0d0f10"/><rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h*.36}" rx="2" fill="url(#rGlass)" opacity=".4"/>
+  <rect id="${barId}" x="${x+4}" y="${barY}" width="${w-8}" height="6" rx="1" fill="url(#r_chromeH)"/>
+  ${rTermS(x+6,y+h*.55)}${rTermS(x+w-6,y+h*.55)}
+  <rect x="${x+w/2-7}" y="${y+h*.66}" width="14" height="${h*.26}" rx="2" fill="url(#r_brassV)"/>
   <circle id="${lampId}" cx="${x+w/2}" cy="${y+h*.79}" r="3.4" fill="var(--lamp-off)" stroke="#000" stroke-width=".6"/>`;
+
 // dual run capacitor (bulgeId shows a swollen top)
-const zCap=(x,y,w,h,bulgeId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y+4}" width="${w}" height="${h-4}" rx="3" fill="url(#zAlu)" stroke="#5f686d"/></g>
-  <ellipse cx="${x+w/2}" cy="${y+5}" rx="${w/2}" ry="4" fill="url(#zAluTop)" stroke="#5f686d" stroke-width=".8"/>
-  ${[0.22,0.5,0.78].map(f=>`<rect x="${x+w*f-2}" y="${y-1}" width="4" height="5" fill="url(#zSteel)" stroke="#555" stroke-width=".4"/>`).join("")}
-  <rect x="${x+2}" y="${y+h*.45}" width="${w-4}" height="${h*.28}" fill="#f4f1ea" stroke="#999" stroke-width=".4"/><text x="${x+w/2}" y="${y+h*.63}" font-size="5.5" text-anchor="middle" font-family="sans-serif" fill="#333">45/5</text>
-  <path id="${bulgeId}" d="M${x} ${y+6} Q${x+w/2} ${y-12} ${x+w} ${y+6}" fill="url(#zAluTop)" stroke="var(--bad)" stroke-width="1.4" opacity="0"/>`;
+const zCap=(x,y,w,h,bulgeId)=>`${rSh(x+w/2,y+h+2,w*.7,3)}<g class="hl">${rCylV(x+w/2,y+4,y+h-2,w/2,"al",{ry:Math.max(2,w*.14)})}</g>
+  ${[0.25,0.5,0.75].map(f=>`<rect x="${x+w*f-2}" y="${y-2}" width="4" height="6" fill="url(#r_chromeV)"/>`).join("")}
+  <rect x="${x+2}" y="${y+h*.45}" width="${w-4}" height="${h*.28}" fill="#f4f1ea"/><text x="${x+w/2}" y="${y+h*.63}" font-size="5.5" text-anchor="middle" font-family="sans-serif" fill="#333">45/5</text>
+  <path id="${bulgeId}" d="M${x} ${y+6} Q${x+w/2} ${y-12} ${x+w} ${y+6}" fill="url(#r_alT)" stroke="var(--bad)" stroke-width="1.4" opacity="0"/>`;
+
 // pull-out disconnect box; handle id changes color when pulled
-const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="url(#zSteel)" stroke="#5f686d"/></g><rect x="${x+2}" y="${y+2}" width="${w-4}" height="5" fill="#9aa3a9"/>
-  <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
-  <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
+const zDisc=(x,y,w,h,hId)=>`${rSh(x+w/2,y+h+8,w*.7,3)}<g class="hl">${rBox(x,y,w,h,6,"paint",{r:2,grain:true})}</g>
+  <rect id="${hId}" x="${x+6}" y="${y+9}" width="${w-12}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="url(#r_redV)"/>
+  ${rCylV(x+w/2,y+h,y+h+7,3,"galv",{top:false})}`;
+
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
+const zDrier=(x,y,w,h,frostId,dir=1)=>`${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#r_blueH)"/>
+  ${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
+
 // wall thermostat with an LCD
-const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
-  <rect x="${x+6}" y="${y+7}" width="${w-12}" height="${h*.48}" rx="3" fill="url(#zLcd)" stroke="#6e7f71" stroke-width=".8"/>
+const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`${rSh(x+w/2,y+h+3,w*.6,3)}<g class="hl">${rBox(x,y,w,h,5,"white",{r:8})}</g>
+  <rect x="${x+5}" y="${y+6}" width="${w-10}" height="${h*.5}" rx="3" fill="#15181a"/><rect x="${x+6}" y="${y+7}" width="${w-12}" height="${h*.48-2}" rx="2" fill="url(#zLcd)"/>
   <text id="${txtId}" x="${x+w/2}" y="${y+7+h*.4}" text-anchor="middle" font-family="var(--mono)" font-size="15" fill="#1f2a22">${init}</text>
   <circle id="${lampId}" cx="${x+w/2}" cy="${y+h-9}" r="3" fill="var(--lamp-off)" stroke="#777" stroke-width=".6"/>`;
+
 // pleated filter seen edge-on
 const zFilter=(x,y,w,h,dirtId)=>`<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="url(#zTan)" stroke="#7d6b45"/><rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h-6}" fill="url(#zPleat)"/>
   <path d="M${x+3} ${y+4} ${Array.from({length:Math.floor((h-8)/5)},(_,i)=>`L${i%2?x+3:x+w-3} ${y+6+i*5}`).join(" ")}" fill="none" stroke="#b9b09c" stroke-width="1"/>
@@ -628,6 +633,307 @@ ZILL.motor3=`
  <path d="M110 104 L232 104 L232 196 L110 196 Z" fill="none" stroke="#9fc0dd" stroke-width="2"/>
  ${zL(112,140,60,60,6,54,"Stator winding (copper)")}${zL(170,150,170,236,180,246,"Rotor bars (aluminum)","start")}${zL(40,140,10,236,6,246,"Shaft fan cowl")}${zL(150,66,150,30,160,30,"Terminal box","start")}${zL(300,148,320,120,284,112,"Shaft","start")}
 `;
+
+/* ============ REALISTIC 3/4-VIEW DRAWING KIT (light from upper left) ============
+   Materials are gradients named r_<mat>V (across a vertical cylinder), r_<mat>H (across a horizontal one),
+   r_<mat>F/T/S (box front, top, side). rGrain adds cast or painted texture. */
+const R_MAT={
+ al:["#5f676d","#aeb6bb","#eef1f3","#c4cbcf","#8d969c","#a7afb4","#535a60"],
+ iron:["#0b0d0f","#2c3237","#6d767c","#353b40","#1c2024","#2a3035","#090a0b"],
+ galv:["#59605f","#a2a9a7","#e3e7e5","#b3bab8","#7f8785","#959c9a","#4b5150"],
+ brass:["#4c3407","#a77a22","#f6dd8e","#c99a3a","#86601a","#a2772a","#3e2a06"],
+ cu:["#4e200c","#a5532a","#f2b88c","#c97a48","#8a3f1c","#a35a33","#3f1a0a"],
+ white:["#9ea4a6","#dfe3e3","#ffffff","#eef0ef","#cdd2d2","#dde1e0","#8f9597"],
+ blue:["#16314f","#2b5c8f","#6e9fd0","#3a6ea4","#22496f","#2f5d8a","#112640"],
+ paint:["#3a444c","#6c7882","#b4bec5","#7f8b94","#56616a","#68747d","#2f383f"],
+ black:["#050607","#1d2124","#5c6368","#272b2f","#121518","#1d2124","#030404"],
+ red:["#4a0b06","#9a1d12","#f0675a","#c0281c","#7e160d","#9a1d12","#3a0804"],
+ chrome:["#4f5559","#c9ced1","#ffffff","#8e959a","#e3e7e9","#7c8388","#3c4145"],
+ cab:["#7a8084","#bfc5c8","#f1f3f3","#d6dadb","#a7aeb1","#bcc2c4","#686e72"],
+ yel:["#6a4a00","#c99a1a","#ffe08a","#f2b632","#b98510","#d29e22","#5a3e00"],
+ tan:["#5a3f1f","#9c7444","#e4c690","#b98f5a","#86613a","#9c7444","#4a3218"]
+};
+const R_OFF=[0,.14,.32,.5,.72,.88,1];
+const rLight=(c,k)=>{const n=parseInt(c.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(k>0?v+(255-v)*k:v*(1+k))));return "#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("")};
+const R_DEFS=(()=>{let d="";for(const [m,c] of Object.entries(R_MAT)){
+ const st=c.map((x,i)=>`<stop offset="${R_OFF[i]}" stop-color="${x}"/>`).join("");
+ d+=`<linearGradient id="r_${m}V" x1="0" x2="1">${st}</linearGradient><linearGradient id="r_${m}H" x1="0" x2="0" y1="0" y2="1">${st}</linearGradient>`;
+ d+=`<linearGradient id="r_${m}F" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[3],.18)}"/><stop offset=".55" stop-color="${c[3]}"/><stop offset="1" stop-color="${rLight(c[3],-.22)}"/></linearGradient>`;
+ d+=`<linearGradient id="r_${m}T" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[2],-.02)}"/><stop offset="1" stop-color="${rLight(c[3],.12)}"/></linearGradient>`;
+ d+=`<linearGradient id="r_${m}S" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[3],-.3)}"/><stop offset="1" stop-color="${rLight(c[3],-.5)}"/></linearGradient>`;}
+ return d+`<filter id="rGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -.55 .33" result="a"/><feComposite in="a" in2="SourceGraphic" operator="in" result="g"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge></filter>
+<filter id="rBrush" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".015 .9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -.9 .5" result="a"/><feComposite in="a" in2="SourceGraphic" operator="in" result="g"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge></filter>
+<radialGradient id="rAO"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".6" stop-color="#000" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+<radialGradient id="rCav" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#3b4146"/><stop offset="1" stop-color="#0c0e10"/></radialGradient>
+<linearGradient id="rGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset=".5" stop-color="#fff" stop-opacity=".22"/><stop offset=".62" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="rWater" x1="0" x2="1"><stop offset="0" stop-color="#1d4f86"/><stop offset=".35" stop-color="#5e9bd6"/><stop offset="1" stop-color="#173f6b"/></linearGradient>
+<linearGradient id="rHot" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d9482f" stop-opacity=".55"/><stop offset=".55" stop-color="#8d5fa0" stop-opacity=".25"/><stop offset="1" stop-color="#2f74c8" stop-opacity=".45"/></linearGradient>
+<linearGradient id="rFoam" x1="0" x2="1"><stop offset="0" stop-color="#d9b44a"/><stop offset="1" stop-color="#f2d77c"/></linearGradient>
+<radialGradient id="rFlame" cx=".5" cy=".9" r=".9"><stop offset="0" stop-color="#e6f3ff"/><stop offset=".3" stop-color="#5aa0ff"/><stop offset=".75" stop-color="#2a5fd0" stop-opacity=".7"/><stop offset="1" stop-color="#2a5fd0" stop-opacity="0"/></radialGradient>`})();
+function rEnsure(){if(document.getElementById("rDefs"))return;const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.id="rDefs";s.setAttribute("aria-hidden","true");s.setAttribute("width","0");s.setAttribute("height","0");s.style.cssText="position:absolute;width:0;height:0;overflow:hidden";s.innerHTML="<defs>"+R_DEFS+"</defs>";document.body.prepend(s)}
+if(document.body)rEnsure();else document.addEventListener("DOMContentLoaded",rEnsure);
+
+/* contact shadow */
+const rSh=(cx,cy,rx,ry=rx*.18)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#rAO)"/>`;
+/* vertical cylinder, top ellipse visible */
+const rCylV=(cx,y1,y2,rx,m,o={})=>{const ry=o.ry??rx*.32;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<path d="M${cx-rx} ${y1} V${y2} A${rx} ${ry} 0 0 0 ${cx+rx} ${y2} V${y1} Z" fill="url(#r_${m}V)"${g}/>`+(o.top===false?"":`<ellipse cx="${cx}" cy="${y1}" rx="${rx}" ry="${ry}" fill="url(#r_${m}T)"/><ellipse cx="${cx}" cy="${y1}" rx="${rx}" ry="${ry}" fill="none" stroke="${rLight(R_MAT[m][0],.1)}" stroke-width=".6" opacity=".7"/>`)};
+/* horizontal pipe / cylinder seen from the side, optional open or capped right end */
+const rCylH=(x1,x2,cy,r,m,o={})=>{const rx=o.rx??r*.32;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<rect x="${x1}" y="${cy-r}" width="${x2-x1}" height="${2*r}" fill="url(#r_${m}H)"${g}/>`+(o.end?`<ellipse cx="${x2}" cy="${cy}" rx="${rx}" ry="${r}" fill="url(#r_${m}V)"/>`:"")+(o.bore?`<ellipse cx="${x2}" cy="${cy}" rx="${rx*.7}" ry="${r*.72}" fill="#0d0f10"/>`:"")};
+/* banded fitting (malleable iron bead) */
+const rBand=(x,cy,r,w,m)=>`<rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" rx="${w*.25}" fill="url(#r_${m}H)"/><rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" rx="${w*.25}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".6"/>`;
+const rBandV=(cx,y,r,h,m)=>`<rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" ry="${h*.25}" fill="url(#r_${m}V)"/><rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" ry="${h*.25}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".6"/>`;
+/* pipe threads showing at a joint */
+const rThrH=(x1,x2,cy,r)=>{let s="";for(let x=x1;x<x2;x+=2.2)s+=`<path d="M${x} ${cy-r} l1.4 ${2*r}" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`;return s};
+const rThrV=(cx,y1,y2,r)=>{let s="";for(let y=y1;y<y2;y+=2.2)s+=`<path d="M${cx-r} ${y} l${2*r} 1.4" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`;return s};
+/* hex nut seen across the flats, on a horizontal axis: three visible faces */
+const rHexH=(x,cy,w,r,m)=>`<rect x="${x}" y="${cy-r}" width="${w}" height="${r*.5}" fill="${rLight(R_MAT[m][3],-.25)}"/><rect x="${x}" y="${cy-r*.5}" width="${w}" height="${r}" fill="${R_MAT[m][2]}"/><rect x="${x}" y="${cy-r*.5}" width="${w}" height="${r}" fill="url(#r_${m}F)" opacity=".55"/><rect x="${x}" y="${cy+r*.5}" width="${w}" height="${r*.5}" fill="${rLight(R_MAT[m][3],-.45)}"/><rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" fill="none" stroke="#000" stroke-opacity=".4" stroke-width=".6"/>`;
+const rHexV=(cx,y,h,r,m)=>`<rect x="${cx-r}" y="${y}" width="${r*.5}" height="${h}" fill="${rLight(R_MAT[m][3],-.1)}"/><rect x="${cx-r*.5}" y="${y}" width="${r}" height="${h}" fill="${R_MAT[m][2]}"/><rect x="${cx-r*.5}" y="${y}" width="${r}" height="${h}" fill="url(#r_${m}F)" opacity=".5"/><rect x="${cx+r*.5}" y="${y}" width="${r*.5}" height="${h}" fill="${rLight(R_MAT[m][3],-.45)}"/><rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" fill="none" stroke="#000" stroke-opacity=".4" stroke-width=".6"/>`;
+/* box in oblique 3/4 view: front w x h at (x,y), depth goes up and right */
+const rBox=(x,y,w,h,d,m,o={})=>{const dx=d*.6,dy=-d*.42,rr=o.r??2;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<path d="M${x} ${y} L${x+dx} ${y+dy} H${x+w+dx} L${x+w} ${y} Z" fill="url(#r_${m}T)"${g}/><path d="M${x+w} ${y} L${x+w+dx} ${y+dy} V${y+h+dy} L${x+w} ${y+h} Z" fill="url(#r_${m}S)"${g}/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rr}" fill="url(#r_${m}F)"${g}/>`+
+ `<path d="M${x+1} ${y+.6} H${x+w-1}" stroke="#fff" stroke-opacity=".55" stroke-width="1"/><path d="M${x+w} ${y+1} L${x+w+dx-.6} ${y+dy+1}" stroke="#fff" stroke-opacity=".3" stroke-width=".8"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rr}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`};
+/* round head bolt */
+const rBolt=(cx,cy,r=2.4)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#r_chromeV)" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><circle cx="${cx-r*.35}" cy="${cy-r*.35}" r="${r*.35}" fill="#fff" opacity=".7"/>`;
+/* screw slot dial face */
+const rDial=(cx,cy,r,ang,col="#1d2124",num=true)=>{let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fbfaf4" stroke="#4a4f53" stroke-width=".7"/>`;
+ if(num)for(let i=0;i<10;i++){const a=i/10*2*Math.PI-Math.PI/2;s+=`<line x1="${cx+r*.78*Math.cos(a)}" y1="${cy+r*.78*Math.sin(a)}" x2="${cx+r*.95*Math.cos(a)}" y2="${cy+r*.95*Math.sin(a)}" stroke="#333" stroke-width=".5"/>`}
+ const a=ang*Math.PI/180-Math.PI/2;return s+`<line x1="${cx}" y1="${cy}" x2="${cx+r*.78*Math.cos(a)}" y2="${cy+r*.78*Math.sin(a)}" stroke="${col}" stroke-width="${Math.max(.8,r*.13)}" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="${r*.12}" fill="${col}"/>`};
+/* label with leader, same look as zL */
+const rL=(x1,y1,x2,y2,tx,ty,t,anchor)=>zL(x1,y1,x2,y2,tx,ty,t,anchor);
+/* service regulator body, card coordinates (pipe axis y 196, x 100..240); cut=true opens the bonnet */
+const rSregArt=cut=>{const win="M138 133 L138 100 Q170 91 202 100 L202 135 Q170 141 138 133 Z";
+ return `${rCylH(108,232,196,22,"paint",{grain:true})}${rHexH(100,196,14,21,"paint")}${rHexH(226,196,14,21,"paint")}
+ ${rCylV(170,140,178,18,"paint",{grain:true,top:false})}
+ <path d="M78 129 Q84 154 170 158 Q256 154 262 129 Z" fill="url(#r_paintV)" filter="url(#rGrain)"/>
+ <path d="M76 128 A94 22 0 0 0 264 128 V134 A94 22 0 0 1 76 134 Z" fill="url(#r_paintH)"/>
+ ${Array.from({length:9},(_,i)=>{const t=(12+i*19.5)*Math.PI/180;return rBolt(170+92*Math.cos(t),131+20*Math.sin(t),2.3)}).join("")}
+ <path d="M80 128 C84 94 122 82 170 82 C218 82 256 94 260 128 A90 20 0 0 1 80 128 Z" fill="url(#r_paintV)" filter="url(#rGrain)"/>
+ <ellipse cx="128" cy="98" rx="30" ry="9" fill="#fff" opacity=".28" filter="url(#zSoft)"/>
+ ${cut?`<path d="${win}" fill="url(#rCav)"/><path d="${win}" fill="none" stroke="#e6eaec" stroke-width="2.4"/><clipPath id="rg_rcut"><path d="${win}"/></clipPath><g clip-path="url(#rg_rcut)"><ellipse cx="170" cy="130" rx="34" ry="6" fill="#26282a"/><ellipse cx="170" cy="127" rx="18" ry="4" fill="url(#r_alV)"/>${Array.from({length:7},(_,k)=>`<ellipse cx="170" cy="${123-k*4}" rx="11" ry="3" fill="none" stroke="#1b1d1f" stroke-width="3"/><ellipse cx="170" cy="${123-k*4}" rx="11" ry="3" fill="none" stroke="url(#r_chromeV)" stroke-width="1.8"/>`).join("")}</g>`:""}
+ ${rCylV(170,58,92,13,"paint",{grain:true})}${rHexV(170,48,10,11,"black")}${rCylV(170,40,50,9,"black",{ry:2.8})}
+ ${rCylH(238,276,104,6,"paint")}${rBand(270,104,8,10,"paint")}${rCylV(282,104,140,7,"paint",{top:false})}<ellipse cx="282" cy="140" rx="7" ry="2.4" fill="#111"/>`};
+/* horizontal tank with rounded heads */
+const rTankH=(cx,cy,len,r,m)=>`<rect x="${cx-len/2}" y="${cy-r}" width="${len}" height="${2*r}" rx="${r*.7}" ry="${r}" fill="url(#r_${m}H)"/><rect x="${cx-len/2}" y="${cy-r}" width="${r*.9}" height="${2*r}" rx="${r*.7}" ry="${r}" fill="#000" opacity=".1"/><rect x="${cx+len/2-r*.9}" y="${cy-r}" width="${r*.9}" height="${2*r}" rx="${r*.7}" ry="${r}" fill="#000" opacity=".16"/><path d="M${cx-len/2+r*.6} ${cy-r*.62} H${cx+len/2-r*.6}" stroke="#fff" stroke-opacity=".45" stroke-width="${r*.12}" stroke-linecap="round"/>`;
+/* rubber or plastic hose along a path */
+const rHose=(d,col="#2a2f33",w=4)=>`<path d="${d}" fill="none" stroke="${rLight(col,-.4)}" stroke-width="${w+1.4}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="${w*.3}" stroke-linecap="round" transform="translate(-${w*.2} -${w*.2})"/>`;
+/* yellow corrugated appliance connector */
+const rFlex=d=>`<path d="${d}" fill="none" stroke="#6a5308" stroke-width="7" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#e8c33a" stroke-width="5.4" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#7a6110" stroke-width="5.4" stroke-dasharray=".8 1.6"/><path d="${d}" fill="none" stroke="#fff3b0" stroke-opacity=".6" stroke-width="1.2" transform="translate(-1 -1)"/>`;
+/* LCD panel with text lines */
+const rLcd=(x,y,w,h,lines,fs=10)=>`<rect x="${x-2}" y="${y-2}" width="${w+4}" height="${h+4}" rx="3" fill="#1a1d20"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="url(#zLcd)"/>${lines.map((t,i)=>`<text x="${x+w/2}" y="${y+(i+1)*h/(lines.length+.4)}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="${i?fs*.6:fs}" font-weight="600" fill="#1f2a22">${t}</text>`).join("")}<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="url(#rGlass)" opacity=".6"/>`;
+/* gas ball valve on a vertical drop, lever open = in line */
+const rCockV=(cx,y,open=true)=>`${rHexV(cx,y,8,9,"brass")}${rCylV(cx,y+7,y+25,11,"brass",{top:false})}${rHexV(cx,y+24,8,9,"brass")}${rCylH(cx,cx+8,y+16,2.5,"brass")}${open?`<rect x="${cx+7}" y="${y+6}" width="5" height="34" rx="1.5" fill="url(#r_yelV)"/>`:`<path d="M${cx+8} ${y+13} H${cx+34} v5 H${cx+8} Z" fill="url(#r_yelH)"/>`}`;
+/* blue gas flame on a port: outer mantle and inner cone; yellow=true adds tips */
+const rFlameC=(x,y,h,w,yellow)=>`<path d="M${x-w} ${y} C${x-w} ${y-h*.45} ${x-w*.25} ${y-h*.8} ${x} ${y-h} C${x+w*.25} ${y-h*.8} ${x+w} ${y-h*.45} ${x+w} ${y} Z" fill="url(#rFlame)" opacity=".85"/><path d="M${x-w*.55} ${y} L${x} ${y-h*.42} L${x+w*.55} ${y} Z" fill="#bfe1ff"/>${yellow?`<path d="M${x-w*.62} ${y-h*.48} C${x-w*.5} ${y-h*.78} ${x-w*.2} ${y-h*.95} ${x} ${y-h*1.02} C${x+w*.2} ${y-h*.95} ${x+w*.5} ${y-h*.78} ${x+w*.62} ${y-h*.48} Q${x} ${y-h*.36} ${x-w*.62} ${y-h*.48} Z" fill="#f2a62a" opacity=".82"/>`:""}`;
+/* arrows for air (blue) and flue gas (orange) */
+const rArr=(d,col)=>{let x=0,y=0,px=0,py=0;const t=d.match(/[MLHVQC]|[-\d.]+/g);let c="M",a=[];const run=()=>{if(!a.length)return;const n=a.map(Number);if(c==="H"){px=x;py=y;x=n[n.length-1]}else if(c==="V"){px=x;py=y;y=n[n.length-1]}else{const k=n.length;px=k>=4?n[k-4]:x;py=k>=4?n[k-3]:y;x=n[k-2];y=n[k-1]}a=[]};for(const v of t){if(/[A-Z]/.test(v)){run();c=v}else a.push(v)}run();
+ const an=Math.atan2(y-py,x-px),L=8,W=4.2;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" opacity=".9"/><path d="M${x+Math.cos(an)*2} ${y+Math.sin(an)*2} L${x-L*Math.cos(an)+W*Math.sin(an)} ${y-L*Math.sin(an)-W*Math.cos(an)} L${x-L*Math.cos(an)-W*Math.sin(an)} ${y-L*Math.sin(an)+W*Math.cos(an)} Z" fill="${col}"/>`};
+
+const rCut=d=>`<path d="${d}" fill="url(#rCav)"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="2.4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".7" stroke-linejoin="round"/>`;
+const rClip=(id,d,body)=>`<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${body}</g>`;
+const rTermS=(cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="2.8" fill="url(#r_chromeV)"/><path d="M${cx-1.8} ${cy} h3.6" stroke="#333" stroke-width=".8"/>`;
+
+/* ============ SHARED REALISTIC PART CARDS (340x250), used on every trainer with the same part key ============ */
+const RT=(x,y,t,a="start",c="#2a3135")=>`<text x="${x}" y="${y}" text-anchor="${a}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="${c}">${t}</text>`;
+/* finned coil face: aluminum fins over copper tube rows */
+const rFins=(x,y,w,h,pitch=3)=>{let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#r_alF)"/>`;for(let i=x+1;i<x+w;i+=pitch)s+=`<line x1="${i}" y1="${y}" x2="${i}" y2="${y+h}" stroke="#7d868c" stroke-width=".6" opacity=".7"/>`;for(let j=y+8;j<y+h;j+=14)s+=`<line x1="${x}" y1="${j}" x2="${x+w}" y2="${j}" stroke="#b8693a" stroke-width="1.3" opacity=".45"/>`;return s+`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#rGlass)" opacity=".25"/>`};
+/* wire with insulation color */
+const rWire=(d,col)=>rHose(d,col,2.4);
+/* screw terminal */
+const rTerm=(cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="4" fill="url(#r_brassV)"/><path d="M${cx-2.6} ${cy} h5.2 M${cx} ${cy-2.6} v5.2" stroke="#4c3407" stroke-width="1"/>`;
+/* dial gauge face with colored bezel */
+const rGauge=(cx,cy,r,col,ang,label)=>`<circle cx="${cx}" cy="${cy}" r="${r+5}" fill="url(#r_${col}V)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fbfaf4"/>${Array.from({length:21},(_,i)=>{const a=(-135+i*13.5)*Math.PI/180;return `<line x1="${cx+r*.8*Math.sin(a)}" y1="${cy-r*.8*Math.cos(a)}" x2="${cx+r*.94*Math.sin(a)}" y2="${cy-r*.94*Math.cos(a)}" stroke="#333" stroke-width="${i%5?.5:1.1}"/>`}).join("")}<text x="${cx}" y="${cy+r*.45}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="${r*.2}" font-weight="700" fill="#333">${label}</text><line x1="${cx}" y1="${cy}" x2="${cx+r*.75*Math.sin(ang*Math.PI/180)}" y2="${cy-r*.75*Math.cos(ang*Math.PI/180)}" stroke="#c0281c" stroke-width="2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3" fill="#333"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#rGlass)"/>`;
+
+const RILL={
+/* ---------- scroll compressor, shell cut open ---------- */
+compressor:{s:(()=>{const win="M128 74 H212 V196 H128 Z";
+ return `${rSh(170,232,90,8)}<path d="M98 222 L90 232 H250 L242 222 Z" fill="url(#r_blackV)"/>
+ ${rCylV(170,60,222,64,"black",{ry:14})}<path d="M106 60 Q106 26 170 24 Q234 26 234 60 A64 14 0 0 1 106 60 Z" fill="url(#r_blackV)"/><ellipse cx="150" cy="36" rx="30" ry="7" fill="#fff" opacity=".12" filter="url(#zSoft)"/>
+ ${rCylV(170,4,30,6,"cu",{top:false})}${rCylH(234,300,170,7,"cu")}${rBand(232,170,9,8,"cu")}
+ ${rBox(66,118,40,46,12,"black",{r:4})}${[130,140,150].map((y,i)=>`<circle cx="86" cy="${y}" r="3" fill="url(#r_brassV)"/>`).join("")}
+ ${rCut(win)}${rClip("rq_c",win,`<rect x="128" y="74" width="84" height="40" fill="#2a2f33"/><path d="M170 94 m-30 0 a30 12 0 1 0 60 0 a24 9 0 1 0 -48 0 a18 7 0 1 0 36 0 a12 5 0 1 0 -24 0" fill="none" stroke="#c9ced1" stroke-width="3"/><path d="M170 96 m-27 0 a27 11 0 1 1 54 0 a21 8 0 1 1 -42 0 a15 6 0 1 1 30 0" fill="none" stroke="#e8c33a" stroke-width="2.4"/><rect x="128" y="114" width="84" height="6" fill="url(#r_alH)"/>${rCylV(170,126,196,34,"cu",{ry:7})}${Array.from({length:9},(_,k)=>`<path d="M${138+k*8} 128 V194" stroke="#6b2e12" stroke-width="1.2" opacity=".6"/>`).join("")}<rect x="166" y="114" width="8" height="82" fill="url(#r_chromeV)"/>`)}
+ ${rL(170,8,120,8,6,12,"Discharge: hot gas out")}${rL(296,170,300,206,336,214,"Suction: cool vapor in","end")}
+ ${rL(150,92,60,70,6,66,"Fixed + orbiting scrolls")}${rL(180,170,270,120,336,116,"Motor (suction-cooled)","end")}${rL(86,140,40,200,6,212,"Terminals C, S, R")}`})()},
+
+/* ---------- condensing unit ---------- */
+condenser:{s:(()=>`${rSh(170,232,120,8)}
+ ${rBox(70,70,190,150,70,"paint",{r:3})}${rFins(76,78,178,134)}${[0,1,2,3,4,5,6,7].map(k=>`<line x1="${76}" y1="${86+k*16}" x2="${254}" y2="${86+k*16}" stroke="#4a5257" stroke-width="2"/>`).join("")}
+ <path d="M260 70 L302 40.6 V190.6 L260 220 Z" fill="url(#rGlass)" opacity=".15"/>${(()=>{let s="";for(let i=0;i<9;i++){const x=262+i*4.6,y=70-i*3.2;s+=`<line x1="${x}" y1="${y}" x2="${x}" y2="${y+150}" stroke="#5f686d" stroke-width="1"/>`}return s})()}
+ <ellipse cx="186" cy="56" rx="68" ry="13" fill="#1c2023"/>${Array.from({length:14},(_,k)=>`<ellipse cx="186" cy="56" rx="${8+k*4.4}" ry="${1.6+k*.84}" fill="none" stroke="#596268" stroke-width=".9"/>`).join("")}${Array.from({length:8},(_,k)=>{const a=k*Math.PI/4;return `<line x1="186" y1="56" x2="${186+68*Math.cos(a)}" y2="${56+13*Math.sin(a)}" stroke="#596268" stroke-width=".9"/>`}).join("")}${rCylV(186,48,56,10,"black",{ry:2.4})}
+ ${rCylH(290,340,196,5,"cu")}${rCylH(290,340,212,3,"cu")}${rHexH(286,196,8,7,"brass")}${rHexH(286,212,8,5,"brass")}
+ ${rArr("M186 40 V6","#e0662a")}${rArr("M30 150 H70","#2f6fd6")}
+ ${rL(130,120,60,110,6,106,"Coil: fins on copper tubes")}${rL(186,30,240,20,336,18,"Fan blows hot air out the top","end")}
+ ${rL(290,204,290,236,336,244,"Service valves","end")}${rL(40,150,30,186,6,198,"Outdoor air in")}`)()},
+
+/* ---------- condenser fan motor and blade ---------- */
+fan:{s:(()=>`${rSh(170,232,110,6)}
+ <ellipse cx="170" cy="150" rx="140" ry="40" fill="#1c2023" opacity=".92"/>${Array.from({length:16},(_,k)=>`<ellipse cx="170" cy="150" rx="${12+k*8.2}" ry="${3.4+k*2.32}" fill="none" stroke="#6c767c" stroke-width="1"/>`).join("")}
+ ${[0,1,2].map(k=>{const a=k*2*Math.PI/3+.3;const x=170+110*Math.cos(a),y=150+31*Math.sin(a),x2=170+110*Math.cos(a+.55),y2=150+31*Math.sin(a+.55);return `<path d="M170 150 L${x} ${y} Q${(x+x2)/2+10*Math.cos(a)} ${(y+y2)/2+3*Math.sin(a)} ${x2} ${y2} Z" fill="url(#r_alV)" opacity=".92"/>`}).join("")}
+ ${rCylV(170,60,140,30,"black",{ry:8})}<rect x="146" y="80" width="48" height="22" rx="2" fill="#e9e6da"/>${[0,1,2].map(k=>`<path d="M150 ${85+k*5} h${k?30:40}" stroke="#7a7666" stroke-width=".8"/>`).join("")}${rCylV(170,140,152,5,"chrome")}
+ ${rWire("M200 70 C240 60 260 40 300 30","#2a2f33")}${rWire("M200 76 C244 70 270 54 320 50","#a65b2a")}
+ ${rArr("M80 130 V96","#e0662a")}${rArr("M260 130 V96","#e0662a")}
+ ${rL(160,96,60,60,6,56,"PSC motor, uses a run cap")}${rL(230,165,270,210,336,222,"Blades pull air up through the coil","end")}${rL(300,30,310,10,336,14,"Leads","end")}`)()},
+
+/* ---------- pressure switches ---------- */
+hps:{s:(()=>`${rSh(170,214,120,6)}${rCylH(0,340,180,9,"cu")}${rCylV(170,140,172,6,"brass",{top:false})}${rHexV(170,150,10,10,"brass")}
+ ${rBox(130,70,80,70,20,"black",{r:6})}<text x="170" y="100" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#ddd">HIGH</text><text x="170" y="112" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="7" fill="#aaa">OPENS ~600 PSIG</text>
+ ${rWire("M190 76 C230 50 260 40 340 40","#c0281c")}${rWire("M196 82 C236 60 266 56 340 58","#c0281c")}
+ ${rL(170,156,100,160,6,156,"Schrader-type fitting")}${rL(60,180,60,214,6,226,"Discharge or liquid line (R-410A)")}${rL(300,40,300,20,336,16,"In series with the 24 V circuit","end")}`)()},
+lps:{s:(()=>`${rSh(170,214,120,6)}${rCylH(0,340,180,11,"black",{grain:true})}${rCylV(170,140,170,6,"brass",{top:false})}${rHexV(170,150,10,10,"brass")}
+ ${rBox(130,70,80,70,20,"black",{r:6})}<text x="170" y="100" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#ddd">LOW</text><text x="170" y="112" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="7" fill="#aaa">OPENS ~50 PSIG</text>
+ ${rWire("M190 76 C230 50 260 40 340 40","#2f6fd6")}${rWire("M196 82 C236 60 266 56 340 58","#2f6fd6")}
+ ${rL(170,156,100,160,6,156,"Fitting on the suction line")}${rL(60,180,60,214,6,226,"Insulated suction line")}${rL(300,40,300,20,336,16,"Opens on low charge or no airflow","end")}`)()},
+
+/* ---------- manifold gauges ---------- */
+gauges:{s:(()=>`${rSh(170,236,130,6)}
+ ${rGauge(100,84,52,"blue",-30,"LOW")}${rGauge(240,84,52,"red",40,"HIGH")}
+ ${rBox(70,150,200,30,14,"al",{r:6})}${[110,140,170,200,230].map(x=>`<circle cx="${x}" cy="165" r="3" fill="#333"/>`).join("")}${rCylV(80,140,152,5,"blue",{ry:1.6})}${rCylV(260,140,152,5,"red",{ry:1.6})}
+ ${rHose("M100 180 C100 220 60 230 20 240","#2f6fd6",5)}${rHose("M170 180 V250","#e8c33a",5)}${rHose("M240 180 C240 220 280 230 320 240","#c0281c",5)}
+ ${rL(60,84,30,30,6,24,"Suction pressure + sat. temp")}${rL(280,84,300,30,336,24,"Head pressure","end")}${rL(170,214,200,226,204,230,"Center: recover, evacuate, charge")}`)()},
+
+/* ---------- filter drier, cut open ---------- */
+drier:{s:(()=>{const win="M120 100 H220 V160 H120 Z";
+ return `${rSh(170,200,120,6)}${rCylH(0,70,130,5,"cu")}${rCylH(270,340,130,5,"cu")}
+ <path d="M70 124 Q86 100 100 100 H240 Q254 100 270 124 V136 Q254 160 240 160 H100 Q86 160 70 136 Z" fill="url(#r_blueH)"/>
+ ${rCut(win)}${rClip("rq_d",win,`<rect x="120" y="100" width="100" height="60" fill="#d8cfa8"/>${Array.from({length:60},(_,i)=>`<circle cx="${122+(i*37)%96}" cy="${102+(i*23)%56}" r="3" fill="#c4b58a" stroke="#9c8b60" stroke-width=".5"/>`).join("")}`)}
+ <rect x="150" y="104" width="40" height="12" rx="2" fill="#e9e6da" opacity=".0"/>
+ ${rArr("M110 190 H230","#c0281c")}
+ ${rL(170,140,240,200,336,214,"Desiccant core: holds moisture and acid","end")}${rL(40,130,40,60,6,56,"Liquid in")}${rL(300,130,300,60,336,56,"To the metering device","end")}`})()},
+
+/* ---------- TXV ---------- */
+meter:{only:["split","hp"],s:(()=>{const win="M128 112 H196 V168 H128 Z";
+ return `${rSh(170,214,110,6)}${rCylH(0,128,150,5,"cu")}${rCylV(162,168,250,5,"cu",{top:false})}
+ ${rBox(126,110,72,60,22,"brass",{r:4,grain:true})}
+ ${rCylV(162,92,110,10,"brass",{top:false})}<path d="M112 92 Q114 56 162 54 Q210 56 212 92 A50 10 0 0 1 112 92 Z" fill="url(#r_chromeV)"/><ellipse cx="162" cy="92" rx="50" ry="10" fill="url(#r_chromeT)" opacity=".4"/>
+ ${rCut(win)}${rClip("rq_t",win,`<rect x="128" y="112" width="68" height="56" fill="#3a3f43"/><rect x="158" y="112" width="8" height="34" fill="url(#r_chromeV)"/><path d="M148 152 L162 140 L176 152 Z" fill="#c9ced1"/><rect x="136" y="152" width="52" height="5" fill="url(#r_brassH)"/>${Array.from({length:4},(_,k)=>`<path d="M154 ${118+k*6} l16 3" stroke="#9aa3a9" stroke-width="1.4"/>`).join("")}`)}
+ ${rHose("M212 70 C270 60 290 120 300 190","#b8693a",2)}${rCylH(270,340,210,9,"black",{grain:true})}${rBox(290,196,22,16,4,"cu",{r:3})}
+ ${rL(170,56,120,20,6,16,"Power head: bulb pressure pushes down")}${rL(166,140,60,120,6,116,"Pin and seat")}
+ ${rL(60,150,40,186,6,198,"Liquid in")}${rL(162,230,200,236,336,244,"Cold mix out to the coil","end")}${rL(300,200,300,170,336,166,"Bulb on the suction line","end")}`})()},
+
+/* ---------- evaporator A-coil in its case, front cut away ---------- */
+evap:{only:["split","hp"],s:(()=>{const win="M90 40 H250 V200 H90 Z";
+ return `${rSh(170,236,110,7)}${rBox(80,30,180,200,40,"cab",{r:3})}
+ ${rCut(win)}${rClip("rq_e",win,`<rect x="90" y="40" width="160" height="160" fill="#2a2f33"/><path d="M100 190 L168 52 L176 52 L120 190 Z" fill="url(#r_alV)"/>${Array.from({length:12},(_,k)=>`<line x1="${104+k*5.4}" y1="${190-k*11.6}" x2="${120+k*4.6}" y2="${190-k*11.6}" stroke="#b8693a" stroke-width="1.6"/>`).join("")}<path d="M240 190 L172 52 L164 52 L220 190 Z" fill="url(#r_alV)"/>${Array.from({length:12},(_,k)=>`<line x1="${236-k*5.4}" y1="${190-k*11.6}" x2="${220-k*4.6}" y2="${190-k*11.6}" stroke="#b8693a" stroke-width="1.6"/>`).join("")}<rect x="94" y="190" width="152" height="10" fill="#2f2f2f"/>`)}
+ ${rArr("M170 250 V206","#2f6fd6")}${rArr("M170 160 V30","#7fb0ff")}${rCylH(260,340,120,5,"cu")}${rCylH(260,340,150,8,"black",{grain:true})}${rCylH(260,320,214,4,"paint")}
+ ${rL(126,140,60,120,6,116,"A-coil slabs")}${rL(120,195,60,226,6,238,"Drain pan")}${rL(300,150,300,186,336,196,"Lines to the outdoor unit","end")}${rL(170,20,240,14,336,14,"Cooled air up to the ducts","end")}`})()},
+
+/* ---------- blower: squirrel-cage wheel in its scroll housing ---------- */
+blower:{s:(()=>`${rSh(170,232,110,7)}
+ <path d="M80 120 C80 60 130 36 180 40 C240 44 270 80 270 120 V200 H230 V170 C230 190 200 210 170 210 C120 210 80 170 80 120 Z" fill="url(#r_galvV)" filter="url(#rGrain)"/>
+ <ellipse cx="172" cy="124" rx="62" ry="62" fill="#1c2023"/>${Array.from({length:36},(_,k)=>{const a=k*Math.PI/18;return `<line x1="${172+46*Math.cos(a)}" y1="${124+46*Math.sin(a)}" x2="${172+60*Math.cos(a+.18)}" y2="${124+60*Math.sin(a+.18)}" stroke="#aeb6bb" stroke-width="2.4"/>`}).join("")}
+ <circle cx="172" cy="124" r="26" fill="url(#r_blackV)"/>${Array.from({length:8},(_,k)=>{const a=k*Math.PI/4;return `<path d="M${172+12*Math.cos(a)} ${124+12*Math.sin(a)} L${172+22*Math.cos(a+.2)} ${124+22*Math.sin(a+.2)}" stroke="#4a5055" stroke-width="3"/>`}).join("")}<circle cx="172" cy="124" r="6" fill="url(#r_chromeV)"/>${[0,1,2].map(k=>{const a=k*2.09+.5;return `<rect x="${172+34*Math.cos(a)-3}" y="${124+34*Math.sin(a)-10}" width="6" height="20" fill="url(#r_galvV)" transform="rotate(${a*57.3} ${172+34*Math.cos(a)} ${124+34*Math.sin(a)})"/>`}).join("")}
+ ${rArr("M250 196 V236","#2f6fd6")}${rArr("M20 124 H96","#2f6fd6")}
+ ${rL(220,124,280,40,336,36,"Forward-curved wheel","end")}${rL(172,124,60,190,6,202,"Motor in the hub")}${rL(110,70,60,60,6,56,"Scroll housing")}${RT(336,244,"Air out to the coil","end")}`)()},
+
+/* ---------- pleated filter ---------- */
+filter:{s:(()=>`${rSh(170,226,120,6)}
+ <path d="M60 60 L230 20 L290 120 L120 160 Z" fill="#cbb98f"/><path d="M70 64 L226 28 L280 118 L124 154 Z" fill="#f4f1e6"/>
+ ${Array.from({length:18},(_,k)=>{const t=k/17;const x1=70+156*t,y1=64-36*t,x2=124+156*t,y2=154-36*t;return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${k%2?"#d8d2bf":"#ffffff"}" stroke-width="5"/>`}).join("")}
+ <path d="M60 60 L230 20 L290 120 L120 160 Z" fill="none" stroke="#a8946a" stroke-width="6"/><path d="M120 160 L290 120 V128 L120 168 Z" fill="#a8946a"/>
+ ${rArr("M40 200 L100 186","#2f6fd6")}${rArr("M200 120 L250 108","#4a4a4a")}
+ ${RT(176,210,"16 × 25 × 1  MERV 8","middle")}${rL(206,114,280,170,336,186,"Arrow points toward the blower","end")}${rL(80,110,30,120,6,116,"Pleated media")}${RT(6,236,"Dirty filter = low airflow")}`)()},
+
+/* ---------- line set ---------- */
+suction:{only:["split","hp","cooler","freezer"],s:(()=>`${rSh(170,212,140,6)}
+ ${rCylH(0,340,90,16,"black",{grain:true})}<path d="M300 74 V106" stroke="#000" stroke-opacity=".3"/>${rCylH(300,340,90,9,"cu",{end:true,bore:true})}
+ ${rCylH(0,340,170,6,"cu",{end:true,bore:true})}
+ ${rL(150,90,120,50,6,46,"Large vapor line, insulated (cool)")}${rL(150,170,150,210,6,222,"Small liquid line, bare (warm)")}${RT(336,140,"Insulation stops sweating","end")}`)()},
+disconnect:{only:["split","hp"],s:(()=>`${rSh(170,232,90,6)}${rBox(100,30,140,190,22,"paint",{r:4,grain:true})}
+ <rect x="112" y="44" width="116" height="160" rx="3" fill="url(#r_paintF)" stroke="#2f383f"/>${rBox(130,80,80,90,12,"black",{r:6})}<rect x="150" y="96" width="40" height="22" rx="3" fill="url(#r_redV)"/><text x="170" y="111" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#fff">PULL</text>
+ ${rCylV(170,220,250,10,"galv",{top:false})}${rHose("M210 220 C240 240 300 240 340 230","#2a2f33",8)}
+ ${rL(170,106,60,100,6,96,"Pull-out block: kills power")}${rL(170,240,120,240,6,246,"Line in")}${rL(300,236,300,206,336,200,"Whip to the unit","end")}`)()},
+
+/* ---------- wall thermostat ---------- */
+tstat:{only:["split","hp","furnace","oil","ahu","air"],s:(()=>`${rSh(170,214,90,6)}<rect x="0" y="0" width="340" height="250" fill="#ebe7df"/>
+ ${rBox(100,40,140,150,12,"white",{r:20})}<rect x="122" y="62" width="96" height="70" rx="8" fill="#14181b"/><text x="170" y="112" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="36" font-weight="300" fill="#e9eef0">72°</text><text x="170" y="126" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" fill="#7fb0ff">SET 72  AUTO</text><rect x="122" y="62" width="96" height="70" rx="8" fill="url(#rGlass)" opacity=".5"/>
+ ${[140,170,200].map(x=>`<circle cx="${x}" cy="160" r="9" fill="url(#r_whiteV)" stroke="#bbb"/>`).join("")}
+ ${rL(170,96,60,40,6,36,"Senses room temperature")}${rL(200,160,280,200,336,212,"R power, Y cool, G fan, W heat, C common","end")}`)()},
+
+/* ---------- house ---------- */
+room:{s:(()=>`${rSh(170,230,140,8)}${rBox(70,110,180,110,90,"white",{r:0})}
+ <path d="M60 112 L160 40 L260 112 Z" fill="url(#r_paintV)"/><path d="M260 112 L160 40 L214 2 L314 74 Z" fill="url(#r_paintS)"/>
+ ${[[90,140],[200,140]].map(([x,y])=>`<rect x="${x}" y="${y}" width="34" height="30" fill="#bcd8ee" stroke="#8a9094" stroke-width="3"/><rect x="${x}" y="${y}" width="34" height="30" fill="url(#rGlass)"/>`).join("")}<rect x="146" y="160" width="28" height="60" fill="url(#r_tanV)"/>
+ ${rArr("M30 160 H66","#e0662a")}${rArr("M160 4 V36","#e0662a")}${rArr("M330 170 H296","#e0662a")}
+ ${RT(6,150,"Heat in")}${RT(170,250,"Walls, windows and roof leak heat","middle")}`)()}
+};
+RILL.liquid=RILL.suction;RILL.house=RILL.room;RILL.afilter=RILL.filter;
+Object.assign(RILL,{
+/* ---------- heat pump extras ---------- */
+accum:{s:(()=>{const win="M142 96 H198 V206 H142 Z";
+ return `${rSh(170,236,60,6)}${rCylV(170,60,220,44,"paint",{ry:10,grain:true})}<path d="M126 60 Q126 36 170 34 Q214 36 214 60 A44 10 0 0 1 126 60 Z" fill="url(#r_paintV)"/>
+ ${rCut(win)}${rClip("rq_a",win,`<rect x="142" y="170" width="56" height="36" fill="url(#rWater)" opacity=".8"/><path d="M150 40 V196 Q150 204 158 204 H182 Q190 204 190 196 V60" fill="none" stroke="#c97a48" stroke-width="5"/><circle cx="170" cy="204" r="2" fill="#111"/>`)}
+ ${rCylV(150,6,40,5,"cu",{top:false})}${rCylV(190,6,40,5,"cu",{top:false})}
+ ${rL(150,14,90,14,6,18,"In: from the reversing valve")}${rL(190,14,240,14,336,18,"Out: to the compressor","end")}
+ ${rL(170,190,240,220,336,230,"Liquid and oil settle here","end")}${rL(170,204,90,226,6,238,"Oil bleed hole at the U-bend")}${rL(190,120,262,110,336,106,"Vapor taken from the top","end")}`})()},
+ometer:{s:(()=>{const win="M120 106 H220 V154 H120 Z";
+ return `${rSh(170,200,120,6)}${rCylH(0,96,130,5,"cu")}${rCylH(244,340,130,5,"cu")}${rHexH(96,130,24,26,"brass")}${rHexH(220,130,24,26,"brass")}${rCylH(118,222,130,22,"brass",{grain:true})}
+ ${rCut(win)}${rClip("rq_o",win,`<rect x="120" y="106" width="100" height="48" fill="#2a2f33"/><path d="M146 116 H186 Q204 116 204 130 Q204 144 186 144 H146 Z" fill="url(#r_brassH)"/><rect x="146" y="128" width="58" height="4" fill="#111"/>${[150,160,170,180].map(x=>`<line x1="${x}" y1="116" x2="${x}" y2="144" stroke="#7a5a16" stroke-width="1"/>`).join("")}`)}
+ ${rArr("M40 200 H140","#2f6fd6")}${RT(40,224,"Heating: piston seats and meters")}${rArr("M300 190 H200","#c0281c")}${RT(336,176,"Cooling: it slides off and bypasses","end")}
+ ${rL(176,130,180,70,6,60,"Piston with a drilled orifice")}`})()},
+defrost:{s:(()=>`${rSh(170,226,120,6)}${rBox(60,40,220,170,10,"blue",{r:4})}<rect x="64" y="44" width="212" height="162" rx="3" fill="#1f6b3a"/>${Array.from({length:14},(_,k)=>`<path d="M${74+k*14} 60 V${190}" stroke="#2e8a50" stroke-width="1" opacity=".6"/>`).join("")}
+ ${rBox(90,70,50,36,10,"black",{r:2})}${rBox(160,70,50,36,10,"black",{r:2})}${[0,1,2].map(k=>`<rect x="${100+k*30}" y="140" width="16" height="10" fill="#111"/><circle cx="${108+k*30}" cy="134" r="4" fill="url(#r_chromeV)"/><text x="${108+k*30}" y="165" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" fill="#e9f5ec">${[30,60,90][k]}</text>`).join("")}<rect x="96" y="140" width="24" height="10" fill="#e8c33a" opacity=".85"/>
+ ${[0,1,2,3,4,5].map(k=>rTerm(222+k*0,70+k*20)).join("")}${rWire("M70 190 C30 210 20 230 0 240","#f2f2ee")}<rect x="40" y="206" width="16" height="10" rx="2" fill="url(#r_alV)"/>
+ ${rL(115,88,60,24,6,20,"Relays: reversing valve, fan off")}${rL(108,140,150,186,154,196,"Pins: 30, 60 or 90 min")}${rL(46,212,40,232,6,246,"Coil sensor clipped to the coil")}${rL(222,110,300,110,336,126,"R C Y O W","end")}`)()},
+strips:{s:(()=>`${rSh(170,226,130,6)}${rBox(40,40,260,170,20,"galv",{r:3})}<rect x="50" y="52" width="240" height="146" fill="#1c2023"/>
+ ${[0,1,2].map(k=>{let d=`M60 ${80+k*44}`;for(let i=0;i<22;i++)d+=` q5 -9 10 0`;return `<path d="${d}" fill="none" stroke="#7a2a12" stroke-width="4"/><path d="${d}" fill="none" stroke="#ff7a3a" stroke-width="2.2"/>`}).join("")}
+ ${rBox(130,214,30,20,6,"black",{r:2})}<circle cx="145" cy="224" r="4" fill="url(#r_chromeV)"/>${rBox(190,214,30,20,6,"black",{r:2})}
+ ${rL(150,80,200,20,336,16,"Nichrome coils glow when on","end")}${rL(145,224,60,232,6,244,"Limit switch")}${rL(205,224,260,236,336,244,"Fusible link","end")}${RT(6,24,"5–10 kW per kit, staged")}`)()},
+
+/* ---------- walk-in parts ---------- */
+receiver:{s:(()=>{const win="M90 110 H230 V170 H90 Z";
+ return `${rSh(170,214,130,6)}<path d="M80 176 L74 206 H96 L92 176 Z M228 176 L222 206 H244 L240 176 Z" fill="url(#r_paintV)"/>${rTankH(160,140,240,40,"paint")}
+ ${rCut(win)}${rClip("rq_r",win,`<rect x="90" y="110" width="140" height="60" fill="#d7dee2" opacity=".2"/><rect x="90" y="140" width="140" height="30" fill="url(#rWater)"/><path d="M90 140 H230" stroke="#cfe6ff"/>`)}
+ ${rCylV(80,40,100,5,"cu",{top:false})}${rCylV(240,40,100,5,"cu",{top:false})}${rBox(228,84,24,16,8,"brass",{r:2})}<rect x="246" y="76" width="6" height="10" fill="url(#r_redV)"/><circle cx="160" cy="180" r="5" fill="url(#r_brassV)"/>
+ ${rL(80,50,30,30,6,26,"From the condenser")}${rL(246,80,290,40,336,36,"King valve, liquid out","end")}${rL(160,150,100,226,6,238,"Stores the extra charge")}${rL(160,184,240,226,336,238,"Fusible plug","end")}`})()},
+sglass:{s:(()=>`${rSh(170,200,120,6)}${rCylH(0,110,130,7,"cu")}${rCylH(230,340,130,7,"cu")}${rHexH(104,130,18,20,"brass")}${rHexH(218,130,18,20,"brass")}${rCylH(120,220,130,30,"brass",{grain:true})}
+ <circle cx="170" cy="118" r="30" fill="url(#r_chromeV)"/><circle cx="170" cy="118" r="22" fill="#cde6f5"/>${[[160,110,4],[176,120,3],[168,126,2.4],[180,106,2]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#5a7a9a"/>`).join("")}<circle cx="170" cy="118" r="7" fill="#2fa84f"/><circle cx="170" cy="118" r="22" fill="url(#rGlass)"/>
+ ${rL(160,110,90,60,6,56,"Bubbles: short of charge or flashing")}${rL(170,118,250,60,336,56,"Dot: green dry, yellow wet","end")}${RT(170,200,"Clear and full = solid liquid","middle")}`)()},
+lls:{s:(()=>`${rSh(170,214,120,6)}${rCylH(0,110,170,6,"cu")}${rCylH(230,340,170,6,"cu")}${rBox(110,150,120,44,18,"brass",{r:6,grain:true})}${rCylV(170,90,150,14,"chrome",{ry:4})}
+ ${rBox(132,40,76,62,20,"black",{r:4})}<text x="170" y="74" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#ccc">24 V COIL</text>${rWire("M200 46 C240 30 260 20 340 18","#2a2f33")}${rWire("M204 54 C246 40 270 36 340 38","#2a2f33")}
+ ${rArr("M30 200 H96","#c0281c")}
+ ${rL(170,70,80,30,6,26,"Coil lifts the plunger")}${rL(150,172,80,226,6,238,"Normally closed: no power, no flow")}${rL(300,30,300,110,336,122,"Wired to the box thermostat","end")}`)()},
+ucool:{s:(()=>`${rSh(170,230,140,6)}<rect x="0" y="0" width="340" height="24" fill="#e9eef0"/>
+ ${rBox(40,30,250,120,40,"white",{r:4})}${rFins(54,44,90,92)}${[[190,90],[262,90]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="38" fill="#1c2023"/>${Array.from({length:6},(_,k)=>`<circle cx="${x}" cy="${y}" r="${8+k*6}" fill="none" stroke="#8b949a" stroke-width="1.2"/>`).join("")}<line x1="${x-38}" y1="${y}" x2="${x+38}" y2="${y}" stroke="#8b949a"/><line x1="${x}" y1="${y-38}" x2="${x}" y2="${y+38}" stroke="#8b949a"/>`).join("")}
+ <path d="M40 150 L70 168 H310 L290 150 Z" fill="url(#r_whiteF)"/>${rCylV(84,160,250,5,"paint",{top:false})}
+ ${rArr("M100 190 H20","#7fb0ff")}${rArr("M240 140 V200","#7fb0ff")}
+ ${rL(100,90,60,40,6,30,"Finned coil")}${rL(200,90,250,40,336,36,"Fans blow through the coil","end")}${rL(84,200,40,226,6,238,"Drain pan + line")}`)()},
+efans:{s:(()=>`${rSh(170,230,120,6)}<circle cx="170" cy="120" r="100" fill="#1c2023"/>${Array.from({length:10},(_,k)=>`<circle cx="170" cy="120" r="${14+k*9.6}" fill="none" stroke="#9aa3a9" stroke-width="1.6"/>`).join("")}${[0,1,2,3].map(k=>{const a=k*Math.PI/2+.3;return `<path d="M170 120 L${170+86*Math.cos(a)} ${120+86*Math.sin(a)} Q${170+90*Math.cos(a+.4)} ${120+90*Math.sin(a+.4)} ${170+80*Math.cos(a+.7)} ${120+80*Math.sin(a+.7)} Z" fill="url(#r_alV)" opacity=".75"/>`}).join("")}
+ <circle cx="170" cy="120" r="24" fill="url(#r_blackV)"/>${[0,90,180,270].map(a=>`<line x1="${170+100*Math.cos(a*Math.PI/180)}" y1="${120+100*Math.sin(a*Math.PI/180)}" x2="${170+24*Math.cos(a*Math.PI/180)}" y2="${120+24*Math.sin(a*Math.PI/180)}" stroke="#9aa3a9" stroke-width="3"/>`).join("")}
+ ${rL(170,120,60,30,6,26,"Shaded-pole or ECM motor")}${rL(240,60,280,20,336,16,"Wire guard","end")}${RT(6,240,"Freezer: delayed after defrost")}`)()},
+timer:{s:(()=>`${rSh(170,230,100,6)}${rBox(80,30,180,190,20,"paint",{r:4,grain:true})}<circle cx="170" cy="110" r="60" fill="url(#r_whiteV)"/>${Array.from({length:24},(_,k)=>{const a=k*Math.PI/12;return `<text x="${170+50*Math.sin(a)}" y="${114-50*Math.cos(a)}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="6" fill="#333">${k}</text>`}).join("")}
+ ${[2,8,14,20].map(h=>{const a=h*Math.PI/12;return `<rect x="${170+38*Math.sin(a)-3}" y="${110-38*Math.cos(a)-5}" width="6" height="10" fill="#e8c33a" transform="rotate(${h*15} ${170+38*Math.sin(a)} ${110-38*Math.cos(a)})"/>`}).join("")}<line x1="170" y1="110" x2="170" y2="66" stroke="#c0281c" stroke-width="3"/><circle cx="170" cy="110" r="6" fill="url(#r_chromeV)"/>
+ ${[0,1,2,3].map(k=>rTerm(110+k*40,196)).join("")}
+ ${rL(204,86,280,40,336,36,"Pins: defrost start times","end")}${rL(170,80,60,40,6,36,"Clock dial (24 h)")}${rL(150,196,90,236,6,244,"Terminals 1 2 3 4 N X")}`)()},
+dpc:{s:(()=>`${rSh(170,230,110,6)}${rBox(70,40,200,160,20,"paint",{r:4,grain:true})}
+ ${[120,220].map((x,i)=>`<rect x="${x-26}" y="60" width="52" height="16" rx="2" fill="#f4f2e8"/>${Array.from({length:9},(_,k)=>`<line x1="${x-22+k*5.5}" y1="62" x2="${x-22+k*5.5}" y2="${k%2?68:72}" stroke="#333" stroke-width=".7"/>`).join("")}<text x="${x}" y="90" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#e9eef0">${i?"HIGH":"LOW"}</text>${rCylV(x,96,120,6,"chrome")}<rect x="${x-3}" y="94" width="6" height="2" fill="#333"/>`).join("")}
+ ${rBox(150,130,40,40,10,"white",{r:2})}<text x="170" y="154" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#c0281c">RESET</text>
+ ${rHose("M110 200 C110 230 40 230 0 236","#b8693a",2)}${rHose("M230 200 C230 230 300 230 340 236","#b8693a",2)}
+ ${rL(120,66,60,20,6,16,"Low: cut-in and differential")}${rL(220,66,280,20,336,16,"High: cut-out, manual reset","end")}${RT(6,246,"to suction")}${RT(336,246,"to discharge","end")}`)()},
+cch:{s:(()=>`${rSh(170,236,90,8)}${rCylV(170,40,210,64,"black",{ry:14})}<path d="M106 40 Q106 8 170 6 Q234 8 234 40 A64 14 0 0 1 106 40 Z" fill="url(#r_blackV)"/>
+ <path d="M106 176 A64 14 0 0 0 234 176 V192 A64 14 0 0 1 106 192 Z" fill="url(#r_alH)"/>${Array.from({length:12},(_,k)=>`<line x1="${112+k*10}" y1="${180+Math.sin(k)*1}" x2="${112+k*10}" y2="${196}" stroke="#7d868c"/>`).join("")}
+ ${rWire("M234 184 C270 184 290 160 340 150","#2a2f33")}
+ ${rL(150,190,60,226,6,238,"Belly-band heater")}${rL(300,160,300,226,336,238,"On in the off cycle","end")}${RT(6,100,"Keeps refrigerant")}${RT(6,113,"out of the oil")}`)()},
+door:{s:(()=>`${rSh(170,240,120,6)}${rBox(60,20,220,220,10,"white",{r:2})}<rect x="72" y="32" width="196" height="196" fill="url(#r_whiteF)"/>
+ <rect x="72" y="32" width="196" height="196" fill="none" stroke="#3a3f43" stroke-width="7"/>${rBox(232,110,24,50,10,"chrome",{r:3})}${[50,190].map(y=>rBox(62,y,14,26,6,"chrome",{r:2})).join("")}
+ <circle cx="170" cy="130" r="0"/>${rCut("M268 60 H300 V120 H268 Z")}${rClip("rq_g",`M268 60 H300 V120 H268 Z`,`<rect x="268" y="60" width="32" height="60" fill="#e9eef0"/><rect x="272" y="64" width="14" height="52" rx="5" fill="#2a2f33"/><rect x="276" y="76" width="6" height="28" fill="#6b7a86"/><rect x="288" y="64" width="8" height="52" fill="#c0281c" opacity=".5"/>`)}
+ ${rL(276,90,300,20,336,14,"Gasket with magnet","end")}${rL(292,110,310,160,336,170,"Heater wire (freezer)","end")}${rL(244,136,200,236,336,244,"Latch and handle","end")}${rL(70,200,30,230,6,240,"Hinges")}`)()},
+drain:{s:(()=>`${rSh(170,236,120,6)}${rBox(40,20,200,40,30,"white",{r:3})}${rCylV(90,60,170,6,"paint",{top:false})}<path d="M90 170 V196 Q90 214 108 214 Q126 214 126 196 V180 H260" fill="none" stroke="#3a444c" stroke-width="14"/><path d="M90 170 V196 Q90 214 108 214 Q126 214 126 196 V180 H260" fill="none" stroke="url(#r_paintV)" stroke-width="11"/>
+ <path d="M84 70 V170" stroke="#c0281c" stroke-width="2" stroke-dasharray="4 3"/>
+ ${rL(108,210,60,236,6,244,"Trap outside the box")}${rL(84,120,30,110,6,106,"Heat tape (freezer)")}${rL(200,180,250,210,336,220,"Pitched to a drain","end")}${rL(140,40,240,40,336,36,"Unit cooler drain pan","end")}`)()},
+box:{s:(()=>`${rSh(170,240,150,8)}${rBox(40,70,240,160,60,"white",{r:1})}${[80,120,160,200,240].map(x=>`<line x1="${x}" y1="70" x2="${x}" y2="230" stroke="#c9ced1"/>`).join("")}
+ ${rBox(130,110,70,120,4,"white",{r:1})}<rect x="186" y="160" width="8" height="24" rx="2" fill="url(#r_chromeV)"/>${rBox(176,24,100,22,30,"paint",{r:2})}${rFins(190,30,40,14,2)}
+ ${rL(60,140,20,40,6,30,"Insulated panels, 4 in. foam")}${rL(220,40,280,10,336,14,"Condensing unit","end")}${rL(160,170,240,236,336,244,"Door","end")}`)()},
+heaters:{s:(()=>`${rSh(170,230,130,6)}${rFins(40,40,260,150,3)}${[70,120,170].map(y=>`<rect x="36" y="${y}" width="268" height="6" rx="3" fill="#ff7a3a"/><rect x="36" y="${y}" width="268" height="2" rx="1" fill="#ffd0a0"/>`).join("")}<rect x="40" y="190" width="260" height="12" fill="#ff7a3a" opacity=".85"/>
+ ${rL(160,73,200,20,336,16,"Electric rods in the coil","end")}${rL(200,196,250,226,336,238,"Drain pan heater","end")}${RT(6,24,"Melt the frost, then stop")}`)()},
+term:{s:(()=>`${rSh(170,214,90,6)}${rFins(0,120,340,90,3)}${rBox(130,80,80,40,12,"white",{r:20})}<circle cx="170" cy="100" r="12" fill="url(#r_alV)"/>${rWire("M200 90 C240 70 270 60 340 60","#2f6fd6")}${rWire("M200 96 C244 80 274 76 340 78","#c0281c")}${rWire("M204 102 C250 92 280 94 340 96","#2a2f33")}
+ ${rL(160,100,60,60,6,56,"Bimetal disc clamped to the coil")}${RT(6,224,"Ends defrost at about 55°F")}${RT(6,240,"Starts the fans once the coil is cold")}`)()}
+});
+RILL["cooler:tstat"]=RILL["freezer:tstat"]={s:(()=>`${rSh(170,224,80,6)}<rect x="0" y="0" width="340" height="250" fill="#e9eef0"/>${rBox(110,40,120,170,16,"paint",{r:4,grain:true})}
+ <circle cx="170" cy="100" r="40" fill="url(#r_whiteV)"/>${Array.from({length:11},(_,k)=>{const a=(-120+k*24)*Math.PI/180;return `<line x1="${170+30*Math.sin(a)}" y1="${100-30*Math.cos(a)}" x2="${170+38*Math.sin(a)}" y2="${100-38*Math.cos(a)}" stroke="#333" stroke-width="${k%5?.6:1.2}"/>`}).join("")}<text x="132" y="146" font-family="IBM Plex Sans,sans-serif" font-size="8" fill="#333">-20</text><text x="196" y="146" font-family="IBM Plex Sans,sans-serif" font-size="8" fill="#333">60°F</text>
+ <rect x="164" y="64" width="12" height="72" rx="5" fill="url(#r_blackV)" transform="rotate(-40 170 100)"/><circle cx="170" cy="100" r="6" fill="url(#r_chromeV)"/>
+ ${rHose("M170 210 C170 240 260 230 300 180 V60","#b8693a",1.6)}${rCylV(300,40,80,5,"cu",{ry:1.6})}
+ ${rL(170,100,60,40,6,36,"Set point dial")}${rL(300,60,300,20,336,14,"Remote bulb in the box air","end")}${rL(200,190,262,210,336,222,"Switches the liquid solenoid","end")}`)()};
 
 /*RZ-END*/
 let speed=10, running=true, cur=null, openKey=null, tab="controls";
