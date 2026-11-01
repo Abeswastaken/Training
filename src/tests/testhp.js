@@ -1,0 +1,24 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1300,height:900}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/full.html');await p.waitForTimeout(400);
+const run=async(name,setup,n=1200)=>{const r=await p.evaluate(([setup,n])=>{const sim=window.__rt.SIMS.hp;
+ sim.sliders.forEach(s=>sim.V[s.k]=s.v);sim.faults.forEach(f=>sim.F[f[0]]=false);sim.S=sim.init();Object.assign(sim.S,setup.s||{});
+ Object.assign(sim.V,setup.v||{});(setup.f||[]).forEach(k=>sim.F[k]=true);const ev=[];
+ for(let i=0;i<n&&!sim.S.dead;i++){sim.step(0.5);if(!setup.free){sim.S.Troom=setup.room||70;sim.V.set=setup.mode==="cool"?55:85}}
+ const S=sim.S;return {rv:S.rv,Ps:Math.round(S.Ps),Pd:Math.round(S.Pd),sst:Math.round(S.sst),sct:Math.round(S.sct),sh:Math.round(S.sh),sc:Math.round(S.sc),sup:Math.round(S.Tsup),Tdis:Math.round(S.Tdis),amps:S.amps.toFixed(1),comp:S.comp,frost:S.frost.toFixed(2),coil:Math.round(S.coilT),df:S.defrost,aux:S.auxOn,dead:S.dead,hps:S.hps,lps:S.lps,lock:S.lock,room:S.Troom.toFixed(1),logs:sim.logs.slice(0,4).map(l=>l[1]).join(' | ')}},[setup,n]);console.log(name.padEnd(22),JSON.stringify(r))};
+await run('heat 47',{v:{out:47}});
+await run('heat 35',{v:{out:35}});
+await run('heat 17',{v:{out:17}});
+await run('heat 35 long',{v:{out:35}},9000);
+await run('dfFail 30',{v:{out:30},f:['dfFail']},12000);
+await run('cool 95',{v:{out:95},s:{mode:'cool'},mode:'cool',room:75});
+await run('rvStuck',{v:{out:35},f:['rvStuck']});
+await run('rvLeak',{v:{out:47},f:['rvLeak']});
+await run('blower heat',{v:{out:40},f:['blower']},3000);
+await run('scn burn',{v:{out:40},f:['blower','hpsFail','olFail']},6000);
+await run('free heat 20',{v:{out:20},free:1},14000);
+await run('em heat',{v:{out:20},s:{mode:'em'},free:1},6000);
+console.log('ERR',errs);
+await p.evaluate(()=>{document.getElementById('discOk')?.click();document.querySelector('[data-sim=hp]')?.click();window.__rt.step(3000)});await p.waitForTimeout(500);await p.screenshot({path:'hp.png'});
+await b.close()})();

@@ -1,0 +1,286 @@
+<title>Trainer Graphics Sample</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#e7e9ea;--paper:#f7f8f6;--panel:#d3d8db;--edge:#b7bec3;--ink:#1d2327;--muted:#5b666d;--brass:#9a6f1f;--stage:#eef1f3;
+ --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14191c;--paper:#1b2226;--panel:#262e33;--edge:#3a444a;--ink:#e3e8ea;--muted:#9aa6ac;--brass:#d2a24c;--stage:#dfe4e7;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14191c;--paper:#1b2226;--panel:#262e33;--edge:#3a444a;--ink:#e3e8ea;--muted:#9aa6ac;--brass:#d2a24c;--stage:#dfe4e7;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 16px 32px;display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:26px;margin:0}
+p{margin:0;line-height:1.45}
+.lead{color:var(--muted);font-size:14px;max-width:760px}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.card h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:18px;margin:0;color:var(--brass)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+@media (min-width:760px){.pair{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}}
+.pane{background:var(--paper);border:1px solid var(--edge);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.pane b{font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+.pane.new b{color:var(--brass)}
+.pane svg{display:block;width:100%;height:auto;border-radius:6px}
+.pane.old svg{background:#eef0ee;max-height:260px}
+.pane.new svg{background:var(--stage)}
+.note{font-size:13px;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--edge);background:var(--paper);color:var(--ink);border-radius:6px;padding:8px 12px;cursor:pointer;min-height:40px}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+@media (prefers-reduced-motion:reduce){.spin{animation:none!important}}
+</style>
+<div class="wrap">
+ <h1>Trainer graphics: style sample</h1>
+ <p class="lead">Five parts drawn two ways. Left is how the trainers look now. Right is the proposed style: shaded metal, copper and plastic, cutaways that show the inside working, and color-coded flow, closer to The Engineering Mindset's look. The proposed parts are animated.</p>
+ <div class="tools"><button class="btn" id="anim" aria-pressed="true">Animation: on</button><button class="btn" id="coil" aria-pressed="true">Contactor coil: on</button></div>
+ <div id="cards"></div>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <linearGradient id="gShell" x1="0" x2="1"><stop offset="0" stop-color="#1b1f22"/><stop offset=".22" stop-color="#4d555b"/><stop offset=".36" stop-color="#6b747a"/><stop offset=".6" stop-color="#363c41"/><stop offset="1" stop-color="#15181a"/></linearGradient>
+  <radialGradient id="gDome" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#7a838a"/><stop offset=".5" stop-color="#3c4348"/><stop offset="1" stop-color="#181b1e"/></radialGradient>
+  <linearGradient id="gCuH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#6e3519"/><stop offset=".3" stop-color="#e9a774"/><stop offset=".55" stop-color="#b8693a"/><stop offset="1" stop-color="#5a2a12"/></linearGradient>
+  <linearGradient id="gCuV" x1="0" x2="1"><stop offset="0" stop-color="#6e3519"/><stop offset=".3" stop-color="#e9a774"/><stop offset=".55" stop-color="#b8693a"/><stop offset="1" stop-color="#5a2a12"/></linearGradient>
+  <linearGradient id="gBrass" x1="0" x2="1"><stop offset="0" stop-color="#6a4a12"/><stop offset=".3" stop-color="#e8cd78"/><stop offset=".55" stop-color="#b8902e"/><stop offset="1" stop-color="#5e400e"/></linearGradient>
+  <linearGradient id="gBrassH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e8cd78"/><stop offset=".45" stop-color="#c9a240"/><stop offset="1" stop-color="#6a4a12"/></linearGradient>
+  <linearGradient id="gSteel" x1="0" x2="1"><stop offset="0" stop-color="#8b949a"/><stop offset=".3" stop-color="#f1f4f6"/><stop offset=".6" stop-color="#b9c1c6"/><stop offset="1" stop-color="#7d868c"/></linearGradient>
+  <linearGradient id="gSteelH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e9edf0"/><stop offset=".5" stop-color="#b3bbc0"/><stop offset="1" stop-color="#6f787e"/></linearGradient>
+  <linearGradient id="gAlu" x1="0" x2="1"><stop offset="0" stop-color="#8f979d"/><stop offset=".25" stop-color="#e3e8eb"/><stop offset=".45" stop-color="#f7f9fa"/><stop offset=".7" stop-color="#b6bec3"/><stop offset="1" stop-color="#7e868b"/></linearGradient>
+  <radialGradient id="gAluTop" cx=".42" cy=".4" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#cfd5d9"/><stop offset="1" stop-color="#99a1a6"/></radialGradient>
+  <linearGradient id="gPlastic" x1="0" x2="1"><stop offset="0" stop-color="#bdb6a6"/><stop offset=".2" stop-color="#ece7dc"/><stop offset=".5" stop-color="#f6f3ec"/><stop offset=".85" stop-color="#d6cfc0"/><stop offset="1" stop-color="#a9a291"/></linearGradient>
+  <linearGradient id="gPlasticDk" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#4a4f54"/><stop offset="1" stop-color="#22262a"/></linearGradient>
+  <linearGradient id="gBlue" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#7fa3c4"/><stop offset=".25" stop-color="#4f7699"/><stop offset=".7" stop-color="#2e4b66"/><stop offset="1" stop-color="#1a2d3f"/></linearGradient>
+  <linearGradient id="gWireBk" x1="0" x2="1"><stop offset="0" stop-color="#050505"/><stop offset=".35" stop-color="#55595c"/><stop offset="1" stop-color="#0b0b0b"/></linearGradient>
+  <linearGradient id="gWireRd" x1="0" x2="1"><stop offset="0" stop-color="#5a0b07"/><stop offset=".35" stop-color="#e2554a"/><stop offset="1" stop-color="#6a100a"/></linearGradient>
+  <linearGradient id="gWireYl" x1="0" x2="1"><stop offset="0" stop-color="#7a5a00"/><stop offset=".35" stop-color="#ffe26a"/><stop offset="1" stop-color="#8a6800"/></linearGradient>
+  <linearGradient id="gWireBl" x1="0" x2="1"><stop offset="0" stop-color="#0b2a6a"/><stop offset=".35" stop-color="#6c9ef0"/><stop offset="1" stop-color="#0e2f78"/></linearGradient>
+  <radialGradient id="gScrew" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#b9c1c6"/><stop offset="1" stop-color="#5f686d"/></radialGradient>
+  <radialGradient id="gInside" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#3a3f43"/><stop offset="1" stop-color="#121416"/></radialGradient>
+  <linearGradient id="gWinding" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e3a05e"/><stop offset=".5" stop-color="#b8692f"/><stop offset="1" stop-color="#6e3a14"/></linearGradient>
+  <linearGradient id="gLam" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#9aa3a9"/><stop offset=".5" stop-color="#5c656b"/><stop offset="1" stop-color="#2e3438"/></linearGradient>
+  <linearGradient id="gLiq" x1="0" x2="1"><stop offset="0" stop-color="#f0a040"/><stop offset="1" stop-color="#e07a1f"/></linearGradient>
+  <linearGradient id="gMix" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5b9be8"/><stop offset="1" stop-color="#2f6fd6"/></linearGradient>
+  <filter id="fShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".28"/></filter>
+  <filter id="fSoft"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="fGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <pattern id="pFins" width="4" height="10" patternUnits="userSpaceOnUse"><rect width="4" height="10" fill="#b9c2c8"/><rect width="1.4" height="10" fill="#eef2f4"/></pattern>
+  <pattern id="pWind" width="6" height="4" patternUnits="userSpaceOnUse"><rect width="6" height="4" fill="url(#gWinding)"/><path d="M0 2 H6" stroke="#5a2e10" stroke-width=".6" opacity=".6"/></pattern>
+ </defs>
+</svg>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const L=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="10.5" font-weight="600" fill="#2a3135" text-anchor="${anchor}">${t}</text>`;
+const flowArrow=(d,col,id)=>`<path ${id?`id="${id}"`:""} d="${d}" fill="none" stroke="${col}" stroke-width="3" stroke-dasharray="7 9" stroke-linecap="round" class="flow"/>`;
+const shadow=(cx,cy,rx,ry=7)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#000" opacity=".22" filter="url(#fSoft)"/>`;
+
+/* ---------- OLD (current trainer drawings) ---------- */
+const K="#2a2d30",BR="#c9a24a",BRD="#8a6a22",CU="#c87f4f",WH="#f4f4f0";
+const box=(x,y,w,h,c,r=4)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${c}" stroke="${K}" stroke-width="1.2"/>`;
+const label=(x,y,s,c=K,sz=8)=>`<text x="${x}" y="${y}" font-size="${sz}" text-anchor="middle" font-family="sans-serif" font-weight="600" fill="${c}">${s}</text>`;
+const pipeH=(x1,x2,y,w=10,c=CU)=>`<rect x="${x1}" y="${y-w/2}" width="${x2-x1}" height="${w}" fill="${c}" stroke="${K}" stroke-width="1"/>`;
+const pipeV=(x,y1,y2,w=10,c=CU)=>`<rect x="${x-w/2}" y="${y1}" width="${w}" height="${y2-y1}" fill="${c}" stroke="${K}" stroke-width="1"/>`;
+const OLD={
+ comp:`<path d="M52 108 V40 Q52 14 80 14 Q108 14 108 40 V108 Z" fill="#30363b" stroke="${K}" stroke-width="1.2"/>${box(44,104,72,10,"#22262a",2)}${pipeH(108,150,74,10)}${pipeV(80,2,16,8)}${box(56,52,22,16,"#9aa1a8",2)}${label(67,63,"T  S  R",K,6)}${label(130,66,"SUCTION",K,6)}${label(98,9,"DISCHARGE",K,6)}${label(80,92,"SCROLL",WH,8)}`,
+ txv:`${pipeH(4,70,70,8)}<rect x="66" y="56" width="30" height="28" fill="${BR}" stroke="${K}"/><path d="M68 56 l26 28 M94 56 l-26 28" stroke="${K}" stroke-width="1.5"/>${pipeV(81,84,116,8)}<path d="M81 56 V30 C100 20 120 26 128 40" stroke="#9aa1a8" stroke-width="2" fill="none"/><rect x="124" y="40" width="26" height="8" rx="3" fill="#9aa1a8" stroke="${K}"/>${label(81,12,"TXV",K,9)}`,
+ cont:`${box(40,14,80,92,"#e9e6dd",4)}${box(52,24,56,22,"#3a3f44",2)}${[60,100].map(x=>`<circle cx="${x}" cy="35" r="5" fill="${BR}" stroke="${BRD}"/>`).join("")}${box(56,56,48,24,"#c9ced2",2)}${label(80,71,"COIL 24V",K,7)}${[60,100].map(x=>`<circle cx="${x}" cy="94" r="5" fill="${BR}" stroke="${BRD}"/>`).join("")}${label(80,11,"LINE",K,6)}${label(80,118,"LOAD",K,6)}`,
+ cap:`<rect x="52" y="16" width="56" height="92" rx="10" fill="#b9c0c6" stroke="${K}" stroke-width="1.2"/><ellipse cx="80" cy="18" rx="28" ry="6" fill="#d7dce0" stroke="${K}"/>${[[66,"HERM"],[80,"C"],[94,"FAN"]].map(([x,l])=>`<rect x="${x-4}" y="8" width="8" height="8" fill="${BR}" stroke="${BRD}"/>${label(x,5,l,K,5)}`).join("")}${label(80,60,"45+5 µF",K,9)}${label(80,74,"440 VAC",K,7)}`,
+ motor:`<rect x="20" y="40" width="48" height="26" rx="3" fill="#3f5f7a" stroke="${K}"/><rect x="10" y="62" width="120" height="50" rx="10" fill="#4a6d8c" stroke="${K}"/>${[70,80,90,100].map(y=>`<line x1="16" y1="${y}" x2="124" y2="${y}" stroke="#35536d" stroke-width="2"/>`).join("")}<circle cx="70" cy="87" r="20" fill="#30363b"/><circle cx="70" cy="87" r="13" fill="#9aa1a8"/><rect x="130" y="83" width="22" height="8" fill="#9aa1a8" stroke="${K}"/>`};
+const oldSvg=k=>`<svg viewBox="0 0 160 120" aria-hidden="true">${OLD[k]}</svg>`;
+
+/* ---------- NEW: scroll compressor (cutaway, orbiting scroll) ---------- */
+function spiral(cx,cy,a0,turns,b,rot){let d="";for(let i=0;i<=turns*48;i++){const t=i/48*2*Math.PI,r=4+b*t,x=cx+r*Math.cos(t+a0+rot),y=cy+r*0.62*Math.sin(t+a0+rot);d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return d}
+const compNew=()=>`<svg viewBox="0 0 340 250" role="img" aria-label="Scroll compressor cutaway">
+ ${shadow(170,232,96)}
+ <path d="M84 222 L256 222 L246 210 L94 210 Z" fill="url(#gPlasticDk)"/>
+ ${[104,236].map(x=>`<ellipse cx="${x}" cy="216" rx="9" ry="4" fill="#111"/>`).join("")}
+ <g filter="url(#fShadow)">
+  <rect x="110" y="62" width="120" height="150" fill="url(#gShell)"/>
+  <ellipse cx="170" cy="212" rx="60" ry="10" fill="#15181a"/>
+  <path d="M110 62 Q110 22 170 22 Q230 22 230 62 Z" fill="url(#gDome)"/>
+  <ellipse cx="170" cy="62" rx="60" ry="9" fill="none" stroke="#0e1012" stroke-width="2"/>
+  <ellipse cx="170" cy="62" rx="60" ry="9" fill="none" stroke="#8a9399" stroke-width=".8" transform="translate(0,2)" opacity=".5"/>
+  <rect x="126" y="34" width="9" height="176" rx="4" fill="#fff" opacity=".1"/>
+ </g>
+ <!-- discharge -->
+ <rect x="164" y="2" width="12" height="24" fill="url(#gCuV)"/><rect x="161" y="18" width="18" height="6" rx="2" fill="url(#gBrass)"/>
+ ${flowArrow("M170 30 V4","#ff4a3a","cDis")}
+ <!-- suction -->
+ <rect x="228" y="148" width="84" height="13" fill="url(#gCuH)"/><rect x="228" y="145" width="8" height="19" rx="2" fill="url(#gBrass)"/>
+ ${flowArrow("M314 154 H232","#6fb3e8","cSuc")}
+ <!-- terminal box -->
+ <rect x="94" y="100" width="20" height="34" rx="3" fill="url(#gPlasticDk)" stroke="#000"/><circle cx="104" cy="106" r="2" fill="url(#gScrew)"/><circle cx="104" cy="128" r="2" fill="url(#gScrew)"/>
+ <!-- cutaway window -->
+ <clipPath id="cwin"><path d="M134 88 L210 84 L214 150 L200 156 L190 150 L170 158 L150 151 L136 156 Z"/></clipPath>
+ <g clip-path="url(#cwin)">
+  <rect x="120" y="80" width="110" height="90" fill="url(#gInside)"/>
+  <ellipse cx="172" cy="118" rx="42" ry="27" fill="#2a2f33" stroke="#555d62"/>
+  <g id="cPockets"></g>
+  <path d="${spiral(172,118,0,3.1,3.6,0)}" fill="none" stroke="#c9d0d4" stroke-width="3.2"/>
+  <path id="cOrbit" d="${spiral(172,118,Math.PI,3.1,3.6,0)}" fill="none" stroke="#f0a040" stroke-width="3.2"/>
+  <circle cx="172" cy="118" r="3" fill="#ff4a3a"/>
+ </g>
+ <path d="M134 88 L210 84 L214 150 L200 156 L190 150 L170 158 L150 151 L136 156 Z" fill="none" stroke="#9aa3a9" stroke-width="2.2" stroke-linejoin="round"/>
+ ${L(140,130,60,160,6,164,"Fixed scroll")}${L(196,104,262,90,258,84,"Orbiting scroll","start")}
+ ${L(104,116,40,96,6,92,"Terminals")}${L(260,154,276,186,236,204,"Suction (cool vapor)")}${L(176,12,214,12,218,15,"Discharge (hot gas)")}
+</svg>`;
+
+/* ---------- NEW: TXV cutaway ---------- */
+const txvNew=()=>`<svg viewBox="0 0 340 250" role="img" aria-label="Thermostatic expansion valve cutaway">
+ ${shadow(170,236,120)}
+ <!-- inlet liquid line -->
+ <rect x="0" y="118" width="122" height="14" fill="url(#gCuH)"/>
+ <polygon points="104,112 122,112 126,125 122,138 104,138 100,125" fill="url(#gBrassH)" stroke="#5e400e"/>
+ ${flowArrow("M6 125 H98","#f08a2a","tLiq")}
+ <!-- outlet -->
+ <rect x="163" y="176" width="14" height="66" fill="url(#gCuV)"/>
+ <polygon points="158,172 182,172 186,182 182,192 158,192 154,182" fill="url(#gBrassH)" stroke="#5e400e"/>
+ ${flowArrow("M170 196 V240","#3d7de0","tMix")}
+ <!-- body -->
+ <g filter="url(#fShadow)">
+  <rect x="122" y="100" width="96" height="74" rx="8" fill="url(#gBrass)" stroke="#5e400e"/>
+  <rect x="126" y="70" width="88" height="26" rx="12" fill="url(#gSteel)" stroke="#5f686d"/>
+  <rect x="134" y="94" width="72" height="8" fill="url(#gBrassH)"/>
+  <rect x="200" y="160" width="40" height="8" fill="url(#gCuH)"/>
+ </g>
+ <!-- capillary + bulb -->
+ <path d="M170 70 C170 40 200 30 230 40 C262 50 250 72 232 66 C214 60 226 44 246 50 C272 58 286 120 280 200" fill="none" stroke="#9aa3aa" stroke-width="2.4"/>
+ <rect x="226" y="198" width="104" height="18" fill="url(#gCuH)"/>
+ <rect x="262" y="194" width="42" height="12" rx="6" fill="url(#gSteelH)" stroke="#5f686d"/>
+ <rect x="268" y="192" width="4" height="26" fill="#3a3f44"/><rect x="294" y="192" width="4" height="26" fill="#3a3f44"/>
+ ${flowArrow("M232 207 H330","#6fb3e8","tSuc")}
+ <!-- cutaway of body -->
+ <clipPath id="tcut"><path d="M132 106 H208 V166 H132 Z"/></clipPath>
+ <g clip-path="url(#tcut)">
+  <rect x="128" y="100" width="90" height="72" fill="url(#gInside)"/>
+  <path d="M128 120 H166 V132 H128 Z" fill="url(#gLiq)"/>
+  <path d="M162 138 H178 V172 H162 Z" fill="url(#gMix)"/>
+  <g id="tBub">${[0,1,2,3,4].map(i=>`<circle cx="${166+(i%2)*8}" cy="${142+i*6}" r="1.8" fill="#dfeeff"/>`).join("")}</g>
+  <path d="M160 132 L170 140 L180 132 Z" fill="#7a5a1a"/>
+  <g id="tPin"><rect x="167" y="104" width="6" height="30" fill="url(#gSteel)"/><path d="M167 134 L170 140 L173 134 Z" fill="#c9d0d4"/></g>
+  <path d="M186 140 l6 4 l-6 4 l6 4 l-6 4 l6 4" stroke="#c9d0d4" stroke-width="2" fill="none"/>
+ </g>
+ <path d="M132 106 H208 V166 H132 Z" fill="none" stroke="#e8cd78" stroke-width="2"/>
+ <path id="tDia" d="M132 84 Q170 88 208 84" stroke="#2a3135" stroke-width="2" fill="none"/>
+ ${L(144,126,60,96,6,92,"High-pressure liquid in")}${L(170,112,96,54,20,50,"Pin and seat (orifice)")}${L(150,84,110,24,40,20,"Diaphragm (power head)")}
+ ${L(174,214,110,226,6,230,"Low-pressure mix out")}${L(300,214,300,230,206,244,"Bulb on suction line")}
+</svg>`;
+
+/* ---------- NEW: contactor ---------- */
+const screw=(x,y)=>`<circle cx="${x}" cy="${y}" r="7" fill="url(#gScrew)" stroke="#4d555a"/><path d="M${x-4.5} ${y-1.5} L${x+4.5} ${y+1.5}" stroke="#3a3f43" stroke-width="1.6"/>`;
+const wire=(x,y1,y2,grad)=>`<rect x="${x-5}" y="${y1}" width="10" height="${y2-y1}" rx="4" fill="url(#${grad})"/>`;
+const contNew=()=>`<svg viewBox="0 0 340 250" role="img" aria-label="Definite-purpose contactor">
+ ${shadow(170,236,88)}
+ ${wire(130,0,46,"gWireBk")}${wire(210,0,46,"gWireRd")}
+ ${wire(130,206,250,"gWireBk")}${wire(210,206,250,"gWireRd")}
+ <g filter="url(#fShadow)">
+  <rect x="96" y="34" width="148" height="186" rx="10" fill="url(#gPlastic)" stroke="#8e8777"/>
+  <rect x="100" y="38" width="140" height="36" rx="6" fill="url(#gPlasticDk)"/>
+  <rect x="100" y="182" width="140" height="34" rx="6" fill="url(#gPlasticDk)"/>
+ </g>
+ <rect x="124" y="46" width="14" height="10" fill="#d48a52"/><rect x="204" y="46" width="14" height="10" fill="#d48a52"/>
+ <rect x="124" y="192" width="14" height="10" fill="#d48a52"/><rect x="204" y="192" width="14" height="10" fill="#d48a52"/>
+ ${screw(130,58)}${screw(210,58)}${screw(130,198)}${screw(210,198)}
+ <text x="152" y="62" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#e9ecee">L1</text><text x="176" y="62" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#e9ecee">L2</text>
+ <text x="152" y="203" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#e9ecee">T1</text><text x="176" y="203" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#e9ecee">T2</text>
+ <!-- window showing contacts and armature -->
+ <rect x="112" y="84" width="116" height="88" rx="6" fill="#1e2326" stroke="#6b7378"/>
+ <rect x="120" y="92" width="100" height="10" rx="2" fill="#6b747a"/>
+ <g id="kArm">
+  <rect x="122" y="104" width="96" height="10" rx="3" fill="url(#gSteelH)"/>
+  <rect x="124" y="114" width="12" height="6" fill="#d9dee1"/><rect x="204" y="114" width="12" height="6" fill="#d9dee1"/>
+  <rect x="160" y="114" width="20" height="18" fill="#7d868c"/>
+ </g>
+ <rect x="122" y="124" width="16" height="8" fill="#d9dee1"/><rect x="202" y="124" width="16" height="8" fill="#d9dee1"/>
+ <g id="kArc" opacity="0"><path d="M130 120 l3 -4 l2 4 l3 -4" stroke="#9fd8ff" stroke-width="1.6" fill="none" filter="url(#fGlow)"/></g>
+ <rect x="146" y="138" width="48" height="28" rx="3" fill="url(#pWind)" stroke="#5a2e10"/>
+ <rect id="kGlow" x="146" y="138" width="48" height="28" rx="3" fill="#ffd27a" opacity="0" filter="url(#fGlow)"/>
+ <!-- coil terminals -->
+ <rect x="240" y="124" width="22" height="7" rx="1.5" fill="url(#gSteelH)"/><rect x="240" y="146" width="22" height="7" rx="1.5" fill="url(#gSteelH)"/>
+ <path d="M262 127 H300 C320 127 322 100 340 96" stroke="url(#gWireYl)" stroke-width="5" fill="none"/>
+ <path d="M262 149 H300 C320 149 322 170 340 176" stroke="url(#gWireBl)" stroke-width="5" fill="none"/>
+ <text x="244" y="120" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#2a3135">A1</text><text x="244" y="166" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#2a3135">A2</text>
+ ${L(124,108,60,96,6,92,"Moving contacts")}${L(150,152,60,170,6,174,"24 V coil")}${L(210,58,268,40,254,36,"Line in","start")}${L(210,198,268,222,254,234,"Load out","start")}
+ <text id="kTxt" x="6" y="244" text-anchor="start" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#2a3135">PULLED IN</text>
+</svg>`;
+
+/* ---------- NEW: dual run capacitor ---------- */
+const capNew=()=>`<svg viewBox="0 0 340 250" role="img" aria-label="Dual run capacitor">
+ ${shadow(170,236,64)}
+ <g filter="url(#fShadow)">
+  <rect x="116" y="50" width="108" height="176" rx="6" fill="url(#gAlu)"/>
+  <ellipse cx="170" cy="226" rx="54" ry="9" fill="#7e868b"/>
+  <ellipse cx="170" cy="50" rx="54" ry="11" fill="url(#gAluTop)" stroke="#8f979d"/>
+  <rect x="116" y="96" width="108" height="92" fill="#f2f0e9" opacity=".92"/>
+  <rect x="116" y="96" width="108" height="92" fill="url(#gAlu)" opacity=".28"/>
+ </g>
+ <ellipse cx="170" cy="46" rx="30" ry="6" fill="#2f3337"/>
+ ${[[140,"HERM"],[170,"C"],[200,"FAN"]].map(([x,t])=>`${[-6,0,6].map(d=>`<rect x="${x+d-2}" y="26" width="4" height="18" fill="url(#gSteel)" stroke="#6f787e" stroke-width=".5"/>`).join("")}`).join("")}
+ <text x="170" y="122" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="17" font-weight="700" fill="#1d2327">45 + 5 µF</text>
+ <text x="170" y="142" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#3a4246">±6%  440 VAC  60 Hz</text>
+ <text x="170" y="160" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" fill="#5b666d">DUAL RUN CAPACITOR · OIL FILLED</text>
+ <rect x="124" y="54" width="10" height="168" rx="4" fill="#fff" opacity=".35"/>
+ ${L(140,40,80,60,6,64,"Compressor (HERM)")}${L(200,40,262,64,250,80,"Fan motor (FAN)","start")}${L(170,40,170,4,182,8,"Common (C)","start")}
+</svg>`;
+
+/* ---------- NEW: 3-phase motor cutaway ---------- */
+const motorNew=()=>`<svg viewBox="0 0 340 250" role="img" aria-label="Three-phase TEFC motor cutaway">
+ ${shadow(170,232,130)}
+ <g filter="url(#fShadow)">
+  <rect x="60" y="208" width="44" height="14" rx="2" fill="#253b52"/><rect x="226" y="208" width="44" height="14" rx="2" fill="#253b52"/>
+  <rect x="62" y="86" width="196" height="124" rx="16" fill="url(#gBlue)"/>
+  ${Array.from({length:11},(_,i)=>`<rect x="70" y="${92+i*10.5}" width="180" height="4" rx="2" fill="#1d3247" opacity=".55"/><rect x="70" y="${95.5+i*10.5}" width="180" height="1.5" fill="#9fc0dd" opacity=".35"/>`).join("")}
+  <rect x="22" y="94" width="44" height="108" rx="10" fill="url(#gBlue)"/>
+  ${Array.from({length:9},(_,i)=>`<rect x="30" y="${102+i*10.5}" width="30" height="4" rx="2" fill="#0e1a26" opacity=".8"/>`).join("")}
+  <rect x="254" y="100" width="22" height="96" rx="8" fill="url(#gBlue)"/>
+  <rect x="120" y="58" width="70" height="32" rx="4" fill="url(#gBlue)"/><rect x="190" y="66" width="34" height="14" fill="url(#gSteelH)"/>
+ </g>
+ <rect x="276" y="140" width="56" height="16" fill="url(#gSteelH)"/><rect x="300" y="138" width="20" height="4" fill="#5f686d"/>
+ <!-- cutaway -->
+ <clipPath id="mcut"><path d="M110 104 L232 104 L232 196 L110 196 Z"/></clipPath>
+ <g clip-path="url(#mcut)">
+  <rect x="100" y="100" width="140" height="100" fill="url(#gInside)"/>
+  <rect x="108" y="104" width="126" height="20" fill="url(#gLam)"/><rect x="108" y="176" width="126" height="20" fill="url(#gLam)"/>
+  <rect x="104" y="106" width="16" height="88" rx="6" fill="url(#pWind)"/><rect x="222" y="106" width="16" height="88" rx="6" fill="url(#pWind)"/>
+  <rect x="120" y="116" width="102" height="8" fill="url(#pWind)"/><rect x="120" y="176" width="102" height="8" fill="url(#pWind)"/>
+  <rect x="122" y="128" width="98" height="44" rx="3" fill="url(#gLam)"/>
+  <clipPath id="mrot"><rect x="122" y="128" width="98" height="44" rx="3"/></clipPath><g clip-path="url(#mrot)"><g id="mBars">${Array.from({length:16},(_,i)=>`<path d="M${118+i*8} 128 L${126+i*8} 172" stroke="#c4884a" stroke-width="3"/>`).join("")}</g></g>
+  <rect x="122" y="128" width="98" height="44" rx="3" fill="none" stroke="#2a3135"/>
+  <rect x="232" y="144" width="44" height="8" fill="url(#gSteelH)"/>
+ </g>
+ <path d="M110 104 L232 104 L232 196 L110 196 Z" fill="none" stroke="#9fc0dd" stroke-width="2"/>
+ ${L(112,140,60,60,6,54,"Stator winding (copper)")}${L(170,150,170,236,180,246,"Rotor bars (aluminum)","start")}${L(40,140,10,236,6,246,"Shaft fan cowl")}${L(150,66,150,30,160,30,"Terminal box","start")}${L(300,148,320,120,284,112,"Shaft","start")}
+</svg>`;
+
+const CARDS=[
+ {t:"Scroll compressor",o:"comp",n:compNew,d:"Shaded steel shell with a cutaway. The orbiting scroll moves, trapping cool suction gas (blue) and squeezing it toward the hot discharge port in the center (red)."},
+ {t:"Thermostatic expansion valve",o:"txv",n:txvNew,d:"Brass body, power head and capillary to the bulb on the suction line. The cutaway shows the pin opening and closing the seat as liquid (orange) flashes into a cold mix (blue)."},
+ {t:"Contactor",o:"cont",n:contNew,d:"Real-looking body, screws and wires. The window shows the 24 V coil pulling the moving contacts down onto the stationary ones. Use the Coil button above to drop it out."},
+ {t:"Dual run capacitor",o:"cap",n:capNew,d:"Aluminum can with the HERM, C and FAN spade terminals and a printed label, the way it looks in the unit."},
+ {t:"Three-phase motor",o:"motor",n:motorNew,d:"TEFC frame with cooling fins and a cutaway showing the copper stator winding and the skewed rotor bars turning."}];
+$("cards").innerHTML=CARDS.map(c=>`<section class="card"><h2>${c.t}</h2><div class="pair"><div class="pane old"><b>Now</b>${oldSvg(c.o)}</div><div class="pane new"><b>Proposed</b>${c.n()}</div></div><p class="note">${c.d}</p></section>`).join("");
+document.querySelectorAll(".card").forEach(c=>c.style.marginBottom="12px");
+
+/* ---------- animation ---------- */
+let anim=true,coil=true,t0=performance.now(),off=0,kPos=1;
+function frame(now){const t=(now-t0)/1000;
+ if(anim){off-=1.2;document.querySelectorAll(".flow").forEach(e=>e.style.strokeDashoffset=off);
+  // orbiting scroll: small circular orbit, no rotation
+  const e=3.2,ox=e*Math.cos(t*4),oy=e*0.62*Math.sin(t*4);const o=$("cOrbit");if(o)o.setAttribute("transform",`translate(${ox.toFixed(2)} ${oy.toFixed(2)})`);
+  // pockets shrinking toward center
+  const pk=$("cPockets");if(pk){let s="";for(let k=0;k<3;k++){const ph=((t*0.6+k/3)%1),r=36*(1-ph)+4,a=t*4+k*2.1;const col=`rgb(${Math.round(80+175*ph)},${Math.round(150-90*ph)},${Math.round(230-180*ph)})`;s+=`<ellipse cx="${(172+r*Math.cos(a)).toFixed(1)}" cy="${(118+r*0.62*Math.sin(a)).toFixed(1)}" rx="${(7-4*ph).toFixed(1)}" ry="${(4.5-2.5*ph).toFixed(1)}" fill="${col}" opacity=".85"/>`}pk.innerHTML=s}
+  // TXV pin hunting slightly
+  const pin=$("tPin");if(pin){const y=-3-2.5*Math.sin(t*1.3);pin.setAttribute("transform",`translate(0 ${y.toFixed(2)})`);const d=$("tDia");if(d)d.setAttribute("d",`M132 84 Q170 ${(88+y).toFixed(1)} 208 84`)}
+  const bub=$("tBub");if(bub)bub.setAttribute("transform",`translate(0 ${((t*14)%12).toFixed(1)})`);
+  // motor rotor bars sliding (rotation seen from the side)
+  const mb=$("mBars");if(mb)mb.setAttribute("transform",`translate(${((t*22)%8).toFixed(2)} 0)`)}
+ // contactor armature
+ const target=coil?1:0;kPos+=(target-kPos)*0.25;const arm=$("kArm");if(arm)arm.setAttribute("transform",`translate(0 ${(kPos*4).toFixed(2)})`);
+ const g=$("kGlow");if(g)g.setAttribute("opacity",(coil?0.35:0).toString());const tx=$("kTxt");if(tx)tx.textContent=coil?"COIL ON: PULLED IN":"COIL OFF: OPEN";
+ const arc=$("kArc");if(arc)arc.setAttribute("opacity",Math.abs(target-kPos)>0.05&&target===0?"1":"0");
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.id==="anim"){anim=!anim;b.setAttribute("aria-pressed",anim);b.textContent="Animation: "+(anim?"on":"off")}
+ if(b.id==="coil"){coil=!coil;b.setAttribute("aria-pressed",coil);b.textContent="Contactor coil: "+(coil?"on":"off")}});
+if(matchMedia("(prefers-reduced-motion:reduce)").matches){anim=false;const b=$("anim");b.setAttribute("aria-pressed","false");b.textContent="Animation: off"}
+})();
+</script>

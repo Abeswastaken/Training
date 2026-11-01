@@ -1,0 +1,57 @@
+<div class="wrap">
+<header>
+  <h1>Ladder Builder <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
+  <div class="tools">
+    <button class="btn" id="pwr" aria-pressed="true">Power: on</button>
+    <button class="btn" id="undo">Undo</button>
+    <button class="btn" id="clearL">Clear</button>
+    <button class="btn" id="theme">Theme</button>
+    <button class="btn" id="about">About</button>
+    <button class="btn" id="feedback">Feedback</button>
+  </div>
+</header>
+<div class="wl">
+  <aside class="side">
+    <div class="group"><h3>How to</h3><p class="note">Drag a part onto a rung, or tap a part and then tap a spot. Contacts and switches go on the left, one load (coil, motor, light) on the right. Drop a part in a dashed "branch" box under a rung to put it in parallel. Tap a placed part to see what it looks like, how to check it, and to press, set or remove it.</p></div>
+    <div class="group" id="palette"></div>
+  </aside>
+  <div class="mainCol">
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ladWrap" id="wrapL"><svg id="ladder" role="img" aria-label="Ladder diagram"></svg></div>
+    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button></div>
+    <div class="group"><h3>Log</h3><div class="log" id="log" aria-live="polite"></div></div>
+  </div>
+  <aside class="side2">
+    <div class="group elSheet" id="elSheet" hidden></div>
+    <div class="group">
+      <h3>Supply and examples</h3>
+      <div class="btns">
+        <label class="inl">Control voltage <select id="volt"><option value="120">120 V (L1 / N)</option><option value="24">24 V (R / C)</option></select></label>
+        <label class="inl">Load example <select id="ex"><option value="">Choose...</option><option value="seal">Start/stop with seal-in</option><option value="tstat24">24 V thermostat (R, G, Y, W, C)</option><option value="ac">Air conditioner controls</option><option value="td">On-delay timer</option><option value="short">Mistake: rung with no load</option></select></label>
+      </div>
+    </div>
+    <div class="group"><h3>Thermostat</h3>
+      <div class="tface"><div class="tlcd"><small id="tMode"></small><b id="tRoom">76°</b><small>ROOM</small></div></div>
+      <div class="tRow"><span>System</span><div class="seg" role="group" aria-label="System"><button data-sys="off">Off</button><button data-sys="heat">Heat</button><button data-sys="cool">Cool</button><button data-sys="auto">Auto</button></div></div>
+      <div class="tRow"><span>Fan</span><div class="seg" role="group" aria-label="Fan"><button data-fan="auto">Auto</button><button data-fan="on">On</button></div></div>
+      <div class="tRow"><span>Room</span><button class="btn" data-adj="room:-2" aria-label="Room cooler">−</button><button class="btn" data-adj="room:2" aria-label="Room warmer">+</button></div>
+      <div class="tRow"><span>Heat to <b id="tHs"></b></span><button class="btn" data-adj="hs:-1" aria-label="Heat setpoint down">−</button><button class="btn" data-adj="hs:1" aria-label="Heat setpoint up">+</button></div>
+      <div class="tRow"><span>Cool to <b id="tCs"></b></span><button class="btn" data-adj="cs:-1" aria-label="Cool setpoint down">−</button><button class="btn" data-adj="cs:1" aria-label="Cool setpoint up">+</button></div>
+      <p class="note" id="tCall"></p></div>
+  </aside>
+</div>
+</div>
+<div class="modal" id="modal" hidden><div class="modalCard" role="alertdialog" aria-labelledby="mT"><h2 id="mT"></h2><div id="mB"></div><div class="modalRow"><button class="btn" id="mOk">Got it</button></div></div></div>
+<div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
+  <h2 id="discT">Training aid only</h2>
+  <p>Ladder Builder is a simplified simulator for learning to read and draw ladder (line) diagrams. It is not a design tool or a substitute for training, the equipment's wiring diagram, or the electrical code.</p>
+  <ul><li>Each rung is checked as logic: closed contacts pass power, and a rung with no load is treated as a dead short.</li>
+  <li>Real arc flash and shock can kill. De-energize, lock out, tag out, and verify dead with a tested meter before you touch wiring.</li></ul>
+  <p class="note">Spot something wrong? Use Feedback (top bar) to report it.</p>
+  <div class="modalRow"><button class="btn" id="discOk">I understand</button></div></div></div>
+<div class="modal" id="fb" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="fbT">
+  <h2 id="fbT">Feedback</h2><p>Report a bug, suggest an idea, or flag something that isn't accurate. <span id="fbTo">No sign-in needed.</span></p>
+  <label for="fbType">Type</label><select id="fbType"><option>Bug</option><option>Suggestion</option><option>Accuracy problem</option><option>Other</option></select>
+  <label for="fbMsg">What happened or what would you like?</label><textarea id="fbMsg" maxlength="3000"></textarea>
+  <label for="fbName">Name (optional)</label><input id="fbName" maxlength="80" autocomplete="name">
+  <p class="note" id="fbStatus"></p><div class="modalRow"><button class="btn" id="fbCancel">Cancel</button><button class="btn" id="fbSend">Send</button></div></div></div>
