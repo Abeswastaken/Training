@@ -1,0 +1,55 @@
+:root{--hotw:#d0312d;--hotf:#ffd3cf}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hotw:#ff5a4f;--hotf:#5a1d1a}}
+:root[data-theme="dark"]{--hotw:#ff5a4f;--hotf:#5a1d1a}
+.wl{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:1000px){.wl{grid-template-columns:250px minmax(0,1fr) 280px}.side,.side2{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto;align-self:start}}
+.side2{display:flex;flex-direction:column;gap:10px;min-width:0}
+.side2 h3{font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:6px 0}
+.side2 .pcard{grid-template-columns:minmax(0,1fr)}
+.side{display:flex;flex-direction:column;gap:10px}
+.side h3,.mainCol h3{font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:6px 0}
+.mainCol{display:flex;flex-direction:column;gap:10px;min-width:0}
+.pal{display:flex;flex-wrap:wrap;gap:6px}
+.palItem{font:500 13px var(--body);border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);border-radius:6px;padding:8px 10px;cursor:grab;min-height:36px;text-align:left;touch-action:none;user-select:none}
+.palItem:hover{border-color:var(--brass)}
+.palItem.on{background:var(--plate);color:var(--plate-ink);border-color:var(--plate)}
+.group{background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:10px}
+.note{font-size:13px;color:var(--muted)}
+.hint{margin:0;min-height:1.2em;font-size:14px;color:var(--brass);font-weight:600}
+.ladWrap{background:var(--paper);border:1px solid var(--panel-edge);border-radius:8px;overflow:auto;max-height:76vh}
+#ladder{display:block;user-select:none}
+.tg{font:600 12px var(--display);letter-spacing:.05em;fill:var(--ink);text-anchor:middle;pointer-events:none}
+.rail{font:700 15px var(--display);fill:var(--brass);text-anchor:middle}
+.rn{font:700 15px var(--display);fill:var(--muted);text-anchor:middle}
+.cell{cursor:pointer}
+.cell.drop>rect{fill:rgba(154,111,31,.06)}
+.cell.drop:hover>rect{fill:rgba(154,111,31,.18)}
+.el.sel{filter:drop-shadow(0 0 4px var(--brass))}
+.el.sel>*:first-child{stroke-width:4}
+.ghost{position:fixed;z-index:50;pointer-events:none;background:var(--plate);color:var(--plate-ink);font:600 13px var(--body);padding:6px 10px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.flash{animation:fl 1.3s ease-out forwards}
+@keyframes fl{0%{opacity:1}100%{opacity:0}}
+.blinkR{animation:bl .6s infinite alternate}
+@keyframes bl{to{opacity:.2}}
+.shake{animation:shk .5s}
+@keyframes shk{20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-1px)}}
+.spin{animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.btns{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.inl{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}
+.inl select,.inl input{font:14px var(--body);padding:6px;border:1px solid var(--panel-edge);border-radius:5px;background:var(--paper);color:var(--ink);min-height:36px}
+.elSheet h3{margin-top:0}
+.log{max-height:200px;overflow:auto;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.log .b{color:var(--bad);font-weight:600}.log .w{color:var(--warn)}
+@media (pointer:coarse){.palItem{touch-action:auto}}
+.tface{display:flex;justify-content:center;margin-bottom:8px}
+.tlcd{background:linear-gradient(#cfdccb,#b6c6b1);border:3px solid #8f887a;border-radius:10px;padding:6px 18px;display:flex;flex-direction:column;align-items:center;color:#1f2a22;min-width:150px;box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.tlcd b{font:600 34px var(--mono);line-height:1.1}.tlcd small{font:600 11px var(--display);letter-spacing:.08em}
+.tRow{display:flex;align-items:center;gap:6px;margin:6px 0;flex-wrap:wrap}.tRow>span{min-width:86px;font-size:13px;color:var(--ink)}
+.tRow .seg button{font-size:14px;padding:6px 10px;min-height:36px}.tRow .btn{min-width:40px;padding:6px 10px}
+.pcard{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:12px;align-items:start;margin:6px 0 10px}
+.pcard .ill{width:100%;height:auto;display:block}.pcard p{margin:0 0 6px}
+@media (max-width:640px){.pcard{grid-template-columns:minmax(0,1fr)}}
+.pcard .ill{background:#eef1f3!important;border-radius:6px}
+.side2 .inl{flex-wrap:wrap}.side2 .inl select{max-width:100%;min-width:0}
+@media (max-width:999px){.mainCol{display:contents}.mainCol>.group:last-child{order:9}.side2{order:5}}

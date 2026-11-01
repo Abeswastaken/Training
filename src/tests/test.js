@@ -1,0 +1,38 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1300,height:900}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
+await p.goto('file://'+process.cwd()+'/full.html');await p.waitForTimeout(500);
+const run=async(name,setup,n=1200)=>{const r=await p.evaluate(([setup,n])=>{const sim=window.__rt.SIMS.split;
+ sim.sliders.forEach(s=>sim.V[s.k]=s.v);sim.faults.forEach(f=>sim.F[f[0]]=false);const m=setup.meter||'piston';sim.S=sim.init();sim.S.meter=m;sim.S.Troom=setup.room||75;
+ Object.assign(sim.V,setup.v||{});(setup.f||[]).forEach(k=>sim.F[k]=true);
+ // hold room steady: keep calling
+ for(let i=0;i<n&&!sim.S.dead;i++){sim.step(0.5);if(!setup.free){sim.S.Troom=setup.room||75;sim.V.set=60}}
+ const S=sim.S;return {Ps:Math.round(S.Ps),Pd:Math.round(S.Pd),sst:Math.round(S.sst),sct:Math.round(S.sct),sh:Math.round(S.sh),sc:Math.round(S.sc),split:Math.round(S.Troom-S.Tsup),Tdis:Math.round(S.Tdis),amps:S.amps.toFixed(1),cap:Math.round(S.cap),comp:S.comp,ice:S.ice.toFixed(2),Tm:Math.round(S.Tm),dead:S.dead,ol:S.ol,hps:S.hps,lps:S.lps,flood:Math.round(S.flood)}},[setup,n]);console.log(name.padEnd(28),JSON.stringify(r))};
+await run('nominal piston',{});
+await run('nominal txv',{meter:'txv'});
+await run('room80 out95',{room:80});
+await run('out 75',{v:{out:75}});
+await run('undercharge 80 piston',{v:{charge:80}});
+await run('undercharge 80 txv',{meter:'txv',v:{charge:80}});
+await run('overcharge 120 piston',{v:{charge:120}});
+await run('overcharge 120 txv',{meter:'txv',v:{charge:120}});
+await run('dirty filter piston',{f:['filter']});
+await run('dirty filter txv',{meter:'txv',f:['filter']});
+await run('blower fail',{f:['blower']},3000);
+await run('dirty cond',{f:['dirtyCond']});
+await run('cond fan',{f:['condFan']});
+await run('drier piston',{f:['drier']});
+await run('drier txv',{meter:'txv',f:['drier']});
+await run('worn comp',{f:['comp']});
+await run('noncond',{f:['noncond']});
+await run('txvShut',{meter:'txv',f:['txvShut']});
+await run('txvBulb',{meter:'txv',f:['txvBulb']});
+await run('cap',{f:['cap']},400);
+await run('scn fan+hps+ol',{f:['condFan','hpsFail','olFail']},4000);
+await run('scn leak+lps+ol',{f:['leak','lpsFail','olFail'],v:{charge:45}},40000);
+await run('scn flood',{f:['filter'],v:{charge:140}},8000);
+await run('leak only',{f:['leak']},30000);
+await run('free run normal',{free:1},14400);
+console.log('ERR',errs);
+await p.screenshot({path:'shot.png'});
+await b.close()})();

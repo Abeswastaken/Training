@@ -1,0 +1,1105 @@
+<title>Boiler Trainer FB-Enable</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone first. Drawing and gauges on top, tabs (Controls, Failures, Parts, Log) below. Side by side on wide screens. */
+:root{
+  --bg:#e7e9ea; --paper:#f7f8f6; --panel:#d3d8db; --panel-edge:#b7bec3; --ink:#1d2327; --muted:#5b666d; --line:#9aa5ab;
+  --brass:#9a6f1f; --plate:#2b3236; --plate-ink:#e9ecee;
+  --hot:#d23a26; --cold:#2f6fd6; --lamp-off:#8d979c; --ok:#1e9a4a; --warn:#c77f0a; --bad:#d0312d;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14191c; --paper:#1b2226; --panel:#262e33; --panel-edge:#3a444a; --ink:#e3e8ea; --muted:#9aa6ac; --line:#56626a;
+  --brass:#d2a24c; --plate:#0e1214; --plate-ink:#dfe5e8; --lamp-off:#4b555b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14191c; --paper:#1b2226; --panel:#262e33; --panel-edge:#3a444a; --ink:#e3e8ea; --muted:#9aa6ac; --line:#56626a;
+  --brass:#d2a24c; --plate:#0e1214; --plate-ink:#dfe5e8; --lamp-off:#4b555b; color-scheme:dark}
+[hidden]{display:none!important}
+html,body{height:100%}
+.ill{display:block;width:100%;aspect-ratio:4/3;height:auto;background:#eef0ee;border-radius:6px}
+.sheet .ill,.sheet .thumb{max-height:190px}
+.illNote{font-size:12px;color:var(--muted);margin-top:4px}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;margin:0}
+.wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px 24px;display:flex;flex-direction:column;gap:10px;max-width:1320px;margin:0 auto}
+@media (min-width:600px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+h1{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.04em;text-transform:uppercase;margin:0;line-height:1}
+.seg{display:flex;border:1px solid var(--panel-edge);border-radius:6px;overflow:hidden}
+.seg button{font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:0;background:var(--panel);color:var(--muted);padding:8px 14px;cursor:pointer;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink)}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.btn{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);border-radius:6px;padding:8px 12px;cursor:pointer;min-height:40px}
+.btn:hover{border-color:var(--brass)}
+.btn[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate)}
+.btn.red{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn.danger{border-color:var(--bad);color:var(--bad);text-align:left}
+.btn.blue{background:var(--cold);color:#fff;border-color:var(--cold)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:1000px){.layout{grid-template-columns:minmax(0,1.65fr) minmax(330px,1fr);align-items:start}.stage{position:sticky;top:max(10px,env(safe-area-inset-top,0px))}}
+.stage{display:flex;flex-direction:column;gap:8px;min-width:0}
+.drawing{background:var(--paper);border:1px solid var(--panel-edge);border-radius:8px;position:relative;overflow:hidden}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroller svg{display:block;width:100%;min-width:640px;height:auto}
+.hint{font-size:12px;color:var(--muted);padding:0 10px 6px}
+.part{cursor:pointer}
+.part:hover .hl,.part:focus .hl,.part.flash .hl{stroke:var(--brass);stroke-width:3}
+.lbl{font-family:var(--display);font-size:14px;font-weight:600;letter-spacing:.05em;fill:var(--muted);text-transform:uppercase}
+.val{font-family:var(--mono);font-size:13px;fill:var(--ink)}
+.tag{font-family:var(--display);font-size:10px;font-weight:600;letter-spacing:.05em}
+.pipe{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke:rgba(255,255,255,.75);stroke-width:2.5;stroke-dasharray:4 12;stroke-linecap:round}
+.body{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.strip{background:var(--plate);color:var(--plate-ink);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.reads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.reads div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.reads span{font-family:var(--display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.reads b{font-family:var(--mono);font-weight:500;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lamps{display:flex;flex-wrap:wrap;gap:6px 12px}
+.lamp{display:flex;align-items:center;gap:5px}
+.lamp i{width:11px;height:11px;border-radius:50%;background:var(--lamp-off);flex:none}
+.lamp span{font-family:var(--display);font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.lamp.on i{background:currentColor;box-shadow:0 0 6px 1px currentColor}
+.lamp.g{color:var(--ok)}.lamp.a{color:var(--warn)}.lamp.r{color:var(--bad)}
+.lamp span{color:var(--plate-ink)}
+.alerts{display:flex;flex-wrap:wrap;gap:6px}
+.alerts:empty{display:none}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:4px}
+.tabs button{flex:1;font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:0;border-radius:5px;background:transparent;color:var(--muted);padding:8px 4px;cursor:pointer;min-height:40px}
+.tabs button[aria-selected="true"]{background:var(--plate);color:var(--plate-ink)}
+.tabpanel{background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.group{display:flex;flex-direction:column;gap:10px}
+.group h3{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:0}
+.group p{margin:0;font-size:13px;color:var(--muted);line-height:1.4}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px}
+.row label{font-size:14px}
+.row output{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+.row input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--brass);height:28px;margin:0}
+.row small{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:-4px}
+.row.out output,.row.out small{color:var(--bad);font-weight:600}
+details{border-top:1px solid var(--panel-edge);padding-top:10px}
+summary{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);cursor:pointer;min-height:28px}
+details[open] summary{margin-bottom:10px}
+details .group{gap:10px}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.checks{display:flex;flex-direction:column;gap:2px}
+.checks label{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;min-height:34px}
+.checks input{accent-color:var(--bad);width:18px;height:18px;flex:none}
+.mystery{font-size:14px;color:var(--bad);font-weight:600}
+.parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.pcard{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--paper);border:1px solid var(--panel-edge);border-radius:8px;padding:6px;cursor:pointer;color:var(--ink);font:inherit}
+.pcard:hover{border-color:var(--brass)}
+.pcard svg{display:block;width:100%;aspect-ratio:4/3;height:auto;background:var(--paper);border-radius:4px;pointer-events:none}
+.pcard b{font-family:var(--display);font-size:15px;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
+.pcard span{font-size:12px;color:var(--muted);line-height:1.3}
+.photoNote{font-size:12px;color:var(--muted);margin:0}
+.log{font-family:var(--mono);font-size:12px;line-height:1.55;max-height:420px;overflow:auto}
+.log div{display:flex;gap:10px}.log time{color:var(--muted);flex:none}
+.log .w{color:var(--warn)}.log .b{color:var(--bad)}
+.sheet{position:fixed;left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));max-height:72vh;overflow:auto;background:var(--paper);border:1px solid var(--brass);border-radius:10px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.3);z-index:20}
+@media (min-width:700px){.sheet{left:auto;width:420px;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}}
+.sheet h2{font-family:var(--display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin:0 70px 8px 0}
+.sheet h4{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:12px 0 2px}
+.sheet p{margin:0;line-height:1.45}
+.sheet ul{margin:4px 0 0;padding-left:18px;font-size:13px}
+.sheet a{color:var(--cold)}
+.sheet .x{position:absolute;top:10px;right:10px}
+.sheet .thumb{display:block;width:100%;max-height:200px;aspect-ratio:16/9;background:var(--bg);border-radius:6px;pointer-events:none}
+.boom{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;background:rgba(0,0,0,.25)}
+.boomCard{width:min(460px,100%);max-height:100%;overflow:auto;background:var(--paper);border:2px solid var(--bad);border-radius:8px;padding:12px 14px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.boomCard h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;color:var(--bad);margin:0 0 6px;font-size:21px;line-height:1.1}
+.boomCard p{margin:0 0 8px;line-height:1.4;font-size:14px}
+.boomCard ul{margin:0 0 8px;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.boomCard li b{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:12px;margin-right:6px}
+.boomCard .f{color:var(--bad)}.boomCard .k{color:var(--ok)}
+.boomCard small{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,5px)}}
+.drawing.shake svg{animation:shake .12s 6}
+@keyframes flick{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.82)}}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .18s infinite}
+@media (prefers-reduced-motion:reduce){.flame,.drawing.shake svg{animation:none}}
+.modal{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45)}
+.modalCard{width:min(480px,100%);max-height:90vh;overflow:auto;background:var(--paper);border:2px solid var(--brass);border-radius:10px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.modalCard h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;font-size:21px;line-height:1.1}
+.modalCard p,.modalCard li{line-height:1.45;font-size:14px}
+.modalCard ul{padding-left:18px;margin:0 0 10px}
+.modalCard label{display:block;font-size:13px;color:var(--muted);margin:8px 0 3px}
+.modalCard select,.modalCard textarea,.modalCard input{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--panel-edge);border-radius:6px;padding:8px}
+.modalCard textarea{min-height:110px;resize:vertical}
+.modalRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.modalCard .note{font-size:12px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Boiler Trainer <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
+  <div class="seg" role="group" aria-label="Simulator">
+    <button id="simHyd" aria-pressed="true">Hot water</button>
+    <button id="simSteam" aria-pressed="false">Steam</button>
+  </div>
+  <div class="tools">
+    <button class="btn" id="run" aria-pressed="false">Pause</button>
+    <select class="btn" id="speed" aria-label="Simulation speed"><option value="1">1x</option><option value="10" selected>10x</option><option value="60">60x</option><option value="100">100x</option><option value="500">500x</option><option value="1000">1000x</option></select>
+    <button class="btn" id="restart">Reset</button>
+    <button class="btn" id="theme">Theme</button>
+    <button class="btn" id="about">About</button>
+    <button class="btn" id="feedback">Feedback</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="stage">
+    <div class="drawing" id="drawing">
+      <div class="scroller"><svg id="svg" viewBox="0 0 800 470" role="img" aria-label="Boiler system drawing"></svg></div>
+      <div class="hint" id="hint">Tap any part to see what it does. On a phone, swipe the drawing sideways.</div>
+      <div class="boom" id="boom" hidden><div class="boomCard" role="alertdialog" aria-labelledby="boomT"><h2 id="boomT"></h2><div id="boomB"></div><button class="btn" id="boomReset">Reset the simulator</button></div></div>
+    </div>
+    <div class="strip">
+      <div class="reads" id="reads"></div>
+      <div class="lamps" id="lamps"></div>
+      <div class="alerts" id="alerts"></div>
+    </div>
+  </div>
+  <div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="controls" aria-selected="true">Controls</button>
+      <button role="tab" data-tab="failures" aria-selected="false">Failures</button>
+      <button role="tab" data-tab="parts" aria-selected="false">Parts</button>
+      <button role="tab" data-tab="log" aria-selected="false">Log</button>
+    </div>
+    <div class="tabpanel" id="p-controls" role="tabpanel"></div>
+    <div class="tabpanel" id="p-failures" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="p-parts" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="p-log" role="tabpanel" hidden><div class="log" id="log" aria-live="polite"></div></div>
+  </div>
+</div>
+</div>
+
+<div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
+  <h2 id="discT">Training aid only</h2>
+  <p>Boiler Trainer is a simplified simulation for learning how boiler parts work alone and together. It is not a design tool and not a substitute for training, the manufacturer's instructions or your local code.</p>
+  <ul>
+    <li>Numbers are typical values and the physics is simplified. Real equipment varies by make, model and installation.</li>
+    <li>Never test or bypass a safety control on a real boiler to copy what you see here. Follow the manufacturer's manual, ASME/CSD-1 and your jurisdiction's rules, and work under a qualified person.</li>
+    <li>The explosion scenarios are exaggerated to show why each safety control matters.</li>
+  </ul>
+  <p class="note">Spot something wrong? Use Feedback (top bar) to report it.</p>
+  <div class="modalRow"><button class="btn" id="discOk">I understand</button></div>
+</div></div>
+<div class="modal" id="fb" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="fbT">
+  <h2 id="fbT">Feedback</h2>
+  <p>Report a bug, suggest an idea, or flag something that isn't accurate. <span id="fbTo">No sign-in needed.</span></p>
+  <label for="fbType">Type</label>
+  <select id="fbType"><option>Bug</option><option>Suggestion</option><option>Accuracy problem</option><option>Other</option></select>
+  <label for="fbMsg">What happened or what would you like?</label>
+  <textarea id="fbMsg" maxlength="3000" placeholder="For bugs: what you did, what you expected, what you saw. For accuracy: your source if you have one."></textarea>
+  <label for="fbName">Name (optional)</label>
+  <input id="fbName" maxlength="80" autocomplete="name">
+  <p class="note" id="fbStatus"></p>
+  <div class="modalRow"><button class="btn" id="fbCancel">Cancel</button><button class="btn" id="fbSend">Send</button></div>
+</div></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetT">
+  <button class="btn x" id="sheetX">Close</button>
+  <h2 id="sheetT"></h2>
+  <div id="sheetB"></div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const ATM=14.7;
+// saturation pressure (psig) vs water temperature (°F), from steam tables
+const SAT=[[212,0],[230,6.1],[250,15.1],[274,30],[298,50],[320,75],[338,100],[366,150],[388,200],[406,250]];
+function psat(T){if(T<=212)return -1;for(let i=1;i<SAT.length;i++){if(T<=SAT[i][0]){const[a,pa]=SAT[i-1],[b,pb]=SAT[i];return pa+(pb-pa)*(T-a)/(b-a)}}return 250+(T-406)*3}
+function tsat(P){if(P<=0)return 212;for(let i=1;i<SAT.length;i++){if(P<=SAT[i][1]){const[a,pa]=SAT[i-1],[b,pb]=SAT[i];return a+(b-a)*(P-pa)/(pb-pa)}}return 406+(P-250)/3}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function tcol(T){const t=clamp((T-60)/150,0,1);const c1=[47,111,214],c2=[210,58,38];return `rgb(${c1.map((v,i)=>Math.round(lerp(v,c2[i],t))).join(",")})`}
+const blink=ms=>Math.floor(performance.now()/ms)%2===0;
+function at(id,k,v){const e=$(id);if(e)e.setAttribute(k,v)}
+function txt(id,v){const e=$(id);if(e&&e.textContent!==v)e.textContent=v}
+
+const SRC={
+  oep:["Boiler trim and safety controls (NC HVAC exam guide)","https://open-exam-prep.com/study-guides/nc-hvac-contractor/hydronic-heating-and-boilers/boiler-trim-and-safety-controls"],
+  md:["Maryland DLLR: Low pressure and cast iron boilers","https://www.dllr.state.md.us/labor/safety/boilbrochurelp.shtml"],
+  csd:["Burnham HP608: ASME CSD-1 requirements","https://www.burnhamcommercial.com/wp-content/uploads/2021/05/HP608-CSD-1-Requirements.pdf"],
+  l8148:["InspectAPedia: Honeywell L8148 aquastat relay","https://inspectapedia.com/heat/Honeywell_L8148_Aquastats.php"],
+  s8801:["Resideo S8801 ignition module: operation","https://docs.resideo.com/s8801-dsi-control-module-im/en-us/operation.htm"],
+  fireye:["Fireye E110 flame safeguard","https://www.fireye.com/Content/Documents/flame-monitor-e110-flame-safeguard.pdf"],
+  wm:["Weil-McLain 88 manual: controls and relief valve","https://www.manualslib.com/manual/762293/Weil-Mclain-88.html?page=27"],
+  hh:["HeatingHelp: The Hartford Loop","https://heatinghelp.com/systems-help-center/what-you-should-know-about-the-hartford-loop/"],
+  hunker:["How to adjust a Honeywell Pressuretrol","https://www.hunker.com/13415850/how-do-i-adjust-a-honeywell-pressuretrol-controller"],
+  glass:["Water column, gauge glass and try cocks (boiler operator guide)","https://open-exam-prep.com/study-guides/ar-boiler-operator/fittings-and-trim/water-column-gauge-glass"],
+  siphon:["Pressure gauges and siphons (boiler operator guide)","https://open-exam-prep.com/study-guides/ar-boiler-operator/fittings-and-trim/pressure-gauges-and-siphons"],
+  mm67:["McDonnell & Miller Series 67 LWCO manual","https://manuals.online/xylem/boiler-supplies/mcdonnell-miller-67-series/user-manual/1ixqb"],
+  vent:["HeatingHelp forum: one-pipe steam main vents","https://forum.heatinghelp.com/discussion/203902/one-pipe-steam-system-main-vent"]
+};
+const PHOTOS={
+ shared:{burner:[["Resideo S8610U intermittent pilot control","https://www.supplyhouse.com/Resideo-S8610U3009-Intermittent-Pilot-Control"]],
+  gas:[["Honeywell VR8204 dual gas valve","https://www.supplyhouse.com/Resideo-VR8204A2076-Standard-Dual-Intermittent-Pilot-Gas-Valve"]],
+  tstat:[["Honeywell T87K round thermostat","https://www.supplyhouse.com/Honeywell-Home-T87K1007-T87K-Round-Non-Programmable-Heat-Only-Mechanical-Thermostat"]]},
+ hyd:{boiler:[["Weil-McLain CGa cast-iron boilers","https://www.supplyhouse.com/Weil-Mclain-CGA-Boilers-643000"]],
+  aquastat:[["Honeywell L8148A aquastat relay","https://www.supplyhouse.com/Resideo-L8148A1017-High-Limit-Horizontal-Mount-Aquastat-Relay-8-DegreeF-differential"]],
+  mrhl:[["Honeywell L4006E manual-reset high limit","https://www.supplyhouse.com/Honeywell-L4006E1067-High-Limit-Aquastat-130-270F-range-Manual-Reset-1707000-p"]],
+  lwco:[["Hydrolevel Safgard 550 LWCO (manual reset)","https://www.supplyhouse.com/Hydrolevel-45-550-Safgard-550-Low-Water-Cutoff-w-Manual-Reset-Test-Button-Light-120V"]],
+  relief:[["Watts 174A relief valve, 30 psi","https://www.supplyhouse.com/Watts-0274428-3-4-174A-Relief-Valve-30lb"]],
+  gauge:[["Resideo TD-090 tridicator","https://www.supplyhouse.com/Resideo-TD-090-1-4-NPT-3-1-8-Face-Temperature-Pressure-Gauge-Tridicator"]],
+  tank:[["Amtrol Extrol #30 expansion tank","https://www.supplyhouse.com/Amtrol-102-1-30-Extrol-EX-30-Expansion-Tank-4-4-Gallon-Volume"]],
+  airsep:[["Spirotherm Spirovent Jr. air eliminator","https://www.supplyhouse.com/Spirotherm-VJR100-1-Spirovent-Jr-Air-Eliminator-Threaded-3560000-p"]],
+  pump:[["Taco 007-F5 circulator","https://www.supplyhouse.com/Taco-007-F5-007-Cast-Iron-Circulator-1-25-HP-1983000-p"]],
+  fill:[["Watts B911 fill valve and backflow preventer","https://www.supplyhouse.com/Watts-B911-1-2-Bronze-Combination-Fill-Valve-Backflow-Preventer-Threaded"]],
+  backflow:[["Watts 9D dual check","https://www.supplyhouse.com/Watts-0061952-1-2-9DM3-S-Dual-Check-Valve"]],
+  baseboard:[["Slant/Fin Fine/Line 30 baseboard","https://www.supplyhouse.com/Slant-Fin-101401080-8-ft-30A-Fine-Line-Baseboard-5649000-p"]]},
+ steam:{boiler:[["Weil-McLain EG steam boiler","https://www.supplyhouse.com/Weil-McLain-118-404-360-EG-40-125000-BTU-Standing-Pilot-Steam-Boiler-Nat-Gas"]],
+  glass:[["Weil-McLain water gauge glass kit","https://www.supplyhouse.com/Weil-McLain-383-600-000-Water-Gauge-Glass-Kit-5-8-x-7-3-8-w-Gaskets-Brass-Washers"],["Gauge glass cocks","https://www.supplyhouse.com/Weil-Mclain-510-218-145-Water-Gauge-Glass-Cocks-Set-All-Boiler-Sizes"]],
+  gauge:[["Steam pressure gauge, 0–30 psi","https://www.supplyhouse.com/Peerless-Boilers-51325-PEERLESS-2-1-2-Round-Steam-Pressure-Gauge-0-30-psi"],["Steam gauge siphon (pigtail)","https://www.supplyhouse.com/Apollo-Valves-2740101-1-4-Steam-Gauge-Siphon-Loop-180"]],
+  ptrol:[["Honeywell L404F pressuretrol, 2–15 psi","https://www.supplyhouse.com/Honeywell-L404F1060-Pressuretrol-Controller-w-Auto-recycle-2-psi-to-15-psi"]],
+  hl:[["Pressuretrols, including manual-reset models","https://www.supplyhouse.com/Pressuretrols-285000"]],
+  lwco:[["McDonnell & Miller 67 float LWCO","https://www.supplyhouse.com/Mcdonnell-Miller-149400-67-Float-Type-Low-Water-Cut-off-Steam"]],
+  lwco2:[["Hydrolevel Safgard 400 probe LWCO","https://www.supplyhouse.com/Hydrolevel-SAFGARD-400-Electronic-Low-Water-Cutoff-24V-Steam"]],
+  feeder:[["McDonnell & Miller 101A water feeder","https://www.supplyhouse.com/Mcdonnell-Miller-169400-101A-120V-120V-Electric-Water-Feeder"]],
+  sv:[["Apollo low pressure steam safety valve, 15 psi","https://www.supplyhouse.com/Apollo-Valves-13211B15-3-4-MNPT-x-3-4-FNPT-RVS13-475-LBS-HR-Low-Pressure-Steam-Safety-Valve-15-psi"]],
+  mainvent:[["Gorton No. 2 main vent","https://www.supplyhouse.com/Gorton-G2-Gorton-No-2-Straight-Air-Eliminator-3524000-p"]],
+  rad:[["Hoffman 1A radiator air vent","https://www.supplyhouse.com/Hoffman-401422-1A-1-8-Adjustable-Angle-Steam-Radiator-Air-Valve-3516000-p"]],
+  hartford:[["Hartford loop diagram (HeatingHelp)","https://heatinghelp.com/systems-help-center/what-you-should-know-about-the-hartford-loop/"]]}};
+// Part drawings, 160x120, styled after the common products linked under "See it"
+const K="#2a2d30",BR="#c9a24a",BRD="#8a6a22",IR="#4a4f54",ST="#9aa3aa",STL="#c4cacf",RD="#b8322a",WH="#f4f4f0",GL="#cfe6f5",WA="#4f86d1";
+const pipeH=(x1,x2,y,w=10,c=ST)=>`<rect x="${x1}" y="${y-w/2}" width="${x2-x1}" height="${w}" fill="${c}" stroke="${K}" stroke-width="1"/>`;
+const pipeV=(x,y1,y2,w=10,c=ST)=>`<rect x="${x-w/2}" y="${y1}" width="${w}" height="${y2-y1}" fill="${c}" stroke="${K}" stroke-width="1"/>`;
+const hexnut=(x,y,r=8,c=BR)=>`<polygon points="${[0,1,2,3,4,5].map(i=>`${x+r*Math.cos(i*Math.PI/3)},${y+r*Math.sin(i*Math.PI/3)}`).join(" ")}" fill="${c}" stroke="${BRD}"/>`;
+const dial=(cx,cy,r,max,label,val=0.3)=>{let t="";for(let i=0;i<=10;i++){const a=(-135+i*27)*Math.PI/180;t+=`<line x1="${cx+(r-2)*Math.sin(a)}" y1="${cy-(r-2)*Math.cos(a)}" x2="${cx+(r-6)*Math.sin(a)}" y2="${cy-(r-6)*Math.cos(a)}" stroke="${K}" stroke-width="1"/>`}
+  const a=(-135+val*270)*Math.PI/180;return `<circle cx="${cx}" cy="${cy}" r="${r+3}" fill="${STL}" stroke="${K}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${WH}" stroke="${K}" stroke-width=".8"/>${t}<text x="${cx}" y="${cy+r*.45}" font-size="${r*.28}" text-anchor="middle" font-family="sans-serif" fill="${K}">${label}</text><line x1="${cx}" y1="${cy}" x2="${cx+(r-7)*Math.sin(a)}" y2="${cy-(r-7)*Math.cos(a)}" stroke="${RD}" stroke-width="2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="2.5" fill="${K}"/>`};
+const box=(x,y,w,h,c,r=4)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${c}" stroke="${K}" stroke-width="1.2"/>`;
+const label=(x,y,s,c=K,sz=8)=>`<text x="${x}" y="${y}" font-size="${sz}" text-anchor="middle" font-family="sans-serif" font-weight="600" fill="${c}">${s}</text>`;
+const flame=(x,y)=>`<path d="M${x} ${y} q4 -14 8 0 q4 -18 9 0 q4 -14 8 0 z" fill="#f08a1c"/><path d="M${x+4} ${y} q3 -7 6 0 q3 -9 6 0 z" fill="#3c7bf0"/>`;
+const ILL={
+ boiler_h:`${pipeV(64,6,22,12,IR)}${box(30,22,100,90,"#7b8e9e",6)}${box(38,30,84,30,"#8fa2b2",3)}${[0,1,2,3,4,5].map(i=>`<line x1="${46+i*13}" y1="34" x2="${46+i*13}" y2="56" stroke="${K}" stroke-width="1"/>`).join("")}${box(40,68,80,36,"#22262a",3)}${box(56,78,22,16,"#f5d36b",2)}${flame(58,92)}${pipeH(120,150,40,8,"#c06a5a")}${pipeH(120,150,96,8,"#6a8cc6")}${label(80,18,"CAST-IRON BOILER",K,7)}`,
+ boiler_s:`${pipeV(70,6,22,12,IR)}${box(34,22,96,90,"#7b8e9e",6)}${box(44,70,76,36,"#22262a",3)}${flame(66,100)}${box(16,40,8,44,GL,2)}<rect x="18" y="60" width="4" height="24" fill="${WA}"/>${pipeH(24,34,44,4)}${pipeH(24,34,80,4)}${pipeV(112,8,22,8,BR)}${box(106,2,12,10,BR,2)}${box(132,48,22,38,IR,8)}${pipeH(130,132,56,4)}${pipeH(130,132,80,4)}${label(82,62,"STEAM BOILER",WH,8)}`,
+ burner:`${box(20,20,74,56,"#5a6168",4)}${box(26,26,62,16,"#3a3f44",2)}${label(57,37,"IGNITION",WH,7)}${[0,1,2,3,4].map(i=>`<rect x="${30+i*11}" y="52" width="7" height="14" fill="${STL}" stroke="${K}" stroke-width=".8"/>`).join("")}<path d="M60 76 C60 96 96 92 104 84" stroke="#e8c33a" stroke-width="2" fill="none"/><path d="M50 76 C50 100 100 100 112 90" stroke="${RD}" stroke-width="2" fill="none"/>${box(104,66,40,12,ST,2)}${pipeH(104,148,96,8,ST)}<rect x="132" y="70" width="2" height="30" fill="${K}"/>${flame(118,92)}${label(124,112,"PILOT + FLAME ROD",K,7)}`,
+ gas:`${pipeH(6,40,70,14,IR)}${pipeH(120,154,70,14,IR)}${box(40,46,80,50,"#3b4045",5)}${box(56,22,48,26,"#5c636a",4)}<circle cx="80" cy="35" r="10" fill="${RD}" stroke="${K}"/><rect x="77" y="27" width="6" height="16" fill="${WH}" rx="1"/>${label(80,76,"GAS VALVE",WH,8)}${label(80,88,"ON  OFF",STL,6)}<path d="M120 52 l14 -10 M120 56 l18 -6" stroke="${RD}" stroke-width="1.5"/>`,
+ aquastat:`${box(26,14,108,74,"#9aa1a8",6)}${box(34,22,92,40,"#c9ced2",3)}${dial(80,42,16,240,"°F",.55)}${label(80,76,"AQUASTAT RELAY",K,7)}<circle cx="34" cy="80" r="5" fill="${IR}"/><circle cx="126" cy="80" r="5" fill="${IR}"/>${pipeV(80,88,112,10,BR)}${hexnut(80,92,8)}`,
+ mrhl:`${box(40,14,80,70,"#9aa1a8",6)}${dial(80,40,16,270,"°F",.7)}<circle cx="80" cy="70" r="7" fill="${RD}" stroke="${K}"/>${label(80,94,"MANUAL RESET",K,7)}${pipeV(80,84,114,10,BR)}${hexnut(80,88,8)}`,
+ lwco_h:`${box(40,14,80,64,"#3a3f44",6)}<circle cx="64" cy="40" r="7" fill="${RD}" stroke="${K}"/><circle cx="96" cy="40" r="7" fill="${STL}" stroke="${K}"/>${label(64,58,"RESET",WH,6)}${label(96,58,"TEST",WH,6)}<circle cx="80" cy="24" r="3" fill="#2fbf5a"/>${hexnut(80,84,12)}${pipeV(80,88,114,6,STL)}${label(80,8,"LOW WATER CUTOFF",K,7)}`,
+ relief:`${pipeH(14,52,92,16,BR)}${box(52,48,40,60,BR,8)}<rect x="64" y="20" width="16" height="30" rx="3" fill="${BR}" stroke="${BRD}"/><rect x="58" y="12" width="44" height="8" rx="2" fill="${BRD}" transform="rotate(-12 80 16)"/>${pipeH(92,140,64,16,BR)}${pipeV(72,108,118,14,BR)}<rect x="40" y="56" width="10" height="20" fill="${WH}" stroke="${K}" stroke-width=".6"/>${label(45,68,"30",K,6)}${label(116,104,"TO DRAIN",K,7)}`,
+ gauge_h:`${dial(80,56,40,75,"PSI · °F",.25)}<path d="M54 56 A26 26 0 0 1 106 56" fill="none" stroke="${WA}" stroke-width="3"/>${label(80,36,"ALTITUDE",K,6)}${pipeV(80,96,116,8,BR)}`,
+ gauge_s:`${dial(80,46,32,30,"0–30 PSI",.1)}${pipeV(80,78,88,6,BR)}<circle cx="80" cy="96" r="9" fill="none" stroke="${BR}" stroke-width="5"/>${pipeV(80,104,118,6,BR)}${label(122,98,"PIGTAIL",K,7)}`,
+ tank:`${pipeV(80,96,118,8,BR)}<path d="M50 30 Q50 14 80 14 Q110 14 110 30 V80 Q110 98 80 98 Q50 98 50 80 Z" fill="#6b8fb3" stroke="${K}" stroke-width="1.2"/><line x1="50" y1="56" x2="110" y2="56" stroke="${K}" stroke-dasharray="3 2"/>${label(80,42,"AIR",WH,9)}${label(80,76,"WATER",WH,9)}<rect x="76" y="6" width="8" height="9" fill="${BR}" stroke="${K}"/>${label(124,12,"AIR VALVE",K,6)}`,
+ airsep:`${pipeH(6,54,78,14,BR)}${pipeH(106,154,78,14,BR)}${box(54,44,52,64,BR,12)}${box(70,26,20,20,STL,3)}<circle cx="80" cy="20" r="5" fill="${K}"/>${[0,1,2].map(i=>`<circle cx="${72+i*8}" cy="${10-i*2}" r="2" fill="none" stroke="${WA}"/>`).join("")}${label(80,82,"AIR SEP.",K,7)}${label(30,100,"FLOW →",K,7)}`,
+ pump:`${pipeV(38,4,30,14,IR)}${pipeV(38,90,116,14,IR)}<circle cx="38" cy="60" r="28" fill="#c23a2c" stroke="${K}" stroke-width="1.2"/>${box(20,22,36,8,"#c23a2c",2)}${box(20,90,36,8,"#c23a2c",2)}${box(64,40,58,40,"#c23a2c",6)}${box(122,46,18,28,"#a8302a",3)}${box(78,24,30,16,"#c23a2c",3)}${label(93,64,"TACO",WH,10)}${label(38,63,"↑",WH,14)}`,
+ fill:`${pipeH(6,48,82,12,BR)}${pipeH(112,154,82,12,BR)}${box(48,64,64,36,BR,8)}<path d="M60 64 Q80 24 100 64" fill="${BR}" stroke="${BRD}" stroke-width="1.2"/>${pipeV(80,14,34,6,BRD)}<rect x="66" y="10" width="28" height="6" rx="2" fill="${BRD}"/>${box(28,92,22,12,BR,2)}${label(80,116,"FILL VALVE",K,7)}`,
+ backflow:`${pipeH(6,40,62,14,BR)}${pipeH(120,154,62,14,BR)}${box(40,40,80,44,BR,10)}<line x1="80" y1="40" x2="80" y2="84" stroke="${BRD}"/>${pipeV(80,84,104,10,BR)}${label(80,116,"VENT",K,7)}${label(60,66,"CHECK",K,6)}${label(100,66,"CHECK",K,6)}`,
+ baseboard:`${box(10,40,140,52,"#e9e6dd",3)}<rect x="14" y="44" width="132" height="8" fill="#cfcabd"/>${Array.from({length:22},(_,i)=>`<line x1="${18+i*6}" y1="58" x2="${18+i*6}" y2="86" stroke="${ST}" stroke-width="1.4"/>`).join("")}${pipeH(4,156,72,6,"#c87f4f")}${label(80,108,"FIN-TUBE BASEBOARD",K,7)}`,
+ tstat:`<circle cx="80" cy="60" r="44" fill="#d9d4c7" stroke="${K}" stroke-width="1.2"/><circle cx="80" cy="60" r="34" fill="#efece4" stroke="${K}" stroke-width=".8"/>${Array.from({length:9},(_,i)=>{const a=(-120+i*30)*Math.PI/180;return `<text x="${80+27*Math.sin(a)}" y="${63-27*Math.cos(a)}" font-size="6" text-anchor="middle" font-family="sans-serif" fill="${K}">${50+i*5}</text>`}).join("")}<polygon points="80,30 76,40 84,40" fill="${RD}"/>${label(80,66,"68",K,12)}`,
+ glass:`${box(64,8,32,16,BR,3)}${box(64,96,32,16,BR,3)}<rect x="72" y="24" width="16" height="72" fill="${GL}" stroke="${K}"/><rect x="74" y="56" width="12" height="40" fill="${WA}"/><line x1="66" y1="24" x2="66" y2="96" stroke="${ST}" stroke-width="2"/><line x1="94" y1="24" x2="94" y2="96" stroke="${ST}" stroke-width="2"/>${pipeH(30,64,16,8,BR)}${pipeH(30,64,104,8,BR)}<rect x="96" y="104" width="30" height="5" fill="${RD}" stroke="${K}"/>${label(126,60,"LEVEL",K,7)}`,
+ trycocks:`${box(50,6,30,108,IR,6)}${[24,60,96].map((y,i)=>`${pipeH(80,108,y,8,BR)}<rect x="108" y="${y-10}" width="6" height="20" rx="2" fill="${BRD}"/>${label(136,y+3,["TOP","MIDDLE","BOTTOM"][i],K,7)}`).join("")}<rect x="54" y="56" width="22" height="54" fill="${WA}" opacity=".6"/>`,
+ ptrol:`${box(40,8,80,74,"#8e969d",6)}${box(50,16,60,30,"#d8dcdf",3)}${Array.from({length:9},(_,i)=>`<line x1="${56+i*6}" y1="20" x2="${56+i*6}" y2="${i%2?26:30}" stroke="${K}"/>`).join("")}<polygon points="74,40 80,30 86,40" fill="${RD}"/>${label(80,60,"PRESSURETROL",K,7)}${label(80,72,"MAIN · DIFF",K,6)}${pipeV(80,82,92,6,BR)}<circle cx="80" cy="100" r="7" fill="none" stroke="${BR}" stroke-width="4"/>${pipeV(80,106,118,6,BR)}`,
+ hl:`${box(40,8,80,74,"#8e969d",6)}${box(50,16,60,30,"#d8dcdf",3)}${Array.from({length:9},(_,i)=>`<line x1="${56+i*6}" y1="20" x2="${56+i*6}" y2="${i%2?26:30}" stroke="${K}"/>`).join("")}<polygon points="92,40 98,30 104,40" fill="${RD}"/><circle cx="64" cy="64" r="7" fill="${RD}" stroke="${K}"/>${label(96,62,"HIGH LIMIT",K,7)}${label(64,78,"RESET",K,6)}${pipeV(80,82,92,6,BR)}<circle cx="80" cy="100" r="7" fill="none" stroke="${BR}" stroke-width="4"/>${pipeV(80,106,118,6,BR)}`,
+ lwco_s:`${box(52,24,40,80,"#2f3337",10)}${box(92,10,46,40,"#3a3f44",4)}${label(115,32,"M&M 67",WH,7)}${pipeH(20,52,34,8,IR)}${pipeH(20,52,92,8,IR)}<circle cx="72" cy="66" r="11" fill="${STL}" stroke="${K}"/><line x1="72" y1="66" x2="100" y2="40" stroke="${STL}" stroke-width="2"/>${pipeV(72,104,114,6,BR)}<rect x="62" y="112" width="20" height="5" fill="${RD}"/>${label(124,116,"BLOWDOWN",K,7)}${label(8,64,"BOILER",K,6)}`,
+ lwco2:`${box(40,12,80,60,"#3a3f44",6)}<circle cx="80" cy="40" r="8" fill="${RD}" stroke="${K}"/>${label(80,62,"PROBE LWCO",WH,7)}${hexnut(80,80,11)}${pipeV(80,88,116,5,STL)}${label(118,104,"PROBE",K,7)}`,
+ feeder:`${pipeH(6,46,88,12,BR)}${pipeH(114,154,88,12,BR)}${box(46,70,68,36,BR,8)}${box(56,22,48,48,"#3a3f44",6)}${label(80,46,"FEEDER",WH,8)}${label(80,58,"SOLENOID",STL,6)}<path d="M80 22 V10 H140" stroke="${K}" stroke-width="2" fill="none"/>`,
+ sv:`${pipeV(74,96,118,16,BR)}${box(54,52,40,46,BR,8)}<rect x="66" y="22" width="16" height="32" rx="3" fill="${BR}" stroke="${BRD}"/><circle cx="74" cy="14" r="8" fill="none" stroke="${BRD}" stroke-width="3"/>${pipeH(94,140,70,16,BR)}<rect x="40" y="60" width="12" height="18" fill="${WH}" stroke="${K}" stroke-width=".6"/>${label(46,72,"15",K,6)}${label(120,96,"STEAM SAFETY",K,7)}`,
+ hartford:`${box(10,40,46,70,"#7b8e9e",4)}<rect x="14" y="62" width="38" height="44" fill="${WA}" opacity=".5"/><line x1="10" y1="62" x2="56" y2="62" stroke="${WA}" stroke-dasharray="3 2"/>${pipeV(30,10,40,8,ST)}${pipeH(30,104,14,8,ST)}${pipeV(100,14,104,8,ST)}${pipeH(56,100,100,8,ST)}${pipeH(104,150,70,8,"#6b8fc9")}${pipeV(150,70,114,8,"#6b8fc9")}<circle cx="104" cy="70" r="5" fill="${RD}"/>${label(124,62,"CLOSE NIPPLE",RD,6)}${label(80,10,"EQUALIZER",K,6)}${label(128,112,"RETURN",K,6)}`,
+ ret:`${pipeH(6,154,70,18,"#6b8fc9")}<rect x="6" y="64" width="148" height="12" fill="${WA}" opacity=".7"/>${label(80,52,"WET RETURN (FULL OF WATER)",K,7)}<path d="M120 70 l-12 -6 v12 z" fill="${WH}"/>${label(80,100,"BELOW THE WATER LINE",K,7)}`,
+ mainvent:`${pipeV(80,90,118,12,ST)}${hexnut(80,88,11,STL)}<path d="M62 84 V40 Q62 14 80 14 Q98 14 98 40 V84 Z" fill="${STL}" stroke="${K}" stroke-width="1.2"/><rect x="76" y="6" width="8" height="8" fill="${ST}" stroke="${K}"/>${label(80,52,"MAIN",K,8)}${label(80,64,"VENT",K,8)}`,
+ rad:`${Array.from({length:7},(_,i)=>box(20+i*16,24,14,80,"#8a8f86",6)).join("")}${pipeH(20,132,30,6,"#8a8f86")}${pipeH(20,132,98,6,"#8a8f86")}${pipeH(4,20,98,10,ST)}${box(136,30,14,16,STL,3)}<rect x="141" y="22" width="4" height="8" fill="${ST}"/>${label(143,58,"VENT",K,6)}`,
+ room:`<path d="M20 60 L80 16 L140 60 V110 H20 Z" fill="#e9e6dd" stroke="${K}" stroke-width="1.2"/>${box(66,74,28,36,"#8a6a4a",2)}${box(34,70,20,18,GL,1)}${box(106,70,20,18,GL,1)}${label(80,52,"68°F",K,10)}`
+};
+const ILL_MAP={hyd:{boiler:"boiler_h",lwco:"lwco_h",gauge:"gauge_h"},steam:{boiler:"boiler_s",lwco:"lwco_s",gauge:"gauge_s"}};
+function ill(simId,k){const key=(ILL_MAP[simId]||{})[k]||k;const s=ILL[key];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
+
+const LAMPS=[["call","Call","g"],["limits","Limits OK","g"],["prepurge","Prepurge","a"],["ign","Ignition","a"],["flame","Flame","g"],["post","Postpurge","a"],["lock","Lockout","r"]];
+const T_PRE=30,T_TFI=4,T_POST=15,MAX_TRIES=3;
+const BURNER={n:"Burner and flame safeguard",s:"Burns gas under the boiler and runs the start-up sequence.",
+  w:"Mixes gas and air and burns it under the boiler. The flame safeguard runs the start-up sequence: call for heat, limits proven, prepurge, trial for ignition, flame proven, run, postpurge.",
+  y:"The burner only fires when the thermostat calls and every limit is closed. If the flame rod can't prove flame during the trial, the gas valve closes. After the allowed retries the control locks out and needs a manual reset.",
+  f:"A dirty flame rod gives a weak flame signal (the Resideo S8801 needs at least 1.5 µA), so the burner lights and then shuts off at the end of each trial. Timings here are examples (30 s prepurge, 4 s trial, 3 tries) and vary by control.",src:["s8801","fireye"],faults:["flameRod"]};
+const GAS={n:"Gas valve",s:"The final device every safety acts through.",
+  w:"Opens when the flame safeguard tells it to and closes the instant the flame or a limit is lost.",
+  y:"Every safety acts through it: limits and low water cutoffs open its circuit. If it sticks open, the limits can't stop the burner and only the relief or safety valve protects the boiler.",
+  f:"Commercial gas trains under CSD-1 use two safety shutoff valves in series with leak test cocks.",src:["csd","s8801"],faults:["gasStuck"]};
+const TSTAT={n:"Thermostat",s:"Calls for heat when the room is cold.",w:"Calls for heat when the room falls below the setpoint.",y:"Its call is what starts the burner (and, on hot water, the circulator).",f:"",src:["l8148"],faults:[]};
+const ROOM={n:"Heated room",s:"Where the heat ends up.",w:"Loses heat to the outdoors. Colder outside means a bigger load.",y:"The room temperature is the result of the whole system working together.",f:"",src:[],faults:[]};
+
+let speed=10, running=true, cur=null, openKey=null, tab="controls";
+
+
+function clock(t){const s=Math.floor(t),h=Math.floor(s/3600),m=Math.floor(s/60)%60,x=s%60;return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`}
+function log(sim,msg,c=""){sim.logs.unshift([clock(sim.S.t),msg,c]);if(sim.logs.length>150)sim.logs.pop();if(sim===cur){const d=document.createElement("div");d.innerHTML=`<time>${clock(sim.S.t)}</time><span class="${c}">${msg}</span>`;const L=$("log");L.prepend(d);while(L.children.length>150)L.lastChild.remove()}}
+function thermostat(sim){const S=sim.S,V=sim.V;
+  if(S.calling&&S.Troom>V.tstat+0.5){S.calling=false;log(sim,"Thermostat satisfied.")}
+  else if(!S.calling&&S.Troom<V.tstat-0.5){S.calling=true;log(sim,"Thermostat calls for heat.")}}
+function baseState(){return {t:0,st:"idle",stT:0,tries:0,lock:false,flame:false,spark:false,gas:false,everLit:false,stuckLogged:false,calling:true,svc:true,Tm:150,dry:false,dead:null,limitsOk:true}}
+// shared burner sequence; returns firing rate 0..1
+function seq(sim,dt,demand){const S=sim.S,F=sim.F;
+  S.stT+=dt;S.spark=S.gas=S.flame=false;
+  const go=st=>{if(S.st!==st){S.st=st;S.stT=0}};
+  switch(S.st){
+    case "idle":if(demand){go("prepurge");S.tries=0;log(sim,"Limits proven. Prepurge.")}break;
+    case "prepurge":if(!demand)go("idle");else if(S.stT>=T_PRE){go("ign");S.tries++;log(sim,`Trial for ignition ${S.tries}.`)}break;
+    case "ign":S.gas=true;S.spark=S.stT<T_TFI*.8;S.flame=S.stT>.5;
+      if(!demand)go("post");
+      else if(S.stT>=T_TFI){if(F.flameRod){if(S.tries>=MAX_TRIES){go("lockout");S.lock=true;log(sim,`Flame not proven after ${MAX_TRIES} trials. Lockout.`,"b")}else{go("prepurge");log(sim,"Flame not proven. Gas valve closed, retrying.","w")}}else{go("run");log(sim,"Flame proven. Burner running.")}}
+      break;
+    case "run":S.gas=S.flame=true;if(!demand){go("post");log(sim,"Burner off.")}break;
+    case "post":if(S.stT>=T_POST)go("idle");break;
+    case "lockout":if(!S.lock)go("idle");break;
+  }
+  if(S.st==="run")S.everLit=true;
+  if(F.gasStuck&&S.everLit&&S.st!=="run"&&S.st!=="ign"){S.gas=S.flame=true;if(!S.stuckLogged){S.stuckLogged=true;log(sim,"Controls shut the burner off, but the gas valve is stuck open. Still firing.","b")}}else S.stuckLogged=false;
+  return S.flame?(S.st==="ign"?.5:1):0;
+}
+function drawBurner(sim){const S=sim.S,p=sim.p;
+  at(p+"flame","opacity",S.flame?1:0);at(p+"spark","opacity",S.spark&&blink(80)?1:0);at(p+"gasLamp","fill",S.gas?"var(--ok)":"var(--lamp-off)");}
+function drawDryIron(sim,top,bottom){const S=sim.S,p=sim.p;}
+function heatIron(sim,qin,wet,dt){const S=sim.S;
+  if(S.dry)S.Tm+=(qin*(1-wet)*0.9-0.008*(S.Tm-S.Tw))/12*dt;else S.Tm+=(S.Tw-S.Tm)*Math.min(1,0.05*dt);
+  if(S.Tm>650&&!S.glowLogged){S.glowLogged=true;log(sim,`Exposed iron at ${Math.round(S.Tm)}°F and glowing.`,"b")}
+  if(S.Tm>=1000){explode(sim,"crack");return true}
+  return false}
+const li=(fail,txtF,txtOk)=>`<li class="${fail?"f":"k"}"><b>${fail?"Failed":"Worked"}</b>${fail?txtF:txtOk}</li>`;
+
+/* ============ HOT WATER ============ */
+const HYD={id:"hyd",p:"h_",name:"Hot water",
+ svg:`
+    <!-- floor -->
+    <line x1="10" y1="452" x2="790" y2="452" stroke="var(--line)" stroke-dasharray="2 4"/>
+    <!-- room -->
+    <g class="part" data-p="room" tabindex="0">
+      <rect class="hl" x="598" y="130" width="182" height="200" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text class="lbl" x="606" y="150">Heated room</text>
+      <text class="val" id="h_tRoomTxt" x="606" y="168">66.0°F</text>
+    </g>
+    <text class="lbl" x="700" y="120" text-anchor="end" id="h_outTxt">Outside 25°F</text>
+    <!-- cold water -->
+    <path d="M390 90 V30 H600" class="pipe" stroke="var(--cold)" stroke-width="5"/>
+    <text class="lbl" x="606" y="34">Cold water</text>
+    <!-- relief discharge -->
+    <path d="M272 140 H300 V444" class="pipe" stroke="var(--line)" stroke-width="5"/>
+    <rect x="288" y="446" width="24" height="6" fill="var(--line)"/>
+    <text class="lbl" x="318" y="448">Drain</text>
+    <g id="h_drip" opacity="0"><circle cx="300" cy="440" r="3" fill="var(--cold)"/><circle cx="300" cy="430" r="2" fill="var(--cold)"/></g>
+    <!-- pipes -->
+    <path id="h_pSup" d="M200 180 V90 H330 M370 90 H432 M468 90 H590 V300 H600" class="pipe"/>
+    <path id="h_pRet" d="M740 300 H760 V420 H160 V400" class="pipe"/>
+    <path id="h_fSup" d="M200 180 V90 H590 V300 H600" class="flow"/>
+    <path id="h_fRet" d="M740 300 H760 V420 H160 V400" class="flow"/>
+    <path d="M350 105 V150" class="pipe" id="h_pTank"/>
+    <!-- fill valve + backflow -->
+    <g class="part" data-p="fill" tabindex="0">
+      <rect class="hl body" x="408" y="20" width="26" height="20" rx="3"/>
+      <text class="lbl" x="421" y="58" text-anchor="middle">Fill</text>
+      <line id="h_fillX" x1="404" y1="16" x2="438" y2="44" stroke="var(--bad)" stroke-width="3" opacity="0"/>
+    </g>
+    <g class="part" data-p="backflow" tabindex="0">
+      <rect class="hl body" x="468" y="20" width="34" height="20" rx="3"/>
+      <text class="lbl" x="485" y="58" text-anchor="middle">Backflow</text>
+    </g>
+    <!-- air separator -->
+    <g class="part" data-p="airsep" tabindex="0">
+      <rect class="hl body" x="328" y="72" width="44" height="36" rx="6"/>
+      <rect class="body" x="344" y="56" width="12" height="16" rx="2"/>
+      <g id="h_bubbles" opacity="0"><circle cx="350" cy="48" r="3" fill="none" stroke="var(--cold)"/><circle cx="356" cy="40" r="2" fill="none" stroke="var(--cold)"/><circle cx="345" cy="34" r="2.5" fill="none" stroke="var(--cold)"/></g>
+      <text class="lbl" x="286" y="66">Air sep.</text>
+    </g>
+    <!-- expansion tank -->
+    <g class="part" data-p="tank" tabindex="0">
+      <rect class="hl body" x="326" y="150" width="48" height="84" rx="14"/>
+      <clipPath id="h_tankClip"><rect x="327" y="151" width="46" height="82" rx="13"/></clipPath>
+      <rect id="h_tankWater" clip-path="url(#h_tankClip)" x="327" y="151" width="46" height="20" fill="var(--cold)" opacity=".55"/>
+      <line id="h_tankDia" x1="328" x2="372" y1="171" y2="171" stroke="var(--ink)" stroke-width="2"/>
+      <text class="lbl" x="380" y="190">Exp. tank</text>
+      <text class="val" id="h_tankTxt" x="380" y="206">air 12 psi</text>
+    </g>
+    <!-- circulator -->
+    <g class="part" data-p="pump" tabindex="0">
+      <circle class="hl body" cx="450" cy="90" r="19"/>
+      <g id="h_imp"><line x1="450" y1="76" x2="450" y2="104" stroke="var(--ink)" stroke-width="2.5"/><line x1="436" y1="90" x2="464" y2="90" stroke="var(--ink)" stroke-width="2.5"/></g>
+      <text class="lbl" x="450" y="128" text-anchor="middle">Circulator</text>
+      <path d="M476 80 l8 10 -8 10" fill="none" stroke="var(--muted)" stroke-width="2"/>
+    </g>
+    <!-- baseboard -->
+    <g class="part" data-p="baseboard" tabindex="0">
+      <rect class="hl body" x="600" y="290" width="140" height="22" rx="3"/>
+      <g stroke="var(--muted)" stroke-width="1"><line x1="606" y1="292" x2="606" y2="310"/><line x1="612" y1="292" x2="612" y2="310"/><line x1="618" y1="292" x2="618" y2="310"/><line x1="624" y1="292" x2="624" y2="310"/><line x1="630" y1="292" x2="630" y2="310"/><line x1="636" y1="292" x2="636" y2="310"/><line x1="642" y1="292" x2="642" y2="310"/><line x1="648" y1="292" x2="648" y2="310"/><line x1="654" y1="292" x2="654" y2="310"/><line x1="660" y1="292" x2="660" y2="310"/><line x1="666" y1="292" x2="666" y2="310"/><line x1="672" y1="292" x2="672" y2="310"/><line x1="678" y1="292" x2="678" y2="310"/><line x1="684" y1="292" x2="684" y2="310"/><line x1="690" y1="292" x2="690" y2="310"/><line x1="696" y1="292" x2="696" y2="310"/><line x1="702" y1="292" x2="702" y2="310"/><line x1="708" y1="292" x2="708" y2="310"/><line x1="714" y1="292" x2="714" y2="310"/><line x1="720" y1="292" x2="720" y2="310"/><line x1="726" y1="292" x2="726" y2="310"/><line x1="732" y1="292" x2="732" y2="310"/></g>
+      <text class="lbl" x="600" y="284">Baseboard</text>
+    </g>
+    <!-- thermostat -->
+    <g class="part" data-p="tstat" tabindex="0">
+      <rect class="hl body" x="700" y="170" width="44" height="44" rx="6"/>
+      <text class="val" id="h_tstatTxt" x="722" y="197" text-anchor="middle">68</text>
+      <circle id="h_tstatLamp" cx="722" cy="207" r="3" fill="var(--lamp-off)"/>
+      <text class="lbl" x="722" y="230" text-anchor="middle">Thermostat</text>
+    </g>
+    <!-- boiler -->
+    <g class="part" data-p="boiler" tabindex="0" id="h_boilerG">
+      <rect class="hl" x="120" y="180" width="160" height="220" rx="6" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+      <rect id="h_bGlow" x="126" y="186" width="148" height="0" fill="#ff5a1f" opacity="0"/>
+      <rect id="h_bWater" x="126" y="186" width="148" height="159" fill="var(--cold)" opacity=".3"/>
+      <g id="h_bSteam" opacity="0" fill="none" stroke="var(--paper)" stroke-width="1.5"><circle cx="150" cy="300" r="3"/><circle cx="235" cy="320" r="4"/><circle cx="190" cy="335" r="3"/><circle cx="262" cy="290" r="2.5"/></g>
+      <line x1="120" x2="280" y1="218" y2="218" stroke="var(--bad)" stroke-dasharray="3 3" opacity=".7"/>
+      <text x="276" y="214" text-anchor="end" font-family="var(--display)" font-size="9" fill="var(--bad)">LWCO TRIP LEVEL</text>
+      <line x1="120" x2="280" y1="281" y2="281" stroke="var(--warn)" stroke-dasharray="3 3" opacity=".7"/>
+      <text x="276" y="292" text-anchor="end" font-family="var(--display)" font-size="9" fill="var(--warn)">DRY FIRE BELOW</text>
+      <text class="val" id="h_bLvl" x="128" y="358" font-size="10">Water 100%</text>
+      <g stroke="var(--line)" stroke-width="1"><line x1="140" y1="190" x2="140" y2="345"/><line x1="160" y1="190" x2="160" y2="345"/><line x1="180" y1="190" x2="180" y2="345"/><line x1="220" y1="190" x2="220" y2="345"/><line x1="240" y1="190" x2="240" y2="345"/><line x1="260" y1="190" x2="260" y2="345"/></g>
+      <text class="lbl" x="128" y="198">Boiler</text>
+    </g>
+    <!-- burner -->
+    <g class="part" data-p="burner" tabindex="0">
+      <rect class="hl body" x="140" y="374" width="120" height="14" rx="3"/>
+      <g id="h_flameG" opacity="0"><path class="flame" d="M150 374 q8 -26 16 0 q8 -30 17 0 q8 -34 17 0 q9 -30 17 0 q8 -26 16 0 q6 -20 12 0 z" fill="#f08a1c"/><path class="flame" d="M160 374 q6 -14 12 0 q7 -18 14 0 q7 -20 14 0 q7 -18 14 0 q6 -14 12 0 z" fill="#3c7bf0" opacity=".8"/></g>
+      <path id="h_spark" d="M196 372 l6 -8 -4 0 6 -8" stroke="#f5c400" stroke-width="2" fill="none" opacity="0"/>
+      <text class="lbl" x="200" y="414" text-anchor="middle">Burner</text>
+    </g>
+    <!-- gas valve -->
+    <g class="part" data-p="gas" tabindex="0">
+      <path d="M20 381 H140" class="pipe" stroke="#c9a227" stroke-width="5"/>
+      <rect class="hl body" x="56" y="368" width="30" height="26" rx="3"/>
+      <circle id="h_gasLamp" cx="71" cy="381" r="4" fill="var(--lamp-off)"/>
+      <text class="lbl" x="71" y="410" text-anchor="middle">Gas valve</text>
+    </g>
+    <!-- tridicator -->
+    <g class="part" data-p="gauge" tabindex="0">
+      <circle class="hl" cx="200" cy="246" r="34" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>
+      <path d="M176 270 A34 34 0 1 1 224 270" fill="none" stroke="var(--line)" stroke-width="1" transform="translate(0,0)"/>
+      <line id="h_needle" x1="200" y1="246" x2="200" y2="226" stroke="var(--bad)" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="200" cy="246" r="3" fill="var(--ink)"/>
+      <text class="val" id="h_gPsi" x="200" y="268" text-anchor="middle" font-size="10">12 psi</text>
+      <text class="val" id="h_gTemp" x="200" y="278" text-anchor="middle" font-size="10">150°F</text>
+    </g>
+    <!-- aquastat + manual high limit -->
+    <g class="part" data-p="aquastat" tabindex="0">
+      <rect class="hl" x="146" y="300" width="50" height="34" rx="3" fill="var(--plate)"/>
+      <text x="171" y="315" text-anchor="middle" font-family="var(--display)" font-size="10" fill="var(--plate-ink)">AQUASTAT</text>
+      <circle id="h_aqLamp" cx="171" cy="325" r="4" fill="var(--lamp-off)"/>
+    </g>
+    <g class="part" data-p="mrhl" tabindex="0">
+      <rect class="hl" x="204" y="300" width="50" height="34" rx="3" fill="var(--plate)"/>
+      <text x="229" y="315" text-anchor="middle" font-family="var(--display)" font-size="10" fill="var(--plate-ink)">HI LIMIT</text>
+      <circle id="h_mrLamp" cx="229" cy="325" r="4" fill="var(--lamp-off)"/>
+    </g>
+    <!-- LWCO -->
+    <g class="part" data-p="lwco" tabindex="0">
+      <rect class="hl body" x="86" y="256" width="34" height="30" rx="3"/>
+      <circle id="h_lwLamp" cx="103" cy="271" r="4" fill="var(--lamp-off)"/>
+      <text class="lbl" x="103" y="302" text-anchor="middle">LWCO</text>
+    </g>
+    <!-- relief valve -->
+    <g class="part" data-p="relief" tabindex="0">
+      <path d="M260 180 V150" class="pipe" stroke="var(--line)" stroke-width="7"/>
+      <rect class="hl body" x="248" y="128" width="24" height="24" rx="3"/>
+      <rect id="h_reliefLever" x="254" y="118" width="12" height="10" fill="var(--brass)"/>
+      <text class="lbl" x="214" y="124">Relief</text>
+    </g>
+    <g id="h_wreck" opacity="0">
+      <g fill="var(--line)" stroke="var(--ink)" stroke-width="1"><polygon points="118,200 160,186 150,240 112,250"/><polygon points="230,170 288,190 276,232 240,214"/><polygon points="96,330 140,318 132,372 90,360"/><polygon points="250,330 300,316 306,368 262,380"/><polygon points="176,150 208,140 214,168 182,176"/></g>
+      <g fill="var(--paper)" opacity=".85"><circle cx="200" cy="270" r="70"/><circle cx="150" cy="220" r="48"/><circle cx="255" cy="225" r="52"/><circle cx="200" cy="175" r="44"/><circle cx="140" cy="320" r="40"/><circle cx="265" cy="320" r="44"/></g>
+    </g>
+  `,
+ consts:{QB:22.8,CB:250,UAE:0.083,UAB:0.12,CR:900,VS:20,VT:4.4,RUPTURE:200},
+ sliders:[
+  {k:"tstat",l:"Thermostat",u:"°F",min:40,max:95,step:1,v:68,n:[60,75],note:"Normal 60–75°F"},
+  {k:"out",l:"Outdoor temperature",u:"°F",min:-30,max:80,step:1,v:25},
+  {k:"hi",l:"Aquastat high limit",u:"°F",min:100,max:300,step:5,v:180,n:[160,200],note:"Normal 160–200°F"},
+  {k:"diff",l:"Aquastat differential",u:"°F",min:1,max:60,step:1,v:10,n:[5,15],note:"Normal 5–15°F",more:1},
+  {k:"mr",l:"Manual-reset high limit",u:"°F",min:120,max:350,step:5,v:220,n:[200,240],note:"Normal 200–240°F, above the aquastat",more:1},
+  {k:"rv",l:"Relief valve setting",u:" psi",min:5,max:250,step:5,v:30,n:[30,30],note:"Residential hot water: 30 psi",more:1},
+  {k:"fill",l:"Fill pressure",u:" psi",min:0,max:60,step:1,v:12,n:[10,20],note:"About 12 psi in a house",more:1},
+  {k:"pre",l:"Tank precharge",u:" psi",min:0,max:60,step:1,v:12,note:"Should equal fill pressure",bad:V=>Math.abs(V.pre-V.fill)>2,more:1}],
+ faults:[["pumpFail","Circulator fails"],["waterlog","Expansion tank waterlogged"],["air","Air in system, vent stuck"],
+  ["fillStuck","Fill valve stuck open"],["fillFail","Fill valve fails shut (no makeup water)"],["leak","Leak in the system"],
+  ["aqStuck","Aquastat contacts stuck closed"],["gasStuck","Gas valve stuck open"],["mrFail","Manual-reset high limit fails closed"],["lwcoFail","LWCO fails (won't trip)"],
+  ["flameRod","Dirty flame rod"],["weep","Relief valve weeping"],["reliefStuck","Relief valve stuck shut"]],
+ hidden:["mrFail","lwcoFail","reliefStuck","fillFail"],
+ scenarios:[{l:"Overheat: gas valve stuck open, relief valve stuck shut",f:["gasStuck","reliefStuck"]},{l:"Dry fire: leak, LWCO fails, no makeup water",f:["leak","lwcoFail","fillFail"]}],
+ parts:{
+  boiler:{n:"Boiler",s:"Cast-iron sections full of water, heated by the burner.",w:"A cast-iron sectional boiler. The burner heats the iron sections and the water inside them. In a residential hot water system the water stays liquid, typically 160 to 180°F supply, under about 12 psi cold. The drawing shows a cutaway of the water inside.",y:"The heat source for the whole loop. Every control on it exists to keep it from overheating, overpressurizing or firing without water.",f:"If the water drops below the hot surfaces and the burner keeps firing, the iron overheats and cracks. Adding water to a dry, hot boiler can make it explode.",src:["oep","md","hh"],faults:["leak"]},
+  burner:BURNER, gas:GAS,
+  aquastat:{n:"Aquastat (operating control)",s:"Starts burner and pump on a call; stops the burner at its high limit.",w:"A temperature control with a sensor bulb in a well in the boiler water. On a thermostat call it starts the burner and the circulator.",y:"When the water reaches the high limit setting the burner circuit opens, but the circulator keeps running while the thermostat still calls. The burner comes back on after the water falls by the differential (fixed at 8 to 15°F on many L8148 models).",f:"If its contacts stick closed, only the manual-reset high limit stops the burner. A temperature control can't protect against low water: once its well is out of the water it reads low and keeps the burner on.",src:["l8148","csd"],faults:["aqStuck"]},
+  mrhl:{n:"Manual-reset high limit",s:"Backup temperature limit that needs a person to reset it.",w:"A second temperature limit with its own sensing element and switch, set above the operating control.",y:"Only matters when the operating control fails. Once it trips, the burner stays off until someone presses reset, so a person has to look at why.",f:"CSD-1 requires one on the hot water boilers it covers. Hot water boilers top out at 250°F.",src:["csd","md"],faults:["mrFail"]},
+  lwco:{n:"Low water cutoff (LWCO)",s:"Shuts the burner off if the water drops too low.",w:"Shuts the burner off if the water in the boiler drops too low.",y:"Prevents dry firing, which can crack the sections or cause an explosion if cold water is then added.",f:"Required on all steam boilers; on hot water boilers over 400,000 BTU/h, or when the boiler sits above the lowest radiation. CSD-1 hot water boilers get one with manual reset and a test means. If it fails and the water keeps dropping, nothing else stops the burner.",src:["oep","csd","md","hh"],faults:["lwcoFail"]},
+  relief:{n:"Relief valve",s:"Dumps water or steam if pressure reaches 30 psi.",w:"An ASME HV-rated valve that lifts at its set pressure (30 psi on residential hot water boilers) and dumps water to the drain.",y:"The last line of protection against overpressure. Its capacity must be at least the boiler's output. If the controls fail and the water passes boiling, it vents steam and holds its setting.",f:"Mounted with the spindle vertical. Discharge pipe ends 2 to 6 in. above a drain; never plug or valve it. A weeping valve often means a waterlogged expansion tank or too high a fill pressure. Stuck shut, nothing limits the pressure.",src:["oep","md","wm"],faults:["weep","reliefStuck"]},
+  gauge:{n:"Tridicator gauge",s:"Pressure, altitude and temperature in one gauge.",w:"Shows system pressure in psi, altitude in feet of water (1 psi = 2.31 ft) and boiler water temperature.",y:"Your window into the system: cold fill pressure, how much pressure rises when hot, and how close you are to the relief setting.",f:"A pressure swing toward 30 psi on each firing cycle points at the expansion tank.",src:["oep"],faults:[]},
+  tank:{n:"Expansion tank",s:"Air cushion that absorbs the water's expansion.",w:"A diaphragm tank with an air charge on one side. Water expands about 3 to 4% from 50 to 180°F; it pushes into the tank and compresses the air.",y:"Precharge should match the cold fill pressure (typically 12 psi), set before the tank sees water. The tank connection is the point of no pressure change.",f:"Waterlogged (lost its air charge): pressure spikes, often from 12 to 30 psi each firing cycle, and the relief valve lifts.",src:["oep"],faults:["waterlog"]},
+  airsep:{n:"Air separator and vent",s:"Pulls air out of the water.",w:"Pulls air bubbles out of the water and lets them out through the automatic vent on top.",y:"Installed on the boiler supply, where the water is hottest and pressure lowest, ahead of the pump.",f:"Air in the system means noise, poor flow and cold radiation. A stuck vent lets air build up.",src:["oep"],faults:["air"]},
+  pump:{n:"Circulator",s:"Moves the water around the loop.",w:"Pushes water around the loop. Here it pumps away from the expansion tank.",y:"The tank connection is the point of no pressure change, so pumping away from it adds pump head to the system pressure (12 psi fill plus 6 psi head gives 18 psi). Pumping toward it can drop suction pressure and pull in air.",f:"If it stops, heat stays in the boiler: the boiler cycles on its high limit while the room gets cold.",src:["oep","l8148"],faults:["pumpFail"]},
+  fill:{n:"Fill valve",s:"Adds city water to hold fill pressure.",w:"A pressure-reducing valve. It lowers city water pressure and adds water whenever system pressure drops below its setting.",y:"Fill pressure = system height × 0.433 psi per foot, plus 4 to 5 psi at the top. A typical house is about 12 psi.",f:"Stuck open or set too high: pressure creeps up until the relief valve lifts. Failed shut: nothing replaces water lost to a leak.",src:["oep"],faults:["fillStuck","fillFail"]},
+  backflow:{n:"Backflow preventer",s:"Keeps boiler water out of the drinking water.",w:"Keeps boiler water from flowing back into the drinking water.",y:"Residential systems with no chemicals use an ASSE 1012 dual check. Glycol or commercial systems need a reduced pressure zone (RPZ) assembly, ASSE 1013.",f:"",src:["oep"],faults:[]},
+  baseboard:{n:"Baseboard",s:"Finned tube that heats the room.",w:"Finned tube that passes heat from the water to the room air.",y:"Heat output depends on water temperature and flow. Less flow, cooler water or air in the tube means less heat.",f:"",src:["oep"],faults:["air"]},
+  tstat:TSTAT, room:ROOM},
+ init(){const V=this.V,c=this.consts;const S=Object.assign(baseState(),{Tw:150,lastTw:150,Troom:66,opOpen:false,mrTrip:false,lwTrip:false,n:(V.pre+ATM)*c.VT,vw:0,relief:false,L:1,p:V.fill,pPrev:V.fill,steam:false,pumpMode:"auto",fillOpen:true,pumpOn:false,ang:0,off:0,deficit:0,flow:1});
+  S.vw=Math.max(0,c.VT-S.n/(V.fill+ATM))+c.VS*this.ex(150);return S},
+ ex:T=>Math.max(0,T-50)*0.00027,
+ pExp(){const S=this.S,c=this.consts;if(S.vw<=0)return 0;const g=c.VT-S.vw;return g<=0.001?999:Math.max(0,S.n/g-ATM)},
+ setPre(){const S=this.S,c=this.consts;const p=S.p;S.n=this.F.waterlog?S.n:(this.V.pre+ATM)*c.VT;S.vw=c.VT-S.n/(p+ATM)},
+ onFault(k,on){const S=this.S,c=this.consts;if(k==="waterlog"){const p=S.p;S.n=on?S.n*0.04:(this.V.pre+ATM)*c.VT;S.vw=c.VT-S.n/(p+ATM)}},
+ onSlider(k){if(k==="pre"&&!this.F.waterlog)this.setPre()},
+ switches:[
+  {l:S=>`Service switch: ${S.svc?"on":"off"}`,on:S=>S.svc,act(sim){sim.S.svc=!sim.S.svc;log(sim,`Service switch ${sim.S.svc?"on":"off"}.`)}},
+  {l:S=>`Pump: ${S.pumpMode}`,on:S=>S.pumpMode!=="auto",act(sim){const S=sim.S;S.pumpMode={auto:"on",on:"off",off:"auto"}[S.pumpMode];log(sim,`Circulator set to ${S.pumpMode}.`)}},
+  {l:S=>`Fill valve: ${S.fillOpen?"open":"shut"}`,on:S=>S.fillOpen,act(sim){sim.S.fillOpen=!sim.S.fillOpen;log(sim,`Fill valve ${sim.S.fillOpen?"opened":"shut"}.`)}}],
+ actions:[{id:"addWater",l:"Add cold water now",cls:"blue",show:S=>S.dry&&!S.dead,act(sim){log(sim,"Makeup water turned back on.","w");sim.S.fillOpen=true;setFault(sim,"fillFail",false)}}],
+ resets(S){const r=[];
+  if(S.lock)r.push(["Reset burner lockout",()=>{S.lock=false;S.tries=0;log(this,"Burner lockout reset.")}]);
+  if(S.mrTrip)r.push(["Reset high limit",()=>{if(S.Tw<this.V.mr-5){S.mrTrip=false;log(this,"High limit reset.")}else log(this,"High limit won't reset until the water cools.","w")}]);
+  if(S.lwTrip)r.push(["Reset LWCO",()=>{if(S.L>=0.8){S.lwTrip=false;log(this,"LWCO reset.")}else log(this,"LWCO won't reset with the water still low.","w")}]);
+  return r},
+ reads(S){return [["Boiler",`${Math.round(S.Tw)}°F`],["Pressure",`${S.p.toFixed(1)} psi`],["Room",`${S.Troom.toFixed(1)}°F`]]},
+ step(dt){const sim=this,S=this.S,F=this.F,V=this.V,c=this.consts;S.t+=dt;
+  thermostat(sim);
+  const sensed=S.L<0.85?Math.min(S.Tw,120):S.Tw;
+  if(S.L<0.85&&!S.wellDry){S.wellDry=true;log(sim,"Water is below the aquastat well. Temperature controls now read low.","w")}
+  if(S.L>=0.85)S.wellDry=false;
+  if(!F.aqStuck){
+    if(!S.opOpen&&sensed>=V.hi){S.opOpen=true;log(sim,`Aquastat opened at ${Math.round(S.Tw)}°F. Burner off, pump keeps running.`)}
+    else if(S.opOpen&&sensed<=V.hi-V.diff){S.opOpen=false;log(sim,`Aquastat closed at ${Math.round(S.Tw)}°F (differential ${V.diff}°F).`)}
+  }else S.opOpen=false;
+  if(!S.mrTrip&&!F.mrFail&&sensed>=V.mr){S.mrTrip=true;log(sim,`Manual-reset high limit tripped at ${Math.round(S.Tw)}°F. Press reset.`,"b")}
+  // water and pressure
+  const fillOK=S.fillOpen&&!F.fillFail;
+  S.vw+=c.VS*(this.ex(S.Tw)-this.ex(S.lastTw));S.lastTw=S.Tw;
+  if(F.leak)S.vw-=0.02*dt;
+  if(F.weep)S.vw-=0.002*dt;
+  if(F.fillStuck&&!F.fillFail)S.vw+=0.012*dt;
+  const target=c.VT-S.n/(V.fill+ATM);
+  if(fillOK&&S.vw<target){const add=Math.min(target-S.vw,0.5*dt);if(S.Tm>600&&S.L<0.6&&add>0.001){explode(sim,"flash");return}S.vw+=add}
+  S.deficit=S.vw<0?-S.vw:0;
+  S.L=1-clamp((S.deficit-1)/8,0,1);
+  let p=this.pExp();const ps=psat(S.Tw);
+  S.steam=S.Tw>212&&ps>p;if(S.steam)p=ps;
+  if(S.deficit>0&&S.Tw>212){S.Tw=212;S.vw-=0.004*dt;S.steam=true;p=0}
+  let rel=false;
+  if(p>V.rv&&!F.reliefStuck){rel=true;if(S.steam){S.Tw=Math.min(S.Tw,tsat(V.rv));S.vw-=0.01*dt}else S.vw=c.VT-S.n/(V.rv+ATM);p=V.rv}
+  if(rel&&!S.relief)log(sim,S.steam?`Relief valve lifted at ${V.rv} psi, venting steam.`:`Relief valve lifted at ${V.rv} psi. Water to drain.`,"b");
+  if(S.steam&&!S.wasSteam&&S.deficit===0)log(sim,`Water passed boiling (${Math.round(S.Tw)}°F). Steam is forming inside the boiler.`,"b");
+  S.wasSteam=S.steam;S.relief=rel;
+  if(p>V.rv*0.9&&S.pPrev<=V.rv*0.9&&!rel)log(sim,`Pressure ${p.toFixed(1)} psi, near the relief setting.`,"w");
+  if(p>60&&S.pPrev<=60)log(sim,`Pressure ${p.toFixed(0)} psi and climbing.${V.rv>60?` Relief valve is set at ${V.rv} psi.`:" Nothing is relieving it."}`,"b");
+  S.pPrev=p;S.p=p;
+  if(p>=c.RUPTURE){explode(sim,"pressure");return}
+  if(!S.lwTrip&&!F.lwcoFail&&S.L<0.8){S.lwTrip=true;log(sim,"Low water. LWCO shut the burner off.","b")}
+  if(S.L<0.4&&!S.dry)log(sim,"Water is below the hot surfaces. The boiler is dry firing.","b");
+  S.limitsOk=S.svc&&!S.mrTrip&&!S.lwTrip;
+  const fire=seq(sim,dt,S.calling&&!S.opOpen&&S.limitsOk&&!S.lock);
+  S.pumpOn=S.svc&&(S.pumpMode==="on"||(S.pumpMode==="auto"&&S.calling));
+  const airBound=S.deficit>0.3?Math.max(0,1-S.deficit/1.5):1;
+  const flow=(S.pumpOn&&!F.pumpFail?(F.air?0.35:1):0.08)*airBound;
+  const qb=fire*c.QB;
+  const wet=S.L>0.4?1:S.L/0.4;S.dry=S.L<0.4;
+  const qe=c.UAE*Math.min(1,flow*1.1)*(S.Tw-S.Troom);
+  S.Tw+=(qb*wet-qe-0.003*(S.Tw-65))/(c.CB*(0.3+0.7*S.L))*dt;
+  if(heatIron(sim,qb,wet,dt))return;
+  S.Troom+=(qe-c.UAB*(S.Troom-V.out))/c.CR*dt;
+  S.flow=flow;
+ },
+ draw(dt){const S=this.S,F=this.F,V=this.V,c=this.consts,p="h_";
+  const Tret=S.Tw-(S.Tw-S.Troom)*Math.min(0.9,0.12/Math.max(S.flow,0.1));
+  at(p+"pSup","stroke",tcol(S.Tw));at(p+"pTank","stroke",tcol(S.Tw-20));at(p+"pRet","stroke",tcol(Tret));
+  S.off-=dt*S.flow*40;const fs=$(p+"fSup"),fr=$(p+"fRet");if(fs){fs.style.strokeDashoffset=S.off;fr.style.strokeDashoffset=S.off;fs.style.opacity=fr.style.opacity=S.flow>0.1?1:0.25}
+  if(S.pumpOn&&!F.pumpFail)S.ang=(S.ang+dt*720)%360;
+  at(p+"imp","transform",`rotate(${S.ang} 450 90)`);
+  drawBurner(this);
+  at(p+"aqLamp","fill",S.opOpen?"var(--warn)":"var(--ok)");at(p+"mrLamp","fill",S.mrTrip?"var(--bad)":"var(--ok)");at(p+"lwLamp","fill",S.lwTrip?"var(--bad)":"var(--ok)");
+  at(p+"tstatLamp","fill",S.calling?"var(--ok)":"var(--lamp-off)");
+  at(p+"reliefLever","y",S.relief?112:118);
+  at(p+"drip","opacity",S.relief||F.weep?1:0);
+  at(p+"bubbles","opacity",F.air?(blink(400)?1:.4):0);
+  at(p+"fillX","opacity",S.fillOpen&&!F.fillFail?0:1);
+  const wh=159*S.L;at(p+"bWater","y",345-wh);at(p+"bWater","height",wh);at(p+"bWater","fill",tcol(S.Tw));
+  at(p+"bGlow","height",159-wh);at(p+"bGlow","opacity",clamp((S.Tm-300)/600,0,.85));
+  at(p+"bSteam","opacity",S.steam?(blink(150)?1:.3):0);
+  txt(p+"bLvl",`Water ${Math.round(S.L*100)}%`+(S.dry?` · iron ${Math.round(S.Tm)}°F`:""));
+  const wfrac=clamp(S.vw/c.VT,0,1),h=82*wfrac,y=233-h;
+  at(p+"tankWater","y",y);at(p+"tankWater","height",h);at(p+"tankDia","y1",y);at(p+"tankDia","y2",y);
+  txt(p+"tankTxt",`air ${S.p.toFixed(0)} psi`);
+  const ang=(-135+Math.min(75,S.p)/75*270)*Math.PI/180;
+  at(p+"needle","x2",200+20*Math.sin(ang));at(p+"needle","y2",246-20*Math.cos(ang));
+  txt(p+"gPsi",`${S.p.toFixed(1)} psi`);txt(p+"gTemp",`${Math.round(S.Tw)}°F`);
+  txt(p+"tRoomTxt",`${S.Troom.toFixed(1)}°F`);txt(p+"tstatTxt",String(V.tstat));txt(p+"outTxt",`Outside ${V.out}°F`);
+ },
+ boom(kind){const F=this.F,S=this.S,V=this.V,c=this.consts;
+  if(kind==="pressure")return{t:"Boiler explosion: overpressure",b:`<p>The burner kept firing with nothing to stop it. The water went far past 212°F but stayed liquid under pressure. When the vessel split, that water flashed to steam all at once.</p><ul>
+    ${li(F.gasStuck,"Gas valve stuck open. The limits opened, but they act by closing this valve.","Gas valve.")}
+    ${li(F.aqStuck,"Aquastat stuck closed.","Aquastat.")}
+    ${li(F.mrFail,"Manual-reset high limit failed closed.","Manual-reset high limit.")}
+    ${F.reliefStuck?li(1,"Relief valve stuck shut, so pressure had nowhere to go."):V.rv>=c.RUPTURE?`<li class="f"><b>Wrong part</b>Relief valve set at ${V.rv} psi, above what the boiler could take.</li>`:li(0,"","Relief valve.")}
+    ${li(F.waterlog,"Expansion tank waterlogged.","Expansion tank.")}</ul>
+    <p>The relief valve is the last line of defense when the controls or gas valve fail. That is why relief valves get tested and limits get checked.</p>
+    <small>Simplified: the sim ruptures the vessel at ${c.RUPTURE} psi. A real boiler's failure point depends on its rating and condition.</small>`,wreck:1};
+  if(kind==="flash")return{t:"Boiler explosion: cold water on a dry boiler",b:`<p>The boiler ran low and the burner kept firing, so the exposed iron reached ${Math.round(S.Tm)}°F. When makeup water hit the red-hot iron it flashed to steam faster than anything could relieve it.</p><ul>
+    ${li(F.leak,"Leak drained the system.","No leak.")}
+    ${li(F.lwcoFail,"LWCO failed, the burner kept firing with low water.","LWCO.")}
+    <li class="f"><b>Failed</b>No makeup water while the leak ran. It came back on after the iron was red hot.</li></ul>
+    <p>Never add water to a boiler that has run dry. Shut the burner off and let it cool first.</p>
+    <small>Simplified: the sim triggers this when water reaches iron above 600°F.</small>`,wreck:1};
+  return{t:"Boiler destroyed: cracked sections",b:`<p>The boiler dry fired until the exposed cast iron reached ${Math.round(S.Tm)}°F and cracked. It is scrap, and flue gas and water can now leak into the room.</p><ul>
+    ${li(F.lwcoFail,"LWCO failed, the burner kept firing with low water.","LWCO.")}
+    ${li(F.fillFail||!S.fillOpen,"No makeup water.","Makeup water.")}
+    ${li(F.leak,"Leak drained the system.","No leak.")}</ul>
+    <p>The aquastat and high limit can't save a dry boiler: their sensing wells were out of the water and read low.</p>
+    <small>Simplified: the sim cracks the iron at 1000°F.</small>`,wreck:0};
+ }
+};
+
+/* ============ STEAM ============ */
+const lvY=L=>360-184*L; // boiler water height to drawing y
+const STEAM={id:"steam",p:"s_",name:"Steam",
+ svg:`<line x1="10" y1="452" x2="790" y2="452" stroke="var(--line)" stroke-dasharray="2 4"/>
+<g class="part" data-p="room" tabindex="0"><rect class="hl" x="450" y="140" width="335" height="232" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="6 4"/><text class="lbl" x="636" y="160">Heated room</text><text class="val" id="s_room" x="636" y="178">66.0°F</text></g>
+<text class="lbl" id="s_outTxt" x="750" y="132" text-anchor="end">Outside 25°F</text>
+<path d="M77 150 V30 H20" class="pipe" stroke="var(--cold)" stroke-width="5"/>
+<text class="lbl" x="86" y="34">Cold water</text>
+<path d="M308 128 H338 V444" class="pipe" stroke="var(--line)" stroke-width="5"/>
+<rect x="326" y="446" width="24" height="6" fill="var(--line)"/>
+<g id="s_svPuff" opacity="0" fill="var(--paper)" stroke="var(--line)"><circle cx="338" cy="436" r="6"/><circle cx="328" cy="428" r="4"/><circle cx="348" cy="426" r="5"/></g>
+<g class="part" data-p="ret" tabindex="0">
+  <path id="s_retA" d="M760 92 V436 H405 V299 H370" class="pipe" stroke="#6b8fc9"/>
+  <path id="s_retB" d="M760 92 V436 H405 V392 H370" class="pipe" stroke="#6b8fc9" opacity="0"/>
+  <path id="s_fRet" d="M760 92 V436 H405 V299 H370" class="flow"/>
+  <text class="lbl" x="560" y="428">Wet return</text>
+  <g id="s_leak" opacity="0"><circle cx="600" cy="446" r="3" fill="var(--cold)"/><circle cx="612" cy="448" r="2" fill="var(--cold)"/><circle cx="590" cy="448" r="2.5" fill="var(--cold)"/><text class="tag" x="600" y="462" text-anchor="middle" fill="var(--bad)">BROKEN</text></g>
+</g>
+<path id="s_header" d="M190 170 V80 H370 V392 H310" class="pipe" stroke="var(--line)"/>
+<path d="M370 80 L760 92" class="pipe" stroke="var(--line)"/>
+<path id="s_mainSteam" d="M370 80 L760 92" class="pipe" pathLength="100" stroke-dasharray="0 100" style="stroke-linecap:butt"/>
+<text class="lbl" x="520" y="74">Steam main</text>
+<text class="lbl" x="200" y="74">Header</text>
+<g class="part" data-p="hartford" tabindex="0">
+  <rect class="hl" x="352" y="270" width="64" height="134" rx="6" fill="transparent" stroke="none"/>
+  <text class="lbl" x="378" y="266">Equalizer /</text>
+  <text class="lbl" x="420" y="296">Hartford</text>
+  <text class="lbl" x="420" y="310">loop</text>
+</g>
+<g class="part" data-p="mainvent" tabindex="0">
+  <path d="M748 92 V74" class="pipe" stroke="var(--line)" stroke-width="5"/>
+  <rect class="hl body" x="738" y="52" width="20" height="24" rx="4"/>
+  <g id="s_ventPuff" opacity="0" fill="none" stroke="var(--muted)"><circle cx="748" cy="42" r="4"/><circle cx="756" cy="32" r="3"/></g>
+  <text class="lbl" x="732" y="50" text-anchor="end">Main vent</text>
+</g>
+<g class="part" data-p="rad" tabindex="0">
+  <path d="M480 83 V342 H492" class="pipe" stroke="var(--line)" stroke-width="7"/>
+  <path d="M628 87 V342 H640" class="pipe" stroke="var(--line)" stroke-width="7"/>
+  <rect class="hl" id="s_rad1" x="492" y="280" width="74" height="68" rx="5" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <rect class="hl" id="s_rad2" x="640" y="280" width="74" height="68" rx="5" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <g stroke="var(--line)" stroke-width="1"><line x1="504" y1="284" x2="504" y2="344"/><line x1="516" y1="284" x2="516" y2="344"/><line x1="528" y1="284" x2="528" y2="344"/><line x1="540" y1="284" x2="540" y2="344"/><line x1="552" y1="284" x2="552" y2="344"/><line x1="652" y1="284" x2="652" y2="344"/><line x1="664" y1="284" x2="664" y2="344"/><line x1="676" y1="284" x2="676" y2="344"/><line x1="688" y1="284" x2="688" y2="344"/><line x1="700" y1="284" x2="700" y2="344"/></g>
+  <rect class="body" x="562" y="270" width="10" height="12" rx="2"/><rect class="body" x="710" y="270" width="10" height="12" rx="2"/>
+  <text class="lbl" x="492" y="272">Radiator</text>
+</g>
+<g class="part" data-p="tstat" tabindex="0">
+  <rect class="hl body" x="725" y="172" width="44" height="44" rx="6"/>
+  <text class="val" id="s_tstatTxt" x="747" y="199" text-anchor="middle">68</text>
+  <circle id="s_tstatLamp" cx="747" cy="209" r="3" fill="var(--lamp-off)"/>
+  <text class="lbl" x="747" y="232" text-anchor="middle">Thermostat</text>
+</g>
+<g class="part" data-p="lwco" tabindex="0">
+  <path d="M94 236 H150 M94 336 H150" class="pipe" stroke="var(--line)" stroke-width="5"/>
+  <rect class="hl body" x="60" y="226" width="34" height="122" rx="10"/>
+  <circle id="s_float" cx="77" cy="249" r="9" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+    <path d="M77 348 V364 M70 364 H84" stroke="var(--ink)" stroke-width="2"/>
+  <g id="s_blowJet" opacity="0"><circle cx="77" cy="374" r="3" fill="var(--cold)"/><circle cx="72" cy="384" r="2" fill="var(--cold)"/><circle cx="82" cy="388" r="2.5" fill="var(--cold)"/></g>
+  <text class="lbl" x="56" y="300" text-anchor="end">LWCO</text>
+  <circle id="s_lw1Lamp" cx="77" cy="216" r="5" fill="var(--ok)"/>
+</g>
+<g class="part" data-p="feeder" tabindex="0">
+  <path d="M77 176 V200 H104 V352 H150" fill="none" stroke="var(--cold)" stroke-width="4"/>
+  <rect class="hl body" x="58" y="150" width="38" height="28" rx="3"/>
+  <circle id="s_feedLamp" cx="77" cy="164" r="5" fill="var(--lamp-off)"/>
+  <line id="s_feedX" x1="54" y1="146" x2="100" y2="182" stroke="var(--bad)" stroke-width="3" opacity="0"/>
+  <text class="lbl" x="52" y="168" text-anchor="end">Feeder</text>
+</g>
+<g class="part" data-p="boiler" tabindex="0" id="s_boilerG">
+  <rect class="hl" x="150" y="170" width="160" height="230" rx="6" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <rect id="s_glow" x="156" y="176" width="148" height="0" fill="#ff5a1f" opacity="0"/>
+  <rect id="s_water" x="156" y="250" width="148" height="110" fill="var(--cold)" opacity=".3"/>
+  <g id="s_bub" opacity="0" fill="none" stroke="var(--paper)" stroke-width="1.5"><circle cx="180" cy="330" r="3"/><circle cx="240" cy="345" r="4"/><circle cx="215" cy="310" r="3"/><circle cx="280" cy="325" r="2.5"/><circle cx="200" cy="290" r="2"/></g>
+  <line x1="150" x2="310" y1="249.6" y2="249.6" stroke="var(--cold)" stroke-dasharray="4 3"/>
+  <text x="304" y="246" text-anchor="end" class="tag" fill="var(--cold)">NORMAL WATER LINE</text>
+  <line x1="150" x2="310" y1="277" y2="277" stroke="var(--bad)" stroke-dasharray="3 3" opacity=".8"/>
+  <text x="304" y="273" text-anchor="end" class="tag" fill="var(--bad)">LWCO CUTOFF</text>
+  <line x1="150" x2="310" y1="314" y2="314" stroke="var(--warn)" stroke-dasharray="3 3" opacity=".8"/>
+  <text x="304" y="326" text-anchor="end" class="tag" fill="var(--warn)">CROWN SHEET</text>
+  <text class="lbl" x="158" y="190">Boiler</text>
+  <text class="val" id="s_lvl" x="158" y="206" font-size="11">Water 60% full</text>
+</g>
+<g class="part" data-p="glass" tabindex="0">
+  <path d="M126 204 H150 M126 314 H150" stroke="var(--line)" stroke-width="4"/>
+  <rect class="hl" x="116" y="198" width="12" height="122" rx="3" fill="var(--paper)" stroke="var(--line)" stroke-width="1.5"/>
+  <rect id="s_glassW" x="118" y="250" width="8" height="64" fill="var(--cold)" opacity=".7"/>
+</g>
+<g class="part" data-p="lwco2" tabindex="0">
+  <rect class="hl body" x="310" y="285" width="18" height="12" rx="2"/>
+  <circle id="s_lw2Lamp" cx="319" cy="291" r="3" fill="var(--ok)"/>
+</g>
+<g class="part" data-p="trycocks" tabindex="0">
+  <rect class="hl" x="308" y="214" width="28" height="70" fill="transparent" stroke="none"/>
+  <path d="M310 222 H322 M310 250 H322 M310 277 H322" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="324" cy="222" r="3" fill="var(--brass)"/><circle cx="324" cy="250" r="3" fill="var(--brass)"/><circle cx="324" cy="277" r="3" fill="var(--brass)"/>
+  <circle id="s_puff" cx="334" cy="250" r="6" opacity="0" fill="var(--paper)" stroke="var(--line)"/>
+</g>
+<g class="part" data-p="burner" tabindex="0">
+  <rect class="hl body" x="170" y="374" width="120" height="14" rx="3"/>
+  <g id="s_flame" opacity="0" transform="translate(30,0)"><path class="flame" d="M150 374 q8 -26 16 0 q8 -30 17 0 q8 -34 17 0 q9 -30 17 0 q8 -26 16 0 q6 -20 12 0 z" fill="#f08a1c"/><path class="flame" d="M160 374 q6 -14 12 0 q7 -18 14 0 q7 -20 14 0 q7 -18 14 0 q6 -14 12 0 z" fill="#3c7bf0" opacity=".8"/></g>
+  <path id="s_spark" d="M226 372 l6 -8 -4 0 6 -8" stroke="#f5c400" stroke-width="2" fill="none" opacity="0"/>
+  <text class="lbl" x="230" y="416" text-anchor="middle">Burner</text>
+</g>
+<g class="part" data-p="gas" tabindex="0">
+  <path d="M20 400 H120 V381 H170" class="pipe" stroke="#c9a227" stroke-width="5"/>
+  <rect class="hl body" x="36" y="388" width="30" height="24" rx="3"/>
+  <circle id="s_gasLamp" cx="51" cy="400" r="4" fill="var(--lamp-off)"/>
+  <text class="lbl" x="51" y="428" text-anchor="middle">Gas valve</text>
+</g>
+<g class="part" data-p="hl" tabindex="0">
+  <path d="M165 170 V152" stroke="var(--line)" stroke-width="3" fill="none"/><circle cx="165" cy="146" r="5" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M165 141 V130" stroke="var(--line)" stroke-width="3"/>
+  <rect class="hl" x="148" y="104" width="34" height="26" rx="3" fill="var(--plate)"/>
+  <text x="165" y="115" text-anchor="middle" font-family="var(--display)" font-size="8" fill="var(--plate-ink)">HI LIMIT</text>
+  <circle id="s_hlLamp" cx="165" cy="123" r="3.5" fill="var(--ok)"/>
+</g>
+<g class="part" data-p="ptrol" tabindex="0">
+  <path d="M225 170 V152" stroke="var(--line)" stroke-width="3" fill="none"/><circle cx="225" cy="146" r="5" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M225 141 V130" stroke="var(--line)" stroke-width="3"/>
+  <rect class="hl" x="207" y="104" width="36" height="26" rx="3" fill="var(--plate)"/>
+  <text x="225" y="115" text-anchor="middle" font-family="var(--display)" font-size="8" fill="var(--plate-ink)">P-TROL</text>
+  <circle id="s_ptLamp" cx="225" cy="123" r="3.5" fill="var(--ok)"/>
+</g>
+<g class="part" data-p="gauge" tabindex="0">
+  <path d="M262 170 V152" stroke="var(--line)" stroke-width="3" fill="none"/><circle cx="262" cy="146" r="5" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M262 141 V126" stroke="var(--line)" stroke-width="3"/>
+  <circle class="hl" cx="262" cy="108" r="17" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>
+  <line id="s_needle" x1="262" y1="108" x2="262" y2="96" stroke="var(--bad)" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="262" cy="108" r="2" fill="var(--ink)"/>
+  <text class="val" id="s_gP" x="262" y="86" text-anchor="middle" font-size="10">0.0 psi</text>
+</g>
+<g class="part" data-p="sv" tabindex="0">
+  <path d="M298 170 V146" class="pipe" stroke="var(--line)" stroke-width="7"/>
+  <rect class="hl body" x="288" y="122" width="20" height="24" rx="3"/>
+  <rect id="s_svLever" x="293" y="116" width="10" height="6" fill="var(--brass)"/>
+  <text class="lbl" x="312" y="112">Safety</text>
+</g>
+<g id="s_wreck" opacity="0">
+  <g fill="var(--line)" stroke="var(--ink)" stroke-width="1"><polygon points="148,200 190,186 180,240 142,250"/><polygon points="260,170 318,190 306,232 270,214"/><polygon points="126,330 170,318 162,372 120,360"/><polygon points="280,330 330,316 336,368 292,380"/><polygon points="206,150 238,140 244,168 212,176"/></g>
+  <g fill="var(--paper)" opacity=".85"><circle cx="230" cy="270" r="70"/><circle cx="180" cy="220" r="48"/><circle cx="285" cy="225" r="52"/><circle cx="230" cy="175" r="44"/><circle cx="170" cy="320" r="40"/><circle cx="295" cy="320" r="44"/></g>
+</g>
+`,
+ consts:{QB:22.8,VB:16,UAR:0.09,UAB:0.18,CR:900,MS:6,KP:6,DELAY:180,RUPTURE:45},
+ sliders:[
+  {k:"tstat",l:"Thermostat",u:"°F",min:40,max:95,step:1,v:68,n:[60,75],note:"Normal 60–75°F"},
+  {k:"out",l:"Outdoor temperature",u:"°F",min:-30,max:80,step:1,v:25},
+  {k:"cutin",l:"Pressuretrol cut-in",u:" psi",min:0,max:15,step:0.5,v:0.5,n:[0.5,2],note:"Example setting 0.5 psi"},
+  {k:"diff",l:"Pressuretrol differential",u:" psi",min:0.5,max:15,step:0.5,v:1.5,n:[1,2],note:"Cut-out = cut-in + differential (example 2.0 psi)"},
+  {k:"hl",l:"High-limit pressuretrol",u:" psi",min:1,max:30,step:0.5,v:5,n:[5,10],note:"Normal 5–10 psi, at least 2 psi above cut-out",bad:V=>V.hl<5||V.hl>10||V.hl<V.cutin+V.diff+2,more:1},
+  {k:"sv",l:"Safety valve setting",u:" psi",min:5,max:100,step:1,v:15,n:[15,15],note:"Low pressure steam: 15 psi",more:1}],
+ faults:[["lwco1Fail","Primary LWCO float stuck (won't trip)"],["lwco2Fail","Secondary LWCO fails"],["feedFail","Feeder fails (no makeup water)"],["feedStuck","Feeder stuck open (floods boiler)"],
+  ["returnLeak","Wet return broken"],["pigtail","Pigtail plugged (gauge and pressuretrol)"],["ptStuck","Pressuretrol contacts stuck closed"],["hlFail","High-limit pressuretrol fails closed"],
+  ["mainVent","Main vent stuck shut"],["radVent","Radiator vents stuck shut"],["glassShut","Gauge glass valves shut"],["gasStuck","Gas valve stuck open"],["svStuck","Safety valve stuck shut"],["flameRod","Dirty flame rod"]],
+ hidden:["lwco1Fail","lwco2Fail","hlFail","svStuck","feedFail","glassShut"],
+ scenarios:[{l:"Overpressure: gas valve stuck open, safety valve stuck shut",f:["gasStuck","svStuck"]},{l:"Dry fire: wet return broken, both LWCOs and feeder fail",f:["returnLeak","lwco1Fail","lwco2Fail","feedFail"]}],
+ parts:{
+  boiler:{n:"Steam boiler",s:"Boils water into steam at no more than 15 psi.",w:"A low pressure steam boiler (15 psi maximum). It is only partly full: water up to the normal water line (NWL), steam space above it. The drawing shows a cutaway.",y:"Steam rises into the header and main, gives up its heat in the radiators, condenses back to water and returns by gravity through the wet return.",f:"Low water is the big danger. The crown sheet (top of the heated surface) must stay covered. Dry firing cracks sections, and adding water to a dry, red-hot boiler can make it explode.",src:["md","hh","glass"],faults:["returnLeak"]},
+  glass:{n:"Gauge glass",s:"Shows the water level.",w:"A glass tube connected to the steam space at the top and the water space at the bottom, so it shows the water level. Normal level is roughly a third to half up the glass.",y:"Your main way to see the water level. The feeder and cutoffs work off the same level.",f:"If its valves are shut or the connections plug, the glass shows a false level. Prove the level with the try cocks. The glass is flushed regularly to prove its connections are open.",src:["glass","wm"],faults:["glassShut"]},
+  trycocks:{n:"Try cocks",s:"Backup check of the water level.",w:"Three small valves at different heights. Open one: steam means the water is below it, water means the water is above it.",y:"The backup level check when the glass can't be trusted. Top should give steam, bottom should give water, the middle depends on the level. Try them in Controls.",f:"",src:["glass"],faults:[]},
+  gauge:{n:"Pressure gauge and pigtail",s:"Shows steam pressure; the pigtail protects it.",w:"Shows steam pressure in psi. It sits on a pigtail (siphon) that fills with condensed water, so live steam never reaches the gauge's Bourdon tube.",y:"Lets you watch pressure build and the pressuretrol cycle. Note that 1 psi of steam is already 215°F.",f:"A dry siphon or plugged line gives wrong or delayed readings. A plugged pigtail also blinds the pressuretrol on it.",src:["siphon"],faults:["pigtail"]},
+  ptrol:{n:"Pressuretrol (operating control)",s:"Cycles the burner on steam pressure.",w:"A pressure switch. On the common additive type, the main scale is the cut-in and the differential adds to it: cut-in 0.5 psi plus differential 1.5 psi shuts the burner off at 2.0 psi.",y:"Cycles the burner to hold the system at low pressure while the thermostat calls.",f:"Stuck contacts or a plugged pigtail: the burner keeps firing until the high-limit pressuretrol trips.",src:["oep","hunker","wm"],faults:["ptStuck","pigtail"]},
+  hl:{n:"High-limit pressuretrol",s:"Backup pressure limit, manual reset.",w:"A second pressure control with manual reset, set above the operating pressuretrol (5 to 10 psi, at least 2 psi above it) and below the 15 psi safety valve.",y:"Only acts if the operating control fails. A person has to reset it.",f:"Required on steam boilers covered by CSD-1 and by many state rules. If it fails too, only the safety valve is left.",src:["csd","oep","wm","md"],faults:["hlFail"]},
+  lwco:{n:"Primary low water cutoff",s:"Float that cuts the burner on low water and runs the feeder.",w:"A float in a chamber piped to the boiler. When the water drops to the cutoff level the float drops and cuts power to the burner. It resets itself when the water comes back.",y:"Keeps the burner off whenever the water is too low. It also runs the feeder here.",f:"Sediment can jam the float. It is blown down at least weekly with the burner on: the burner should shut off. If it doesn't, shut the boiler down and fix it (McDonnell & Miller 67 manual). Try Blow down in Controls.",src:["mm67","csd","md"],faults:["lwco1Fail"]},
+  lwco2:{n:"Secondary low water cutoff",s:"Lower backup cutoff, manual reset.",w:"A probe set a little lower than the primary cutoff. If the water reaches it, the burner locks off until someone resets it.",y:"Backup for the primary. CSD-1 requires two cutoffs on steam boilers, the lower one manual reset.",f:"If both cutoffs fail, nothing stops the burner from dry firing.",src:["csd","md","wm"],faults:["lwco2Fail"]},
+  feeder:{n:"Automatic water feeder",s:"Adds water when the level drops.",w:"A valve that adds water when the level drops to its feed point, just above the cutoff.",y:"Makes up water lost to leaks and venting. In a tight system it should hardly run.",f:"Fails shut: no makeup, the level keeps falling. Stuck open: the boiler floods, water gets into the steam main, and you get water hammer and wet steam.",src:["mm67"],faults:["feedFail","feedStuck"]},
+  sv:{n:"Safety valve",s:"Pops at 15 psi and vents steam.",w:"An ASME V-rated valve that pops at its set pressure (15 psi on a low pressure steam boiler) and vents steam.",y:"The last line of protection against overpressure. Spindle vertical; discharge piped near the floor, rated for the heat, never plugged or valved.",f:"Stuck shut, nothing limits the pressure if the controls or gas valve fail.",src:["oep","md","wm"],faults:["svStuck"]},
+  hartford:{n:"Hartford loop",s:"Keeps a broken return from draining the boiler.",w:"The equalizer drops from the header back into the bottom of the boiler. The wet return joins it through a close nipple about 2 in. below the lowest water line, above the crown sheet.",y:"Balances pressure between the steam side and the return so water stays in the boiler.",f:"If the wet return breaks, the boiler can only drain down to the close nipple, which leaves the crown sheet covered. Remove the loop (switch in Controls) and a broken return can drain the boiler dry. It backs up the LWCO; it doesn't replace it.",src:["hh"],faults:["returnLeak"]},
+  ret:{n:"Wet return",s:"Brings condensate back to the boiler.",w:"The return pipe below the boiler water line. It is always full of water, and condensate flows back to the boiler through it.",y:"Closes the loop: the water that left as steam comes back here.",f:"A break can drain the boiler unless a Hartford loop is in place.",src:["hh"],faults:["returnLeak"]},
+  mainvent:{n:"Main vent",s:"Lets air out of the main so steam can get in.",w:"A large air vent at the end of the steam main, after the last radiator. It lets air out fast while the system fills, then closes when steam reaches it.",y:"Steam can only move into space the air has left. Good main venting gets steam to the radiators sooner.",f:"Stuck shut: air stays trapped, steam reaches the radiators slowly, pressure builds early and the pressuretrol short-cycles the burner while rooms stay cold.",src:["vent"],faults:["mainVent"]},
+  rad:{n:"Radiators and vents",s:"Where steam gives up its heat.",w:"Cast-iron radiators. Steam enters, gives up its heat and condenses; on a one-pipe system the water runs back out the same pipe. Each vent lets air out and closes when steam arrives.",y:"The radiators heat the room. The water they make returns to the boiler.",f:"Stuck vents keep the radiators from filling with steam, so they stay cool.",src:["vent"],faults:["radVent"]},
+  burner:BURNER, gas:GAS, tstat:TSTAT, room:ROOM},
+ init(){return Object.assign(baseState(),{Tw:195,P:0,fs:0,L:0.6,Troom:66,ptOpen:false,hlTrip:false,lw2Trip:false,low1:false,blow:0,feedValve:true,hartford:true,queue:[],pFrozen:0,glassFrozen:0.6,m:0,venting:false,relief:false,feeding:false,flood:false,off:0,puff:null})},
+ switches:[
+  {l:S=>`Service switch: ${S.svc?"on":"off"}`,on:S=>S.svc,act(sim){sim.S.svc=!sim.S.svc;log(sim,`Service switch ${sim.S.svc?"on":"off"}.`)}},
+  {l:S=>`Feeder supply: ${S.feedValve?"open":"shut"}`,on:S=>S.feedValve,act(sim){sim.S.feedValve=!sim.S.feedValve;log(sim,`Feeder supply valve ${sim.S.feedValve?"opened":"shut"}.`)}},
+  {l:S=>`Hartford loop: ${S.hartford?"installed":"removed"}`,on:S=>S.hartford,act(sim){sim.S.hartford=!sim.S.hartford;log(sim,sim.S.hartford?"Hartford loop installed.":"Hartford loop removed. The wet return now enters at the bottom of the boiler.","w")}}],
+ actions:[
+  {id:"blow",l:"Blow down LWCO",show:S=>!S.dead,act(sim){const S=sim.S;S.blow=10;S.blowFailLogged=false;log(sim,S.flame?"Blowing down the LWCO with the burner on.":"Blowing down the LWCO. (Do it with the burner on to prove it shuts the burner off.)")}},
+  {id:"tcTop",l:"Try cock: top",show:S=>!S.dead,act(sim){sim.tryCock(0.75,"top")}},
+  {id:"tcMid",l:"Try cock: middle",show:S=>!S.dead,act(sim){sim.tryCock(0.6,"middle")}},
+  {id:"tcBot",l:"Try cock: bottom",show:S=>!S.dead,act(sim){sim.tryCock(0.45,"bottom")}},
+  {id:"addWater",l:"Add cold water now",cls:"blue",show:S=>S.dry&&!S.dead,act(sim){log(sim,"Makeup water turned back on.","w");sim.S.feedValve=true;setFault(sim,"feedFail",false)}}],
+ tryCock(lv,name){const S=this.S;const out=S.L>lv?(S.Tw>=211?"water, flashing as it leaves":"water"):(S.Tw>=211?"steam":"air: the boiler isn't steaming yet");
+  S.puff={y:lvY(lv),water:S.L>lv,until:S.t+6};log(this,`${name[0].toUpperCase()+name.slice(1)} try cock: ${out}.`+(this.F.glassShut&&Math.abs(S.glassFrozen-S.L)>0.05?" That doesn't match the gauge glass.":""),this.F.glassShut&&Math.abs(S.glassFrozen-S.L)>0.05?"w":"")},
+ resets(S){const r=[];
+  if(S.lock)r.push(["Reset burner lockout",()=>{S.lock=false;S.tries=0;log(this,"Burner lockout reset.")}]);
+  if(S.hlTrip)r.push(["Reset high limit",()=>{if(S.P<this.V.hl-1){S.hlTrip=false;log(this,"High-limit pressuretrol reset.")}else log(this,"High limit won't reset until the pressure drops.","w")}]);
+  if(S.lw2Trip)r.push(["Reset 2nd LWCO",()=>{if(S.L>=0.38){S.lw2Trip=false;log(this,"Secondary LWCO reset.")}else log(this,"Secondary LWCO won't reset with the water still low.","w")}]);
+  return r},
+ reads(S){const pg=this.F.pigtail?S.pFrozen:S.P,gl=this.F.glassShut?S.glassFrozen:S.L;return [["Gauge",`${pg.toFixed(1)} psi`],["Glass",gl<0.25?"empty":gl>0.85?"full":`${Math.round((gl-.25)/.6*100)}%`],["Room",`${S.Troom.toFixed(1)}°F`]]},
+ step(dt){const sim=this,S=this.S,F=this.F,V=this.V,c=this.consts;S.t+=dt;
+  thermostat(sim);
+  const pS=F.pigtail?S.pFrozen:S.P;
+  if(!F.ptStuck){
+    if(!S.ptOpen&&pS>=V.cutin+V.diff){S.ptOpen=true;log(sim,`Pressuretrol opened at ${pS.toFixed(1)} psi (cut-in ${V.cutin} + differential ${V.diff}).`)}
+    else if(S.ptOpen&&pS<=V.cutin){S.ptOpen=false;log(sim,`Pressuretrol closed at ${pS.toFixed(1)} psi.`)}
+  }else S.ptOpen=false;
+  if(!S.hlTrip&&!F.hlFail&&S.P>=V.hl){S.hlTrip=true;log(sim,`High-limit pressuretrol tripped at ${S.P.toFixed(1)} psi. Press reset.`,"b")}
+  const low1=!F.lwco1Fail&&(S.L<0.45||S.blow>0);
+  if(low1&&!S.low1)log(sim,S.blow>0?"Blowdown: the float dropped and the LWCO cut the burner. It works.":"Low water. Primary LWCO cut the burner.",S.blow>0?"":"b");
+  if(!low1&&S.low1)log(sim,S.blow>0||S.L>=0.45?"Primary LWCO reset itself.":"");
+  if(S.blow>0&&F.lwco1Fail&&S.flame&&!S.blowFailLogged){S.blowFailLogged=true;log(sim,"Blowdown: the burner kept running. The LWCO failed its test. Shut the boiler off.","b")}
+  S.low1=low1;if(S.blow>0)S.blow-=dt;
+  if(!S.lw2Trip&&!F.lwco2Fail&&S.L<0.38){S.lw2Trip=true;log(sim,"Secondary LWCO tripped. Manual reset needed.","b")}
+  S.limitsOk=S.svc&&!S.hlTrip&&!S.lw2Trip&&!low1;
+  const fire=seq(sim,dt,S.calling&&!S.ptOpen&&S.limitsOk&&!S.lock);
+  const qin=fire*c.QB;
+  const wet=S.L>0.25?1:Math.max(0,S.L/0.25);
+  if(S.L<0.25&&!S.dry)log(sim,"Water is below the crown sheet. The boiler is dry firing.","b");
+  S.dry=S.L<0.25;
+  let w=S.L*c.VB;const C=w*8.33+150,Ts=tsat(S.P),sb=0.004*(S.Tw-65);
+  let m=0;
+  if(S.Tw<Ts-0.3){S.Tw+=(qin*wet-sb)/C*dt;if(S.Tw>Ts)S.Tw=Ts}
+  else{S.Tw=Ts;m=Math.max(0,qin*wet-sb)/970;if(qin===0)S.Tw-=sb/C*dt}
+  if(m>0&&!S.boiling)log(sim,"Water is boiling. Steam is pushing air out of the main.");
+  S.boiling=m>0;S.m=m;
+  const qrad=c.UAR*S.fs*Math.max(0,Ts-S.Troom)*(S.flood?0.5:1)*(F.radVent?0.5:1);
+  const cond=qrad/970+0.0004*S.fs;
+  let left=m;S.venting=false;
+  if(S.fs<1&&m>0){const vent=(F.mainVent?1/2400:1/200)*(F.radVent?0.6:1);const dF=Math.min(m*dt/c.MS,vent*dt,1-S.fs);S.fs+=dF;left=m-dF*c.MS/dt;S.venting=dF>0;S.queue.push([S.t+c.DELAY,dF*c.MS/8.33])}
+  if(S.fs>=0.999&&!S.filled){S.filled=true;log(sim,"Steam reached the main vent. The system is full of steam.")}
+  if(S.fs<0.9)S.filled=false;
+  S.P+=(left-cond)*c.KP*dt;
+  if(S.P<0){S.fs=Math.max(0,S.fs+S.P/c.KP/c.MS);S.P=0}
+  let rel=false;
+  if(S.P>V.sv&&!F.svStuck){S.P=V.sv;rel=true}
+  if(rel&&!S.relief)log(sim,`Safety valve popped at ${V.sv} psi, venting steam.`,"b");
+  S.relief=rel;
+  if(S.P>20&&!S.p20){S.p20=true;log(sim,`Pressure ${S.P.toFixed(0)} psi, above the 15 psi limit for a low pressure boiler.`,"b")}
+  if(S.P>=c.RUPTURE){explode(sim,"pressure");return}
+  // water
+  w-=m*dt/8.33;
+  S.queue.push([S.t+c.DELAY,cond*dt/8.33]);
+  let back=0;while(S.queue.length&&S.queue[0][0]<=S.t)back+=S.queue.shift()[1];
+  if(!F.returnLeak)w+=back;
+  if(F.returnLeak){const to=S.hartford?0.33:0;if(w/c.VB>to)w-=0.03*dt;S.draining=w/c.VB>to}else S.draining=false;
+  let add=0;
+  if(S.feedValve&&!F.feedFail&&S.L<0.5&&!F.lwco1Fail)add+=0.04*dt;
+  if(S.feedValve&&F.feedStuck)add+=0.02*dt;
+  if(add>0&&S.Tm>600&&S.dry){explode(sim,"flash");return}
+  if(add>0&&!S.feeding)log(sim,"Feeder adding water.");
+  S.feeding=add>0;w+=add;
+  S.L=clamp(w/c.VB,0,1.05);
+  const flood=S.L>0.95;if(flood&&!S.flood)log(sim,"Boiler flooded. Water is getting into the steam main: water hammer and wet steam.","b");S.flood=flood;
+  if(heatIron(sim,qin,wet,dt))return;
+  S.Troom+=(qrad-c.UAB*(S.Troom-V.out))/c.CR*dt;
+  if(!F.pigtail)S.pFrozen=S.P;
+  if(!F.glassShut)S.glassFrozen=S.L;
+  S.back=back;
+ },
+ draw(dt){const S=this.S,F=this.F,V=this.V,p="s_";
+  const Ts=tsat(S.P);
+  const wl=clamp(S.L,0,1),wy=lvY(wl);
+  at(p+"water","y",wy);at(p+"water","height",360-wy);at(p+"water","fill",tcol(S.Tw));
+  at(p+"glow","height",Math.max(0,wy-176));at(p+"glow","opacity",clamp((S.Tm-300)/600,0,.85));
+  at(p+"bub","opacity",S.m>0?(blink(150)?1:.35):0);
+  txt(p+"lvl",`Water ${Math.round(S.L*100)}% full`+(S.dry?` · iron ${Math.round(S.Tm)}°F`:""));
+  const gl=F.glassShut?S.glassFrozen:S.L,gy=314-clamp((gl-.25)/.6,0,1)*110;
+  at(p+"glassW","y",gy);at(p+"glassW","height",314-gy);
+  const fy=F.lwco1Fail?S.floatStuckY??(S.floatStuckY=clamp(wy,240,338)):(S.blow>0?338:clamp(wy,240,338));if(!F.lwco1Fail)S.floatStuckY=undefined;
+  at(p+"float","cy",fy);at(p+"lw1Lamp","fill",S.low1?"var(--bad)":"var(--ok)");
+  at(p+"blowJet","opacity",S.blow>0?(blink(120)?1:.5):0);
+  at(p+"lw2Lamp","fill",S.lw2Trip?"var(--bad)":"var(--ok)");
+  at(p+"feedLamp","fill",S.feeding?"var(--cold)":"var(--lamp-off)");
+  at(p+"ptLamp","fill",S.ptOpen?"var(--warn)":"var(--ok)");at(p+"hlLamp","fill",S.hlTrip?"var(--bad)":"var(--ok)");
+  const steamCol=tcol(Ts+20),airCol="var(--line)";
+  at(p+"mainSteam","stroke-dasharray",`${(S.fs*100).toFixed(2)} 100`);at(p+"mainSteam","stroke",steamCol);
+  at(p+"header","stroke",S.boiling||S.P>0?steamCol:airCol);
+  ["rad1","rad2"].forEach(r=>at(p+r,"fill",S.fs>0.75?tcol(lerp(S.Troom,Ts,clamp((S.fs-.75)*4,0,1))*(F.radVent?0.85:1)):"var(--panel)"));
+  at(p+"ventPuff","opacity",S.venting&&!F.mainVent?(blink(250)?1:.3):0);
+  at(p+"svPuff","opacity",S.relief?(blink(120)?1:.4):0);at(p+"svLever","y",S.relief?110:116);
+  S.off-=dt*(S.back>0?25:0);const fr=$(p+"fRet");if(fr){fr.style.strokeDashoffset=S.off;fr.style.opacity=S.back>0&&!F.returnLeak?1:0}
+  at(p+"leak","opacity",F.returnLeak?(blink(300)?1:.5):0);
+  at(p+"retA","opacity",S.hartford?1:0);at(p+"retB","opacity",S.hartford?0:1);
+  at(p+"feedX","opacity",S.feedValve&&!F.feedFail?0:1);
+  const pg=F.pigtail?S.pFrozen:S.P;const ang=(-135+Math.min(30,pg)/30*270)*Math.PI/180;
+  at(p+"needle","x2",262+12*Math.sin(ang));at(p+"needle","y2",108-12*Math.cos(ang));txt(p+"gP",`${pg.toFixed(1)} psi`);
+  if(S.puff&&S.t<S.puff.until){at(p+"puff","opacity",1);at(p+"puff","cy",S.puff.y);at(p+"puff","fill",S.puff.water?"var(--cold)":"var(--paper)")}else at(p+"puff","opacity",0);
+  drawBurner(this);
+  txt(p+"room",`${S.Troom.toFixed(1)}°F`);txt(p+"tstatTxt",String(V.tstat));at(p+"tstatLamp","fill",S.calling?"var(--ok)":"var(--lamp-off)");txt(p+"outTxt",`Outside ${V.out}°F`);
+ },
+ boom(kind){const F=this.F,S=this.S,V=this.V,c=this.consts;
+  if(kind==="pressure")return{t:"Boiler explosion: overpressure",b:`<p>The burner kept firing and the steam had nowhere to go. A low pressure steam boiler is built for 15 psi. When it split, the water inside, far above 212°F, flashed to steam all at once.</p><ul>
+    ${li(F.gasStuck,"Gas valve stuck open. The pressure controls opened, but they act by closing this valve.","Gas valve.")}
+    ${li(F.ptStuck||F.pigtail,F.ptStuck?"Pressuretrol stuck closed.":"Pigtail plugged, so the pressuretrol never saw the pressure.","Pressuretrol.")}
+    ${li(F.hlFail,"High-limit pressuretrol failed closed.","High-limit pressuretrol.")}
+    ${F.svStuck?li(1,"Safety valve stuck shut."):V.sv>=c.RUPTURE?`<li class="f"><b>Wrong part</b>Safety valve set at ${V.sv} psi, above what the boiler could take.</li>`:li(0,"","Safety valve.")}</ul>
+    <p>The safety valve is the last line of defense. That's why it gets tested.</p>
+    <small>Simplified: the sim ruptures the boiler at ${c.RUPTURE} psi, three times its 15 psi limit. A real boiler's failure point depends on its condition.</small>`,wreck:1};
+  if(kind==="flash")return{t:"Boiler explosion: cold water on a dry boiler",b:`<p>The water dropped below the crown sheet and the burner kept firing, so the exposed iron reached ${Math.round(S.Tm)}°F. When feed water hit the red-hot iron it flashed to steam faster than anything could relieve it.</p><ul>
+    ${li(F.returnLeak,"Wet return broken, water lost.","Wet return.")}
+    ${li(F.lwco1Fail,"Primary LWCO stuck.","Primary LWCO.")}
+    ${li(F.lwco2Fail,"Secondary LWCO failed.","Secondary LWCO.")}
+    <li class="f"><b>Failed</b>No feed water while the level fell. It came back on after the iron was red hot.</li></ul>
+    <p>Never add water to a boiler that has run dry. Shut the burner off and let it cool first.</p>
+    <small>Simplified: the sim triggers this when water reaches iron above 600°F.</small>`,wreck:1};
+  return{t:"Boiler destroyed: cracked sections",b:`<p>The boiler dry fired until the exposed iron reached ${Math.round(S.Tm)}°F and cracked. It's scrap.</p><ul>
+    ${li(F.lwco1Fail,"Primary LWCO stuck.","Primary LWCO.")}
+    ${li(F.lwco2Fail,"Secondary LWCO failed.","Secondary LWCO.")}
+    ${li(F.feedFail||!S.feedValve,"No feed water.","Feeder.")}
+    ${li(F.returnLeak,"Wet return broken.","Wet return.")}
+    ${li(!S.hartford,"No Hartford loop, so the broken return drained the boiler.","Hartford loop held the water at the close nipple.")}</ul>
+    <small>Simplified: the sim cracks the iron at 1000°F.</small>`,wreck:0};
+ }
+};
+
+/* ============ ENGINE AND UI ============ */
+const SIMS={hyd:HYD,steam:STEAM};
+for(const sim of Object.values(SIMS)){sim.V={};sim.sliders.forEach(s=>sim.V[s.k]=s.v);sim.logs=[];reset(sim,true)}
+function reset(sim,quiet){sim.F={};sim.faults.forEach(f=>sim.F[f[0]]=false);sim.mystery=null;sim.S=sim.init();sim.logs=[];
+  log(sim,`${sim.name} system started. Thermostat calling.`);
+  if(sim===cur&&!quiet){$("log").innerHTML="";sim.logs.forEach(([t,m,c])=>{const d=document.createElement("div");d.innerHTML=`<time>${t}</time><span class="${c}">${m}</span>`;$("log").append(d)});$("boom").hidden=true;$("drawing").classList.remove("shake");at(sim.p+"boilerG","opacity",1);at(sim.p+"wreck","opacity",0);renderAll()}}
+function setFault(sim,k,on,quiet){if(sim.F[k]===on)return;sim.F[k]=on;sim.onFault&&sim.onFault(k,on);
+  if(!quiet)log(sim,`${on?"Fault on":"Fault cleared"}: ${sim.faults.find(f=>f[0]===k)[1]}.`,on?"w":"");syncFaults()}
+function explode(sim,kind){const S=sim.S;S.dead=kind;const r=sim.boom(kind);log(sim,r.t+".","b");
+  if(sim!==cur)return;
+  $("boomT").textContent=r.t;$("boomB").innerHTML=r.b;$("boom").hidden=false;
+  if(r.wreck){at(sim.p+"boilerG","opacity",.15);at(sim.p+"wreck","opacity",1)}
+  const d=$("drawing");d.classList.remove("shake");void d.offsetWidth;d.classList.add("shake")}
+
+const LAMP_ON=S=>({call:S.calling,limits:S.limitsOk,prepurge:S.st==="prepurge",ign:S.st==="ign",flame:S.flame,post:S.st==="post",lock:S.lock});
+$("lamps").innerHTML=LAMPS.map(l=>`<div class="lamp ${l[2]}" id="L_${l[0]}"><i></i><span>${l[1]}</span></div>`).join("");
+
+function sliderRow(sim,s){const v=sim.V[s.k];return `<div class="row" id="row_${s.k}"><label for="sl_${s.k}">${s.l}</label><output id="o_${s.k}">${v}${s.u}</output><input type="range" id="sl_${s.k}" data-k="${s.k}" min="${s.min}" max="${s.max}" step="${s.step}" value="${v}">${s.note?`<small>${s.note}</small>`:""}</div>`}
+function outside(sim,s){const V=sim.V;if(s.bad)return s.bad(V);return s.n?V[s.k]<s.n[0]||V[s.k]>s.n[1]:false}
+function renderControls(){const sim=cur;
+  const main=sim.sliders.filter(s=>!s.more),more=sim.sliders.filter(s=>s.more);
+  $("p-controls").innerHTML=`
+   <div class="group"><h3>Switches</h3><div class="btns" id="switches">${sim.switches.map((w,i)=>`<button class="btn" data-sw="${i}"></button>`).join("")}</div>
+   <div class="btns" id="actions">${sim.actions.map(a=>`<button class="btn ${a.cls||""}" data-act="${a.id}" hidden>${a.l}</button>`).join("")}</div></div>
+   <div class="group"><h3>Settings</h3><p>Sliders go well past normal so you can see what a wrong setting or wrong part does. They turn red outside the normal range.</p>${main.map(s=>sliderRow(sim,s)).join("")}</div>
+   <details id="more"><summary>More settings</summary><div class="group">${more.map(s=>sliderRow(sim,s)).join("")}</div></details>`;
+  sim.sliders.forEach(s=>markRow(sim,s));syncSwitches();
+}
+function markRow(sim,s){const r=$("row_"+s.k);if(r)r.classList.toggle("out",outside(sim,s))}
+function syncSwitches(){const S=cur.S;document.querySelectorAll("[data-sw]").forEach(b=>{const w=cur.switches[+b.dataset.sw];b.textContent=w.l(S);b.setAttribute("aria-pressed",w.on(S))})}
+function renderFailures(){const sim=cur;
+  $("p-failures").innerHTML=`
+   <div class="group"><h3>Catastrophe scenarios</h3><p>Each one stacks failures that a single working safety would have caught. Runs at 60x.</p>
+     <div class="btns">${sim.scenarios.map((s,i)=>`<button class="btn danger" data-sc="${i}">${s.l}</button>`).join("")}</div></div>
+   <div class="group"><h3>Mystery fault</h3><p>Starts one hidden fault. Watch the gauges and the log, then reveal it.</p>
+     <div class="btns"><button class="btn" id="mystery">Start mystery fault</button><button class="btn" id="reveal" hidden>Reveal</button></div>
+     <div class="mystery" id="mysteryTxt" hidden></div></div>
+   <div class="group"><h3>Failures</h3><div class="checks">${sim.faults.map(f=>`<label><input type="checkbox" data-f="${f[0]}"> ${f[1]}</label>`).join("")}</div>
+     <div class="btns"><button class="btn" id="clearF">Clear all failures</button></div></div>`;
+  syncFaults()}
+function syncFaults(){const sim=cur;document.querySelectorAll("input[data-f]").forEach(i=>{i.checked=!!sim.F[i.dataset.f];i.disabled=!!sim.mystery});
+  const mt=$("mysteryTxt"),rv=$("reveal");if(mt){mt.hidden=!sim.mystery&&!sim.revealed;mt.textContent=sim.mystery?"A hidden fault is running. Watch the gauges.":sim.revealed?`The fault was: ${sim.revealed}.`:"";rv.hidden=!sim.mystery}}
+let boxes={};
+function computeBoxes(){boxes={};const svg=$("svg");
+  for(const k of Object.keys(cur.parts)){const gs=svg.querySelectorAll(`.part[data-p="${k}"]`);if(!gs.length)continue;
+    let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;gs.forEach(g=>{const b=g.getBBox();x1=Math.min(x1,b.x);y1=Math.min(y1,b.y);x2=Math.max(x2,b.x+b.width);y2=Math.max(y2,b.y+b.height)});
+    let w=x2-x1,h=y2-y1,cx=(x1+x2)/2,cy=(y1+y2)/2;w=Math.max(w+40,h*4/3+40,120);h=w*3/4;boxes[k]=[cx-w/2,cy-h/2,w,h]}}
+const thumb=(k,cls="")=>{const b=boxes[k];return b?`<svg class="${cls}" viewBox="${b.map(v=>v.toFixed(1)).join(" ")}" aria-hidden="true"><use href="#draw-${cur.id}"/></svg>`:""};
+function renderParts(){const sim=cur;
+  $("p-parts").innerHTML=`<p class="photoNote">Tap a part for what it does, where it sits in the system, how it fails, a link to a real product photo, and the sources.</p>
+   <div class="parts">${Object.entries(sim.parts).map(([k,p])=>`<button class="pcard" data-part="${k}">${ill(sim.id,k)||thumb(k)}<b>${p.n}</b><span>${p.s}</span></button>`).join("")}</div>`}
+function partHTML(k){const sim=cur,d=sim.parts[k];const im=ill(sim.id,k);let h=im?im+`<div class="illNote">Drawing of a typical part. Real photo link below.</div><h4>Where it is</h4>`+thumb(k,"thumb"):thumb(k,"thumb");
+  h+=`<h4>What it is</h4><p>${d.w}</p><h4>In the system</h4><p>${d.y}</p>`;
+  if(d.f)h+=`<h4>When it goes wrong</h4><p>${d.f}</p>`;
+  if(d.faults.length)h+=`<h4>Simulate a failure</h4><div class="checks">${d.faults.map(f=>`<label><input type="checkbox" data-f="${f}"> ${sim.faults.find(x=>x[0]===f)[1]}</label>`).join("")}</div>`;
+  const ph=(PHOTOS[sim.id][k]||PHOTOS.shared[k]||[]);
+  if(ph.length)h+=`<h4>See it</h4><ul>${ph.map(([l,u])=>`<li><a href="${u}" target="_blank" rel="noopener">${l}</a> <span style="color:var(--muted)">(${new URL(u).hostname.replace("www.","")})</span></li>`).join("")}</ul>`;
+  if(d.src.length)h+=`<h4>Sources</h4><ul>${d.src.map(s=>`<li><a href="${SRC[s][1]}" target="_blank" rel="noopener">${SRC[s][0]}</a></li>`).join("")}</ul>`;
+  return h}
+function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
+function closeSheet(){$("sheet").hidden=true;openKey=null}
+function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
+function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=""}
+function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;
+  $("simHyd").setAttribute("aria-pressed",id==="hyd");$("simSteam").setAttribute("aria-pressed",id==="steam");
+  computeBoxes();renderAll();closeSheet();
+  const d=cur.S.dead;$("boom").hidden=!d;if(d){const r=cur.boom(d);$("boomT").textContent=r.t;$("boomB").innerHTML=r.b;if(r.wreck){at(cur.p+"boilerG","opacity",.15);at(cur.p+"wreck","opacity",1)}}
+  try{localStorage.setItem("bt-sim",id)}catch(e){}
+  cur.draw(0)}
+function showTab(t){tab=t;document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));["controls","failures","parts","log"].forEach(x=>$("p-"+x).hidden=x!==t);try{localStorage.setItem("bt-tab",t)}catch(e){}}
+function setSpeed(s){speed=s;$("speed").value=String(s)}
+let lastAlerts="";
+function syncStrip(){const S=cur.S;
+  $("reads").innerHTML!==undefined;
+  const rd=cur.reads(S).map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");if($("reads").innerHTML!==rd)$("reads").innerHTML=rd;
+  const on=LAMP_ON(S);LAMPS.forEach(l=>$("L_"+l[0]).classList.toggle("on",!!on[l[0]]));
+  const rs=cur.resets(S),sig=rs.map(r=>r[0]).join("|");
+  if(sig!==lastAlerts){lastAlerts=sig;$("alerts").innerHTML=rs.map((r,i)=>`<button class="btn red" data-reset="${i}">${r[0]}</button>`).join("")}
+  document.querySelectorAll("[data-act]").forEach(b=>{const a=cur.actions.find(x=>x.id===b.dataset.act);b.hidden=!a.show(S)});
+}
+
+// events
+document.addEventListener("click",e=>{const t=e.target.closest("button,.part");if(!t)return;
+  if(t.classList.contains("part")){openPart(t.dataset.p);return}
+  if(t.dataset.sw){cur.switches[+t.dataset.sw].act(cur);syncSwitches();return}
+  if(t.dataset.act){cur.actions.find(a=>a.id===t.dataset.act).act(cur);return}
+  if(t.dataset.reset){const r=cur.resets(cur.S)[+t.dataset.reset];r&&r[1]();lastAlerts="x";return}
+  if(t.dataset.sc){const sc=cur.scenarios[+t.dataset.sc];reset(cur);sc.f.forEach(k=>setFault(cur,k,true));log(cur,`Scenario: ${sc.l}.`,"b");setSpeed(60);running=true;$("run").textContent="Pause";return}
+  if(t.dataset.part){openPart(t.dataset.part);return}
+  if(t.dataset.tab){showTab(t.dataset.tab);return}
+  switch(t.id){
+    case "mystery":{cur.faults.forEach(f=>setFault(cur,f[0],false,true));const pool=cur.faults.filter(f=>!cur.hidden.includes(f[0]));cur.mystery=pool[Math.floor(Math.random()*pool.length)];cur.revealed=null;setFault(cur,cur.mystery[0],true,true);log(cur,"Mystery fault started.","w");syncFaults();break}
+    case "reveal":if(cur.mystery){log(cur,`The fault was: ${cur.mystery[1]}.`,"w");cur.revealed=cur.mystery[1];cur.mystery=null;syncFaults()}break;
+    case "clearF":cur.mystery=null;cur.revealed=null;cur.faults.forEach(f=>setFault(cur,f[0],false));syncFaults();break;
+    case "run":if(cur.S.dead)break;running=!running;t.textContent=running?"Pause":"Run";break;
+    case "restart":case "boomReset":reset(cur);running=true;$("run").textContent="Pause";break;
+    case "theme":{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("bt-theme",r.dataset.theme)}catch(e){}break}
+    case "simHyd":switchSim("hyd");break;
+    case "simSteam":switchSim("steam");break;
+    case "sheetX":closeSheet();break;
+  }
+});
+document.addEventListener("keydown",e=>{const t=e.target.closest&&e.target.closest(".part");if(t&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openPart(t.dataset.p)}if(e.key==="Escape")closeSheet()});
+document.addEventListener("change",e=>{const i=e.target;if(i.id==="speed"){speed=+i.value;return}if(i.dataset&&i.dataset.f){if(cur.mystery){i.checked=!!cur.F[i.dataset.f];return}setFault(cur,i.dataset.f,i.checked)}
+  if(i.dataset&&i.dataset.k){const s=cur.sliders.find(x=>x.k===i.dataset.k);log(cur,`${s.l} set to ${cur.V[s.k]}${s.u}${outside(cur,s)?" (outside normal range)":""}.`,outside(cur,s)?"w":"")}});
+document.addEventListener("input",e=>{const i=e.target;if(i.dataset&&i.dataset.k){const k=i.dataset.k,s=cur.sliders.find(x=>x.k===k);cur.V[k]=+i.value;$("o_"+k).textContent=i.value+s.u;cur.sliders.forEach(x=>markRow(cur,x));cur.onSlider&&cur.onSlider(k)}});
+
+try{const t=localStorage.getItem("bt-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
+let startSim="hyd",startTab="controls";try{startSim=localStorage.getItem("bt-sim")||"hyd";startTab=localStorage.getItem("bt-tab")||"controls"}catch(e){}
+cur=SIMS[startSim]||HYD;switchSim(cur.id);showTab(startTab);setSpeed(10);
+
+let last=performance.now();
+function frame(now){const real=Math.min(0.1,(now-last)/1000);last=now;
+  if(running){for(const sim of Object.values(SIMS)){if(sim!==cur&&sim.S.t>0)continue;let t=real*speed;while(t>0&&!sim.S.dead){const d=Math.min(0.5,t);sim.step(d);t-=d}}}
+  cur.draw(running?real:0);syncStrip();if(tab==="controls")syncSwitches();
+  requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+
+// Feedback goes to a Google Form. Fill in FEEDBACK to turn the button on.
+const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
+const DISC_VER="1";
+function openModal(id){$(id).hidden=false}
+function closeModal(id){$(id).hidden=true}
+function fbContext(){return `${cur.id==="hyd"?"Hot water":"Steam"} sim, t=${Math.round(cur.S.t)}s, faults: ${Object.keys(cur.F).filter(k=>cur.F[k]).join(", ")||"none"}, ${navigator.userAgent}`}
+// FB-Enable: on claude.ai, the owner's feedback goes straight to Claude as a comment on this page.
+// Everywhere else (classmates, the public site) it goes to the Google Form.
+let CM=null,cmState="off";
+(async()=>{try{if(window.claude&&window.claude.use){CM=await window.claude.use("comments");if(CM){try{cmState=await CM.canSendToClaude()}catch(e){cmState="off"}}}}catch(e){CM=null}})();
+async function refreshFbMode(){if(CM){try{cmState=await CM.canSendToClaude()}catch(e){cmState="off"}}
+  const toClaude=CM&&cmState==="available";$("fbTo").textContent=toClaude?"Sends straight to Claude as a comment on this page. Claude replies in the comment thread and in your project.":"No sign-in needed.";$("fbSend").textContent=toClaude?"Send to Claude":"Send";return toClaude}
+async function sendFeedback(){
+  const msg=$("fbMsg").value.trim();if(!msg){$("fbStatus").textContent="Please write something first.";return}
+  const name=$("fbName").value.trim();const text=`[${$("fbType").value}] ${msg}\n\nFrom: ${name||"anonymous"}\nContext: ${fbContext()}`;
+  $("fbSend").disabled=true;$("fbStatus").textContent="Sending...";
+  try{
+    if(CM&&cmState==="available"){
+      try{const anchor=await CM.anchorFor($("drawing"));await CM.sendToClaude({anchor,text:text.slice(0,3900)});
+        $("fbStatus").textContent="Sent to Claude. The reply shows up in the comment thread.";$("fbMsg").value="";setTimeout(()=>closeModal("fb"),1600);return}
+      catch(e){if(e&&e.code==="consent_required"){$("fbStatus").textContent="Not sent: allow comments for this page when asked, then press Send again.";return}
+        if(e&&e.code!=="claude_unavailable"&&e.code!=="capability_removed"&&e.code!=="forbidden"){$("fbStatus").textContent=`Couldn't send to Claude (${e.code||"error"}). Press Send again to use the feedback form instead.`;cmState="off";return}
+        cmState="off"}}
+    const body=new URLSearchParams();body.append(FEEDBACK.entry,text);
+    await fetch(FEEDBACK.form.replace(/\/viewform.*$/,"/formResponse"),{method:"POST",mode:"no-cors",body});
+    $("fbStatus").textContent="Thanks, it was sent.";$("fbMsg").value="";setTimeout(()=>closeModal("fb"),1200)}
+  catch(e){$("fbStatus").innerHTML=`Couldn't send from here. <a href="${FEEDBACK.form}" target="_blank" rel="noopener">Open the feedback form</a> instead.`}
+  finally{$("fbSend").disabled=false}}
+document.addEventListener("click",e=>{const id=e.target.id;
+  if(id==="discOk"){closeModal("disc");try{localStorage.setItem("bt-disc",DISC_VER)}catch(_){}}
+  else if(id==="about")openModal("disc");
+  else if(id==="feedback"){$("fbStatus").textContent="";refreshFbMode();openModal("fb");$("fbMsg").focus()}
+  else if(id==="fbCancel")closeModal("fb");
+  else if(id==="fbSend")sendFeedback();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("fb").hidden)closeModal("fb")});
+if(!FEEDBACK.form)$("feedback").hidden=true;
+{let seen=null;try{seen=localStorage.getItem("bt-disc")}catch(_){}if(seen!==DISC_VER)openModal("disc")}
+})();
+</script>

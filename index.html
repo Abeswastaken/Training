@@ -55,6 +55,13 @@ h2 span{font:500 13px var(--body);letter-spacing:0;text-transform:none;color:var
 .how b{font:700 17px var(--display);letter-spacing:.06em;text-transform:uppercase}
 .how p{margin:0;font-size:14px;color:var(--muted)}
 footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);border-top:1px solid var(--edge);padding-top:14px}
+.news{background:var(--paper);border:1px solid var(--edge);border-left:4px solid var(--brass);border-radius:8px;padding:14px 18px;display:grid;gap:8px}
+.news h2{font-size:18px}
+.news ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.news li{display:grid;grid-template-columns:5.5em 1fr;gap:10px;font-size:14px}
+.news time{font:500 12px var(--mono);color:var(--muted);padding-top:2px}
+.news details summary{cursor:pointer;font:600 13px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+@media (max-width:520px){.news li{grid-template-columns:1fr;gap:0}}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
 </head>
@@ -69,6 +76,17 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
     <div class="specs"><span><b>7</b> trainers</span><span>Mystery fault mode in every sim</span><span>Tap any part for how it works and fails</span></div>
   </header>
+
+  <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
+  <section class="news" aria-labelledby="new">
+    <h2 id="new">What's new</h2>
+    <ul>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Feedback now asks which part or tab it's about, so reports land in the right place.</span></li>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Boiler: steam opens as a two-pipe system with radiator traps, an F&amp;T trap and condensate return (one-pipe is on a switch).</span></li>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Refrigeration: drag the gauge set out of the way, bi-flow drier on the heat pump, freezer defrost heaters you can see.</span></li>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Ladder Builder: correct temperature switch symbols, PSC motor with run and start windings, fan On/Auto. Wiring: curved wires. Controls: dirt and oil filters before the PRV.</span></li>
+    </ul>
+  </section>
 
   <section aria-labelledby="sys">
     <h2 id="sys">Systems <span>Equipment you service</span></h2>
