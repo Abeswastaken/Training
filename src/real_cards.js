@@ -146,7 +146,7 @@ strips:{s:(()=>`${rSh(170,226,130,6)}${rBox(40,40,260,170,20,"galv",{r:3})}<rect
  ${rL(150,80,200,20,336,16,"Nichrome coils glow when on","end")}${rL(145,224,60,232,6,244,"Limit switch")}${rL(205,224,260,236,336,244,"Fusible link","end")}${RT(6,24,"5–10 kW per kit, staged")}`)()},
 
 /* ---------- walk-in parts ---------- */
-receiver:{s:(()=>{const win="M90 110 H230 V170 H90 Z";
+receiver:{only:["cooler","freezer"],s:(()=>{const win="M90 110 H230 V170 H90 Z";
  return `${rSh(170,214,130,6)}<path d="M80 176 L74 206 H96 L92 176 Z M228 176 L222 206 H244 L240 176 Z" fill="url(#r_paintV)"/>${rTankH(160,140,240,40,"paint")}
  ${rCut(win)}${rClip("rq_r",win,`<rect x="90" y="110" width="140" height="60" fill="#d7dee2" opacity=".2"/><rect x="90" y="140" width="140" height="30" fill="url(#rWater)"/><path d="M90 140 H230" stroke="#cfe6ff"/>`)}
  ${rCylV(80,40,100,5,"cu",{top:false})}${rCylV(240,40,100,5,"cu",{top:false})}${rBox(228,84,24,16,8,"brass",{r:2})}<rect x="246" y="76" width="6" height="10" fill="url(#r_redV)"/><circle cx="160" cy="180" r="5" fill="url(#r_brassV)"/>
@@ -301,7 +301,7 @@ nozzle:{s:(()=>`${rSh(130,200,100,6)}<rect x="40" y="110" width="50" height="40"
  <path d="M90 210 V232 M250 210 V232" stroke="#2c3237" stroke-width="6"/>${rCylV(110,14,42,7,"iron")}${rCylV(150,20,42,5,"iron")}<rect x="200" y="22" width="30" height="20" rx="3" fill="url(#rGlass)" stroke="#555"/><rect x="204" y="28" width="22" height="10" fill="#e8c33a"/>
  ${rCylH(270,300,196,5,"cu")}${rCylV(310,170,214,12,"red",{ry:4})}
  ${rL(110,30,70,20,64,16,"Fill","end")}${rL(150,28,170,14,176,10,"Vent")}${rL(228,32,290,40,336,40,"Gauge: check first","end")}${rL(310,190,300,240,336,240,"Filter at the outlet","end")}${RT(170,130,"275 gal","middle","#e8ecee")}`)()},
-ofilter:{s:(()=>`${rSh(170,222,90,6)}${rBox(110,40,120,30,14,"red",{r:3})}${rCylV(170,70,200,52,"red",{ry:12,top:false})}<path d="M118 70 H222" stroke="#000" stroke-opacity=".3"/>
+ofilter:{only:["oil"],s:(()=>`${rSh(170,222,90,6)}${rBox(110,40,120,30,14,"red",{r:3})}${rCylV(170,70,200,52,"red",{ry:12,top:false})}<path d="M118 70 H222" stroke="#000" stroke-opacity=".3"/>
  ${rCylH(40,110,55,5,"cu")}${rHexH(98,55,12,8,"brass")}${rCylH(230,300,55,5,"cu")}${rHexH(230,55,12,8,"brass")}${rBolt(170,38,5)}${rBolt(126,48)}${rBolt(214,48)}
  ${rArr("M50 50 H90","#c98a2a")}${rArr("M250 50 H300","#c98a2a")}
  ${rL(170,40,200,14,210,10,"Lid bolt")}${rL(170,140,90,170,6,180,"Cartridge inside")}${rL(222,140,280,140,336,130,"Changed every year","end")}${RT(170,232,"Clogged: high vacuum at the pump","middle")}`)()},
@@ -353,7 +353,7 @@ Object.assign(RILL,{
  ${rL(150,100,90,80,6,76,"Float inside")}${rL(170,50,240,40,336,36,"Cap: air out","end")}${rL(100,200,80,232,6,240,"Coil's high point")}${RT(336,150,"Bleed till solid water","end")}`)()},
 "ahu:trid":{s:(()=>`${rSh(170,226,90,6)}${rGauge(170,110,72,"brass",-70,"PSI · °F")}<line x1="170" y1="110" x2="${170+54*Math.sin(.6)}" y2="${110-54*Math.cos(.6)}" stroke="#2a6db8" stroke-width="2" stroke-linecap="round"/>${rCylV(170,186,222,7,"brass",{top:false})}
  ${rL(130,90,60,40,6,36,"Red: about 12 psi cold")}${rL(205,82,270,40,336,36,"Blue: water °F","end")}${RT(170,240,"Pressure climbs a few psi when hot","middle")}`)()},
-"ahu:aquastat":{s:(()=>`${rSh(170,226,120,6)}${rBox(80,40,160,130,18,"cab",{r:4})}${rDial(160,100,34,250)}<text x="160" y="148" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#333">HIGH LIMIT</text>
+"ahu:aquastat":{s:(()=>`${rSh(170,226,120,6)}${rBox(80,40,160,130,18,"cab",{r:4})}${rDial(160,100,34,250)}<text x="160" y="148" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#333">AQUASTAT</text>
  ${rCylH(40,80,160,8,"brass")}${rCylH(0,40,160,5,"cu",{end:true})}${rBox(160,170,60,30,6,"black",{r:2})}
  ${rL(170,100,250,30,336,26,"Set about 180°F","end")}${rL(30,160,30,210,6,222,"Bulb in the boiler well")}${rL(200,186,290,210,336,222,"Wiring","end")}`)()},
 "ahu:boiler":{s:(()=>`${rSh(170,236,130,6)}${rBox(70,50,180,180,26,"cab",{r:2})}<rect x="90" y="150" width="140" height="70" fill="#1e2226"/>${[0,1,2,3,4].map(k=>rFlameC(110+k*25,214,22,9)).join("")}
