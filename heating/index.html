@@ -1113,6 +1113,74 @@ readout:{s:(()=>`${rSh(170,232,150,6)}${rCylH(0,340,120,10,"cu")}${rCylH(0,340,2
  ${rArr("M140 120 H200","#d0312d")}${rArr("M200 210 H140","#3d7de0")}
  ${rL(102,76,140,40,150,36,"EWT: entering water")}${rL(102,166,140,170,150,170,"LWT: leaving water")}${RT(336,186,"Btu/h = 500 × GPM × ΔT","end")}`)()}
 });
+/* ---------- controls (pneumatic "pneu", DDC "ddc") ---------- */
+RILL.filter.only=["split","hp","furnace","oil","ahu","air"];RILL.afilter=RILL.filter;
+const rValve3=(pneu,mix)=>`${rSh(170,232,130,6)}${rCylH(0,120,190,12,"cu")}${rCylH(220,340,190,12,"cu")}${rCylV(170,214,250,12,"cu",{top:false})}
+ <rect x="110" y="166" width="120" height="48" rx="12" fill="url(#r_brassH)"/>${rHexH(100,190,14,17,"brass")}${rHexH(226,190,14,17,"brass")}${rHexV(170,206,14,17,"brass")}${rCylV(170,110,166,6,"chrome",{top:false})}
+ ${pneu?`<path d="M100 100 Q170 40 240 100 Z" fill="url(#r_galvV)"/><rect x="96" y="98" width="148" height="10" rx="2" fill="url(#r_galvH)"/>${rBolt(104,103)}${rBolt(236,103)}${rCylV(170,40,62,3,"cu",{top:false})}`:`${rBox(110,46,120,64,14,"black",{r:6})}<rect x="150" y="60" width="40" height="14" fill="#e8c33a"/>${rWire("M230 70 C270 60 290 30 340 24","#2a2f33")}`}
+ ${mix?rArr("M20 210 H90","#d0312d")+rArr("M320 210 H250","#d0312d")+rArr("M190 220 V246","#d0312d"):rArr("M190 246 V220","#3d7de0")+rArr("M90 210 H20","#3d7de0")+rArr("M250 210 H320","#3d7de0")}
+ ${RT(6,176,mix?"A: from coil":"A: to coil")}${RT(336,176,mix?"B: from bypass":"B: to bypass","end")}${RT(196,244,mix?"AB: out":"AB: in")}`;
+const rCoil=(hot)=>`${rSh(170,232,150,6)}${rBox(40,40,220,170,14,"galv",{r:2})}${rFins(50,50,200,150,3)}${[66,92,118,144,170].map(y=>`<path d="M50 ${y} H250" stroke="#b87346" stroke-width="5"/>`).join("")}${rCylV(282,30,200,10,"cu")}${rCylH(282,340,52,6,"cu")}${rCylH(282,340,186,6,"cu")}
+ ${hot?"":`<path d="M30 214 H270 L262 230 H38 Z" fill="url(#r_galvV)"/>`}${rArr("M340 52 H300",hot?"#d0312d":"#3d7de0")}${rArr("M300 186 H340",hot?"#e0662a":"#6aa6d6")}`;
+Object.assign(RILL,{
+"pneu:aircomp":{s:(()=>`${rSh(170,236,150,6)}${rTankH(170,196,280,34,"paint")}${[60,280].map(x=>`<rect x="${x-6}" y="226" width="12" height="12" fill="#2c3237"/>`).join("")}
+ ${rBox(70,80,70,72,12,"iron",{r:4})}${Array.from({length:6},(_,k)=>`<rect x="66" y="${86+k*10}" width="78" height="4" fill="url(#r_ironH)"/>`).join("")}${rCylH(180,270,130,26,"blue",{end:true})}${rBox(140,96,30,60,8,"yel",{r:3})}${rHose("M100 152 C100 170 140 170 150 162","#9aa3a9",5)}
+ ${rL(100,90,60,40,6,36,"Pump (finned head)")}${rL(225,130,270,60,336,56,"Motor","end")}${rL(155,120,190,90,336,90,"Belt guard","end")}${rL(120,196,90,250,6,248,"Receiver tank")}${RT(336,248,"Runs 1/3 to 1/2 the time","end")}`)()},
+"pneu:receiver":{s:(()=>`${rSh(170,232,150,6)}${rTankH(170,150,290,56,"paint")}${rCylV(230,70,96,8,"brass",{top:false})}${rCylV(230,46,72,12,"brass",{ry:4})}<path d="M242 54 L270 44" stroke="#b8892c" stroke-width="4" stroke-linecap="round"/>${rCylV(170,206,230,8,"iron",{top:false})}${rBox(156,224,28,18,6,"black",{r:3})}
+ ${rL(230,58,290,30,336,26,"Relief: 10–25 psi over cut-out","end")}${rL(170,232,110,244,6,244,"Auto drain")}${RT(170,156,"ASME, 125+ psi","middle","#e8ecee")}`)()},
+"pneu:pswitch":{s:(()=>`${rSh(170,232,110,6)}${rBox(100,40,140,110,16,"cab",{r:6})}<rect x="120" y="60" width="100" height="40" rx="3" fill="#2f383f"/><text x="170" y="86" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="13" font-weight="700" fill="#e8ecee">70 / 90</text>
+ ${rCylV(170,150,200,7,"brass",{top:false})}${rHexV(170,196,12,10,"brass")}${rCylH(30,330,226,12,"paint")}${rWire("M240 120 C280 120 300 90 340 80","#2a2f33")}${rWire("M240 132 C290 132 310 112 340 106","#2a2f33")}
+ ${rL(170,90,90,30,6,26,"On at 70 psi, off at 90")}${rL(170,170,100,200,6,200,"Diaphragm senses tank")}${rL(320,82,300,50,336,46,"Motor circuit","end")}`)()},
+"pneu:dryer":{s:(()=>`${rSh(170,232,140,6)}${rBox(70,40,190,170,20,"white",{r:6})}<rect x="90" y="60" width="150" height="50" fill="#3a3f44"/>${rFins(94,64,142,42,4)}<rect x="96" y="132" width="70" height="30" rx="3" fill="#1a1d20"/><text x="131" y="152" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#9fe6a8">DP 38°F</text><circle cx="208" cy="146" r="7" fill="#2fbf5a"/><circle cx="208" cy="146" r="7" fill="url(#rGlass)"/>
+ ${rCylH(0,70,180,8,"galv")}${rCylH(260,340,180,8,"galv")}${rCylV(150,210,236,4,"cu",{top:false})}${rArr("M10 196 H60","#3d7de0")}${rArr("M280 196 H330","#3d7de0")}
+ ${rL(160,84,190,24,200,20,"Condenser (it's a small A/C)")}${rL(131,147,60,120,6,110,"Dew point")}${rL(150,232,100,246,6,248,"Water drains out")}${RT(336,226,"Dry air out","end")}`)()},
+"pneu:afilter":{s:(()=>`${rSh(170,232,90,6)}${rCylH(0,340,60,10,"galv")}${rBox(130,40,80,40,10,"al",{r:4})}${rCylV(170,80,190,32,"white",{top:false,ry:8})}<rect x="138" y="80" width="64" height="110" fill="#e8f1f8" opacity=".55"/>${rCylV(170,96,180,16,"tan",{ry:4})}<rect x="138" y="80" width="64" height="110" fill="url(#rGlass)"/>${rCylV(170,190,216,6,"black",{top:false})}
+ ${rL(170,140,90,140,6,136,"5 micron element")}${rL(200,110,260,110,336,106,"Clear bowl","end")}${rL(170,212,240,236,336,240,"Drain","end")}${RT(6,240,"First filter: solids")}${rArr("M10 40 H110","#3d7de0")}`)()},
+"pneu:ofilter":{s:(()=>`${rSh(170,232,90,6)}${rCylH(0,340,60,10,"galv")}${rBox(130,40,80,40,10,"al",{r:4})}${rCylV(170,80,190,32,"white",{top:false,ry:8})}<rect x="138" y="80" width="64" height="110" fill="#e8f1f8" opacity=".55"/>${rCylV(170,96,160,16,"white",{ry:4})}<rect x="138" y="168" width="64" height="22" fill="#d9b44a" opacity=".7"/><rect x="138" y="80" width="64" height="110" fill="url(#rGlass)"/>${rCylV(170,190,216,6,"black",{top:false})}
+ ${rL(170,130,90,130,6,126,"Coalescing fibers")}${rL(200,178,260,160,336,156,"Oil + water drops","end")}${rL(170,212,240,236,336,240,"Drain","end")}${RT(6,240,"Second filter: oil mist")}${rArr("M10 40 H110","#3d7de0")}`)()},
+"pneu:prv":{s:(()=>`${rSh(170,232,150,6)}${rCylH(0,340,180,8,"galv")}${rBox(130,150,80,60,10,"al",{r:6})}${rCylV(170,90,150,26,"al",{ry:8})}${rCylV(170,60,92,6,"chrome")}<path d="M164 58 h12" stroke="#222" stroke-width="2"/>
+ ${rCylV(70,140,174,4,"brass",{top:false})}${rGauge(70,110,30,"chrome",80,"90")}${rCylV(270,140,174,4,"brass",{top:false})}${rGauge(270,110,30,"chrome",-30,"20")}
+ ${rL(170,62,200,24,210,20,"Adjusting screw")}${RT(70,236,"Tank 90 psi","middle")}${RT(270,236,"Main about 20 psi","middle")}`)()},
+"pneu:restrictor":{s:(()=>`${rSh(170,220,120,6)}${rCylH(20,320,120,4,"cu")}${rCylV(170,124,220,4,"cu",{top:false})}<rect x="130" y="104" width="80" height="32" rx="8" fill="url(#r_brassH)"/><circle cx="170" cy="120" r="3" fill="#111"/>
+ ${rArr("M30 104 H110","#3d7de0")}${rArr("M230 104 H310","#3d7de0")}
+ ${rL(170,120,190,40,200,36,"Orifice about 0.005 in.")}${RT(6,146,"Main air in")}${RT(336,146,"Branch out","end")}${rL(174,200,240,220,336,226,"To a one-pipe stat","end")}`)()},
+"pneu:tstatp":{s:(()=>`${rSh(170,232,100,6)}${rBox(100,30,140,190,14,"tan",{r:8})}<rect x="114" y="44" width="112" height="162" rx="5" fill="#efe6d2"/>${rDial(170,96,32,40,"#c0281c")}
+ <path d="M130 156 C150 146 170 166 190 156 S220 150 220 160" stroke="#b87346" stroke-width="5" fill="none"/><circle cx="214" cy="176" r="5" fill="#666"/><path d="M196 160 L214 172" stroke="#444" stroke-width="2"/>${rCylV(140,220,246,4,"cu",{top:false})}${rCylV(200,220,246,4,"cu",{top:false})}
+ ${rL(170,96,80,30,6,26,"Setpoint dial")}${rL(150,154,60,170,6,170,"Bimetal")}${rL(214,176,280,170,336,170,"Flapper + nozzle","end")}${RT(126,244,"M","end")}${RT(214,244,"B")}${RT(336,90,"DA: branch rises","end")}${RT(336,104,"as it warms","end")}`)()},
+"pneu:hvalve":{s:rValve3(true,true)+rL(170,60,240,40,336,36,"Diaphragm, 3–7 psi, N.O.","end")},
+"pneu:cvalve":{s:rValve3(true,false)+rL(170,60,240,40,336,36,"Diaphragm, 9–13 psi, N.C.","end")},
+"ctl:hcoil":{s:rCoil(true)+rL(150,92,110,24,6,16,"Copper tubes, aluminum fins")+RT(6,240,"First 10% of flow: a third of the heat")},
+"ctl:ccoil":{s:rCoil(false)+rL(150,92,110,24,6,16,"45°F water, air out low 50s")+rL(150,222,120,246,6,248,"Drain pan")},
+"ddc:ctrl":{s:(()=>`${rSh(170,226,140,6)}${rBox(40,50,260,150,14,"black",{r:6})}<rect x="90" y="90" width="120" height="34" rx="3" fill="url(#zLcd)"/><text x="150" y="112" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#1f2a22">RM 72 SP 72</text><circle cx="240" cy="100" r="5" fill="#2fbf5a"/><circle cx="260" cy="100" r="5" fill="#e8c33a"/>
+ ${Array.from({length:12},(_,k)=>`<rect x="${52+k*20}" y="56" width="16" height="16" fill="#2c9a4a"/>${rTermS(60+k*20,64)}<rect x="${52+k*20}" y="176" width="16" height="16" fill="#2c9a4a"/>${rTermS(60+k*20,184)}`).join("")}
+ ${rL(80,64,60,24,6,20,"AI: sensors · DI: contacts")}${rL(80,184,60,226,6,236,"AO: 2–10 V · DO: relays")}`)()},
+"ddc:xfmr":{s:(()=>`${rSh(170,226,110,6)}${rBox(100,60,130,130,14,"galv",{r:3})}<rect x="122" y="84" width="86" height="82" fill="url(#r_cuV)"/>${Array.from({length:12},(_,k)=>`<line x1="122" y1="${88+k*6.5}" x2="208" y2="${88+k*6.5}" stroke="#7a3a1a" stroke-width="1"/>`).join("")}${rBox(240,100,24,40,6,"yel",{r:3})}
+ ${rWire("M130 60 C130 30 80 24 40 20","#2a2f33")}${rWire("M150 60 C150 34 100 34 60 36","#f0f0f0")}${rWire("M200 190 C200 220 260 230 320 230","#c0281c")}
+ ${rL(60,30,40,60,6,70,"120 V primary")}${rL(252,120,290,90,336,86,"Fuse","end")}${rL(260,228,280,206,336,206,"24 VAC, 75 VA, Class 2","end")}`)()},
+"ddc:bas":{s:(()=>`${rSh(170,232,150,6)}${rBox(30,30,270,180,10,"black",{r:10})}<rect x="44" y="44" width="242" height="152" fill="#f6f7f4"/><text x="56" y="62" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#333">ZONE TREND, 30 MIN</text>
+ <path d="M56 130 H274" stroke="#3d7de0" stroke-dasharray="4 3"/><path d="M56 160 L90 150 L120 156 L160 126 L190 132 L230 118 L274 110" stroke="#d0312d" stroke-width="2.5" fill="none"/><path d="M56 186 L120 176 L180 140 L274 150" stroke="#2c9a4a" stroke-width="2" fill="none"/>
+ ${rL(240,130,250,224,336,236,"Setpoint","end")}${rL(200,128,160,224,6,236,"Room")}${RT(276,80,"Sawtooth = hunting","end")}`)()},
+"ddc:rsens":{s:(()=>`${rSh(170,226,70,6)}${rBox(120,40,90,150,10,"white",{r:10})}${Array.from({length:6},(_,k)=>`<rect x="138" y="${60+k*12}" width="54" height="4" rx="2" fill="#d5dadb"/>`).join("")}<text x="165" y="168" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="10" font-weight="700" fill="#888">10K</text>
+ ${rWire("M165 190 C165 220 220 230 300 236","#2a2f33")}
+ ${rL(196,120,260,70,336,66,"10,000 Ω at 77°F","end")}${RT(336,82,"32,650 Ω at 32°F","end")}${RT(6,120,"Open wire:")}${RT(6,134,"reads very cold")}`)()},
+"ddc:sat":{s:(()=>`${rSh(170,226,150,6)}${rBox(20,120,300,90,16,"galv",{r:2})}${rBox(140,50,60,40,10,"black",{r:4})}${rClip("sd","M20 120 H320 V210 H20 Z",rCylV(170,90,190,4,"chrome",{top:false}))}${rCylV(170,90,120,4,"chrome",{top:false})}
+ ${rArr("M40 196 H300","#9aa3a9")}${rL(170,160,100,240,6,240,"Probe inside the duct")}${rL(190,70,260,40,336,36,"After the coils","end")}`)()},
+"ddc:oat":{s:(()=>`${rSh(170,226,90,6)}<rect x="0" y="0" width="340" height="250" fill="#d9c8b0" opacity=".25"/>${rBox(120,40,100,140,10,"white",{r:6})}${Array.from({length:6},(_,k)=>`<path d="M126 ${60+k*20} H214 L206 ${70+k*20} H134 Z" fill="url(#r_whiteV)"/>`).join("")}<circle cx="290" cy="40" r="22" fill="#f2c94c"/>
+ ${rL(170,110,90,200,6,210,"Shaded housing")}${RT(336,90,"Out of the sun,","end")}${RT(336,104,"away from exhaust","end")}`)()},
+"ddc:oadmp":{s:(()=>`${rSh(150,232,130,6)}${rBox(30,40,200,180,12,"galv",{r:2})}${[0,1,2,3,4].map(k=>`<path d="M42 ${62+k*34} L218 ${50+k*34} L218 ${62+k*34} L42 ${74+k*34} Z" fill="url(#r_alV)"/>`).join("")}${rBox(244,90,60,70,10,"black",{r:4})}<path d="M244 126 H220" stroke="#666" stroke-width="4"/>
+ ${rL(130,90,90,20,6,16,"Blades")}${rL(274,120,300,190,336,206,"24 VAC actuator, 2–10 V","end")}${RT(336,222,"Springs closed","end")}`)()},
+"ddc:dfilter":{s:(()=>`${rSh(150,232,130,6)}${rBox(30,50,180,170,10,"galv",{r:2})}<rect x="40" y="60" width="160" height="150" fill="#efe9d8"/>${Array.from({length:16},(_,k)=>`<path d="M${44+k*10} 60 l5 150" stroke="#cdbf9a"/>`).join("")}${rBox(240,60,70,56,10,"white",{r:4})}<text x="275" y="94" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="700" fill="#333">ΔP</text>
+ ${rHose("M260 116 V150 H200","#c0281c",3)}${rHose("M290 116 V226 H200","#3d7de0",3)}
+ ${rL(120,130,90,20,6,16,"Pleated filters")}${rL(275,90,300,30,336,26,"Closes at 1.0 in. w.c.","end")}${RT(6,240,"Clean filters drop about 0.45 in.")}`)()},
+"ddc:fstat":{s:(()=>`${rSh(160,232,150,6)}${rBox(30,50,230,170,10,"galv",{r:2})}${rFins(40,60,210,150,3)}<path d="M50 80 H240 V120 H50 V160 H240 V196" stroke="#c9ced1" stroke-width="3" fill="none"/><path d="M50 80 H240 V120 H50 V160 H240 V196" stroke="#555" stroke-width="1" fill="none"/>${rBox(260,40,64,48,8,"cab",{r:4})}<circle cx="300" cy="74" r="6" fill="url(#r_redV)"/>
+ ${rL(150,120,110,30,6,26,"Capillary across the coil face")}${rL(300,74,300,110,336,116,"Manual reset","end")}${RT(336,240,"Trips at 35–40°F","end")}${RT(6,240,"Never jumper it")}`)()},
+"ddc:hvalveE":{s:rValve3(false,true)+rL(170,70,100,30,6,26,"24 VAC, 2–10 V, springs open")},
+"ddc:cvalveE":{s:rValve3(false,false)+rL(170,70,100,30,6,26,"24 VAC, 2–10 V, springs shut")},
+"ddc:sfanE":{s:(()=>`${rSh(130,232,110,6)}<circle cx="120" cy="140" r="80" fill="url(#r_galvV)"/><circle cx="120" cy="140" r="62" fill="#2c3237"/>${Array.from({length:24},(_,k)=>{const a=k/24*2*Math.PI;return `<path d="M${120+40*Math.cos(a)} ${140+40*Math.sin(a)} L${120+58*Math.cos(a+.2)} ${140+58*Math.sin(a+.2)}" stroke="#c9ced1" stroke-width="3"/>`}).join("")}<circle cx="120" cy="140" r="20" fill="url(#r_paintV)"/>
+ ${rBox(240,40,70,70,10,"paint",{r:4})}${rWire("M275 110 V200","#2a2f33")}<ellipse cx="275" cy="170" rx="18" ry="8" fill="none" stroke="#e8c33a" stroke-width="7"/>
+ ${rL(275,74,230,20,226,16,"Starter (DO)")}${rL(290,170,300,220,336,236,"Current switch (DI)","end")}${rL(100,90,60,24,6,20,"Fan")}`)()}
+});
+RILL["pneu:sfan"]=RILL.blower;["pneu","ddc"].forEach(s=>{RILL[s+":hcoil"]=RILL["ctl:hcoil"];RILL[s+":ccoil"]=RILL["ctl:ccoil"];RILL[s+":zone"]=RILL.room});
 
 /*RZ-END*/
 let speed=10, running=true, cur=null, openKey=null, tab="controls";
