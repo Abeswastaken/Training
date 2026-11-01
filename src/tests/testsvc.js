@@ -1,7 +1,7 @@
 // Service call: every visible fault has a complaint, and a call runs, scores and repairs for each fault.
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const errs=[];
-for(const f of ['full.html','fullctl.html','fullheat.html','fullmotor.html','fullboiler.html','fullair.html','fullcomb.html']){
+for(const f of ['full.html','fullctl.html','fullheat.html','fullmotor.html','fullboiler.html','fullair.html','fullcomb.html','fullchill.html']){
  const p=await b.newPage();p.on('pageerror',e=>errs.push(f+': '+e.message));
  await p.goto('file://'+process.cwd()+'/'+f);await p.waitForTimeout(300);
  const r=await p.evaluate(async()=>{const $=id=>document.getElementById(id);$("discOk")?.click();const R=window.__rt,out=[];
