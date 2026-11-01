@@ -154,7 +154,7 @@ details .group{gap:10px}
 .lblS{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.05em;fill:var(--muted);text-transform:uppercase}
 .st{font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .gface{fill:var(--paper);stroke:var(--line);stroke-width:2}
-.cht{font-family:var(--body);font-size:9px;fill:var(--muted)}.vmeter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:13px}.vmeter select{flex:1;min-width:0;max-width:100%;font:13px var(--body);padding:6px;border-radius:5px;border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);min-height:36px}.vmeter output{font-family:var(--mono);font-size:17px;background:#b9c7a8;color:#111;padding:4px 10px;border-radius:4px;min-width:120px;text-align:right;text-transform:none;letter-spacing:0}</style>
+.cht{font-family:var(--body);font-size:9px}.cht:not([fill]){fill:var(--muted)}.cht.onm{fill:#353d42}.vmeter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:13px}.vmeter select{flex:1;min-width:0;max-width:100%;font:13px var(--body);padding:6px;border-radius:5px;border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);min-height:36px}.vmeter output{font-family:var(--mono);font-size:17px;background:#b9c7a8;color:#111;padding:4px 10px;border-radius:4px;min-width:120px;text-align:right;text-transform:none;letter-spacing:0}</style>
 <style>.crumb{display:flex;gap:6px;align-items:center;font:600 13px "Barlow Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;color:var(--muted,#5b666d)}.crumb a{color:var(--brass,#9a6f1f);text-decoration:none}.crumb a:hover,.crumb a:focus-visible{text-decoration:underline}</style>
 </head>
 <body>
@@ -1313,7 +1313,15 @@ function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=c
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
 function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=null}
-function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
+/* A gradient can't paint a perfectly straight horizontal or vertical stroke (its box has no width or height), so those strokes vanished. Swap in a solid metal color. */
+const FLATCOL={zSteel:"#a3abb1",zSteelH:"#a3abb1",zCuH:"#c47a45",zCuV:"#c47a45",zBrass:"#c9a227"};
+function flatStrokes(root){root.querySelectorAll('[stroke^="url(#z"]').forEach(el=>{const g=el.getAttribute("stroke").slice(5,-1),c=FLATCOL[g];if(!c)return;let xs=[],ys=[];
+ if(el.tagName==="line"){xs=[+el.getAttribute("x1"),+el.getAttribute("x2")];ys=[+el.getAttribute("y1"),+el.getAttribute("y2")]}
+ else if(el.tagName==="path"){const d=el.getAttribute("d")||"";if(/[^MLHVmlhv0-9.,\s-]/.test(d))return;let x=0,y=0;const re=/([MLHVmlhv])([^MLHVmlhv]*)/g;let m;while((m=re.exec(d))){const n=(m[2].match(/-?[\d.]+/g)||[]).map(Number),k=m[1];
+  if(k==="H"||k==="h")n.forEach(v=>{x=k==="H"?v:x+v;xs.push(x);ys.push(y)});else if(k==="V"||k==="v")n.forEach(v=>{y=k==="V"?v:y+v;xs.push(x);ys.push(y)});
+  else for(let i=0;i+1<n.length;i+=2){if(k===k.toUpperCase()){x=n[i];y=n[i+1]}else{x+=n[i];y+=n[i+1]}xs.push(x);ys.push(y)}}}
+ else return;if(!xs.length)return;const flat=a=>Math.max(...a)-Math.min(...a)<0.01;if(flat(xs)||flat(ys))el.setAttribute("stroke",c)})}
+function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));flatStrokes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
   const d=cur.S.dead;$("boom").hidden=!d;if(d){const r=cur.boom(d);$("boomT").textContent=r.t;$("boomB").innerHTML=r.b;if(r.wreck)at(cur.p+"burn","opacity",1)}

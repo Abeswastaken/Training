@@ -2359,7 +2359,15 @@ function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=c
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
 function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=null}
-function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
+/* A gradient can't paint a perfectly straight horizontal or vertical stroke (its box has no width or height), so those strokes vanished. Swap in a solid metal color. */
+const FLATCOL={zSteel:"#a3abb1",zSteelH:"#a3abb1",zCuH:"#c47a45",zCuV:"#c47a45",zBrass:"#c9a227"};
+function flatStrokes(root){root.querySelectorAll('[stroke^="url(#z"]').forEach(el=>{const g=el.getAttribute("stroke").slice(5,-1),c=FLATCOL[g];if(!c)return;let xs=[],ys=[];
+ if(el.tagName==="line"){xs=[+el.getAttribute("x1"),+el.getAttribute("x2")];ys=[+el.getAttribute("y1"),+el.getAttribute("y2")]}
+ else if(el.tagName==="path"){const d=el.getAttribute("d")||"";if(/[^MLHVmlhv0-9.,\s-]/.test(d))return;let x=0,y=0;const re=/([MLHVmlhv])([^MLHVmlhv]*)/g;let m;while((m=re.exec(d))){const n=(m[2].match(/-?[\d.]+/g)||[]).map(Number),k=m[1];
+  if(k==="H"||k==="h")n.forEach(v=>{x=k==="H"?v:x+v;xs.push(x);ys.push(y)});else if(k==="V"||k==="v")n.forEach(v=>{y=k==="V"?v:y+v;xs.push(x);ys.push(y)});
+  else for(let i=0;i+1<n.length;i+=2){if(k===k.toUpperCase()){x=n[i];y=n[i+1]}else{x+=n[i];y+=n[i+1]}xs.push(x);ys.push(y)}}}
+ else return;if(!xs.length)return;const flat=a=>Math.max(...a)-Math.min(...a)<0.01;if(flat(xs)||flat(ys))el.setAttribute("stroke",c)})}
+function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));flatStrokes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
   const d=cur.S.dead;$("boom").hidden=!d;if(d){const r=cur.boom(d);$("boomT").textContent=r.t;$("boomB").innerHTML=r.b;if(r.wreck)at(cur.p+"burn","opacity",1)}

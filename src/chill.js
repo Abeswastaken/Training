@@ -33,7 +33,7 @@ function cSvg(p){
  <rect class="hl" x="36" y="60" width="172" height="124" fill="url(#zCab)" stroke="#5f686d" stroke-width="2"/>
  <rect x="36" y="134" width="12" height="22" fill="#3b444b"/><rect x="196" y="134" width="12" height="22" fill="#3b444b"/>${[0,1,2,3].map(i=>`<path d="M36 ${139+i*5} l12 -4 M196 ${135+i*5} l12 4" stroke="#c3cacf" stroke-width="2.2"/>`).join("")}<path d="M10 146 H32 M234 146 H212" stroke="var(--air-cool)" stroke-width="2" marker-end="url(#zArrow)"/>${[70,104,138,172].map(x=>`<path d="M${x} 60 V184" stroke="#9aa3aa" stroke-width=".8"/>`).join("")}<text class="cht" x="22" y="140" text-anchor="middle">air</text>
  <path d="M56 84 H206" stroke="#d9824a" stroke-width="5"/>${[70,100,130,160,190].map(x=>`<path d="M${x} 86 l-5 7 M${x} 86 l5 7 M${x} 86 v8" stroke="#5a9bd4" stroke-width="1.2"/>`).join("")}
- <rect x="54" y="68" width="136" height="10" fill="url(#zFinsH)" opacity=".8"/><text class="cht" x="122" y="76" text-anchor="middle">drift eliminators</text></g>
+ <rect x="54" y="68" width="136" height="10" fill="url(#zFinsH)" opacity=".8"/><text class="cht onm" x="122" y="76" text-anchor="middle">drift eliminators</text></g>
 <g class="part" data-p="fill" tabindex="0"><rect class="hl" x="52" y="98" width="140" height="34" fill="#cfd8dc" stroke="#7b868c"/>
  <path d="${Array.from({length:14},(_,i)=>`M${54+i*10} 100 l8 15 l-8 15`).join(" ")}" fill="none" stroke="#8c979d" stroke-width="1.2"/>
  <rect id="${p}fillScale" x="52" y="98" width="140" height="34" fill="#b7a27a" opacity="0"/>
@@ -54,15 +54,15 @@ function cSvg(p){
 <!-- chiller -->
 <g class="part" data-p="cond" tabindex="0"><rect class="hl" x="262" y="312" width="240" height="46" rx="20" fill="url(#zSteelH)" stroke="#4d555a" stroke-width="2"/><rect x="256" y="314" width="12" height="42" rx="3" fill="#5f686d"/>${[318,326,334,342,350].map(y=>`<circle cx="262" cy="${y}" r="1.4" fill="#c3cacf"/>`).join("")}<rect x="250" y="320" width="8" height="10" fill="#4d555a"/><rect x="250" y="342" width="8" height="10" fill="#4d555a"/>
  <rect id="${p}condLiq" x="280" y="346" width="204" height="8" rx="3" fill="#7fb0dc" opacity=".8"/><rect id="${p}condScale" x="270" y="318" width="226" height="34" rx="14" fill="#b7a27a" opacity="0"/>
- <text class="cht" x="380" y="338" text-anchor="middle">CONDENSER · R-134a</text></g>
+ <text class="cht onm" x="380" y="338" text-anchor="middle">CONDENSER · R-134a</text></g>
 <g class="part" data-p="evap" tabindex="0"><rect class="hl" x="262" y="380" width="240" height="50" rx="22" fill="url(#zSteelH)" stroke="#4d555a" stroke-width="2"/><rect x="496" y="382" width="12" height="46" rx="3" fill="#5f686d"/>${[386,394,402,410,418,426].map(y=>`<circle cx="502" cy="${y}" r="1.4" fill="#c3cacf"/>`).join("")}
  <rect id="${p}evLiq" x="276" y="402" width="212" height="22" rx="8" fill="#7fb0dc" opacity=".75"/>
  <g id="${p}boil">${[300,330,360,390,420,450].map((x,i)=>`<circle cx="${x}" cy="${404+(i%2)*6}" r="2.2" fill="#fff" opacity=".8"/>`).join("")}</g>
- <text class="cht" x="380" y="398" text-anchor="middle">EVAPORATOR</text></g>
+ <text class="cht onm" x="380" y="398" text-anchor="middle">EVAPORATOR</text></g>
 <g class="part" data-p="orifice" tabindex="0"><path class="hl" d="M478 358 V380" stroke="#4d555a" stroke-width="6"/><rect x="472" y="364" width="12" height="8" fill="url(#zBrass)" stroke="#6b5200"/></g>
 <g class="part" data-p="comp" tabindex="0"><g id="${p}compG">
  <path d="M440 300 V292 H470 V380" fill="none" stroke="#4d555a" stroke-width="10"/><path d="M440 300 V292 H470 V380" fill="none" stroke="#9aa3aa" stroke-width="7"/>
- <rect class="hl" x="290" y="250" width="86" height="46" rx="10" fill="url(#zSteel)" stroke="#4d555a"/>${[300,310,320,346,356,366].map(x=>`<path d="M${x} 254 V292" stroke="#9aa3aa" stroke-width="1.2"/>`).join("")}<text class="cht" x="333" y="277" text-anchor="middle">MOTOR</text>
+ <rect class="hl" x="290" y="250" width="86" height="46" rx="10" fill="url(#zSteel)" stroke="#4d555a"/>${[300,310,320,346,356,366].map(x=>`<path d="M${x} 254 V292" stroke="#9aa3aa" stroke-width="1.2"/>`).join("")}<text class="cht onm" x="333" y="277" text-anchor="middle">MOTOR</text>
  <circle cx="412" cy="272" r="30" fill="url(#zSteelH)" stroke="#4d555a" stroke-width="2"/><circle cx="412" cy="272" r="14" fill="#5f686d"/>
  <g id="${p}igv">${[0,1,2,3,4,5].map(i=>`<path d="M412 272 L${412+12*Math.cos(i*1.047)} ${272+12*Math.sin(i*1.047)}" stroke="#d9dee1" stroke-width="2"/>`).join("")}</g>
  <path d="M396 300 V312" stroke="#4d555a" stroke-width="10"/></g>
@@ -79,7 +79,7 @@ function cSvg(p){
  <rect class="hl" x="680" y="56" width="110" height="150" rx="4" fill="url(#zCab)" stroke="#5f686d"/><rect x="700" y="70" width="34" height="120" fill="url(#zFins)" stroke="#5f686d"/>
  <circle cx="762" cy="110" r="16" fill="#3b444b" stroke="#222"/><g id="${p}ahuFan"><path d="M762 98 V122 M750 110 H774" stroke="#9aa3aa" stroke-width="3"/></g>
  <path id="${p}airIn" d="M684 150 H700" stroke="var(--air-warm)" stroke-width="3" marker-end="url(#zArrow)"/><path id="${p}airOut" d="M740 160 H786" stroke="var(--air-cool)" stroke-width="3" marker-end="url(#zArrow)"/>
- <g transform="translate(770 236)"><path d="M-7 -6 v12 l7 -6 z M7 -6 v12 l-7 -6 z" fill="url(#zBrass)" stroke="#6b5200"/><path d="M0 0 H-12" stroke="#2a2f33" stroke-width="2"/><rect x="-26" y="-7" width="14" height="14" rx="2" fill="#2a2f33"/></g><text class="cht" x="735" y="202" text-anchor="middle">Air handler coil</text>
+ <g transform="translate(770 236)"><path d="M-7 -6 v12 l7 -6 z M7 -6 v12 l-7 -6 z" fill="url(#zBrass)" stroke="#6b5200"/><path d="M0 0 H-12" stroke="#2a2f33" stroke-width="2"/><rect x="-26" y="-7" width="14" height="14" rx="2" fill="#2a2f33"/></g><text class="cht onm" x="735" y="202" text-anchor="middle">Air handler coil</text>
  <text class="val" id="${p}roomTxt" x="735" y="48" text-anchor="middle" font-size="11">Building 74°F</text></g>
 ${[["tLC","180","300"],["tEC","176","372"],["tLCH","566","392"],["tECH","566","434"],["tSup","676","240"],["tRet","576","282"]].map(([id,x,y])=>`<text class="val" id="${p}${id}" x="${x}" y="${y}" font-size="10"></text>`).join("")}`}
 
