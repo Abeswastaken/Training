@@ -1257,6 +1257,29 @@ Object.assign(RILL,{
  ${rL(196,180,250,226,336,240,"Paddle swings with flow","end")}${rL(170,90,100,40,6,36,"Switch")}${RT(6,240,"Proves flow first")}`)()},
 "chill:ahu":{s:rCoil(false)+`${rL(150,92,110,24,6,16,"Chilled water coil")}${RT(6,248,"Over 50°F water dries the air poorly")}`}
 });
+/* ---------- motors + VFD ---------- */
+Object.assign(RILL,{
+"vfd:disconnect":{s:(()=>`${rSh(120,236,100,6)}${rBox(40,20,160,210,22,"paint",{r:4})}<rect x="56" y="36" width="128" height="178" rx="3" fill="#2f383f"/>${[0,1,2].map(k=>`${rCylV(80+k*40,60,150,11,"white",{ry:4})}<rect x="${72+k*40}" y="90" width="16" height="30" fill="#c99a3a"/><text x="${80+k*40}" y="110" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="7" font-weight="700" fill="#3a2a06">J</text>`).join("")}
+ ${[0,1,2].map(k=>`<rect x="${74+k*40}" y="164" width="12" height="24" fill="url(#r_cuV)"/>${rWire(`M${80+k*40} 188 V250`,["#2a2f33","#c0281c","#2a6db8"][k])}${rWire(`M${80+k*40} 0 V60`,["#2a2f33","#c0281c","#2a6db8"][k])}`).join("")}<rect x="210" y="102" width="50" height="14" rx="7" fill="url(#r_redV)"/>
+ ${rL(120,105,170,40,210,36,"Class J fuses")}${rL(250,109,280,140,336,150,"Handle: OFF","end")}${RT(336,212,"Bus stays charged:","end")}${RT(336,226,"wait, then","end")}${RT(336,240,"measure","end")}`)()},
+"vfd:dcbus":{s:(()=>`${rSh(170,232,150,6)}${rBox(30,190,280,20,8,"black",{r:2})}${[70,140,210,280].map(x=>`${rCylV(x,70,190,30,"blue",{ry:9})}<ellipse cx="${x}" cy="70" rx="30" ry="9" fill="url(#r_alT)"/><path d="M${x-8} 64 l16 12 M${x+8} 64 l-16 12" stroke="#777"/>${rBolt(x-14,70,3)}${rBolt(x+14,70,3)}`).join("")}
+ <path d="M50 54 H300" stroke="#c0281c" stroke-width="5"/>${[56,126,196,266].map(x=>`<path d="M${x} 54 V66" stroke="#c0281c" stroke-width="3"/>`).join("")}
+ ${rL(70,130,40,24,6,20,"Electrolytic capacitors")}${RT(336,20,"+ bus about 650 V DC on 480 V","end")}${RT(6,240,"Trips near 800 V high, 380 V low")}`)()},
+"vfd:keypad":{s:(()=>`${rSh(170,236,90,6)}${rBox(100,20,140,210,14,"black",{r:10})}${rLcd(114,36,112,60,["45.0 Hz","12.4 A · 650 VDC"],18)}${[["#2fbf5a","RUN",136,130],["#d0312d","STOP",204,130]].map(([c,t,x,y])=>`<circle cx="${x}" cy="${y}" r="16" fill="${c}"/><circle cx="${x}" cy="${y}" r="16" fill="url(#rGlass)"/><text x="${x}" y="${y+3}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="8" font-weight="700" fill="#fff">${t}</text>`).join("")}
+ <rect x="122" y="164" width="96" height="22" rx="4" fill="url(#r_paintV)"/><text x="170" y="179" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#fff">RESET</text>${[134,170,206].map(x=>`<rect x="${x-12}" y="196" width="24" height="16" rx="3" fill="url(#r_paintV)"/>`).join("")}
+ ${rL(170,66,280,16,336,12,"Hz, amps, bus volts","end")}${rL(170,175,90,210,6,220,"Fault reset")}${rL(206,204,280,226,336,240,"Parameter keys","end")}`)()},
+"vfd:hsfan":{s:(()=>`${rSh(170,236,150,6)}${rBox(40,40,240,70,12,"black",{r:4})}${[0,1,2].map(k=>`<rect x="${70+k*70}" y="56" width="40" height="40" rx="4" fill="#1a1d20"/><text x="${90+k*70}" y="82" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#e8c33a">IGBT</text>`).join("")}${Array.from({length:22},(_,k)=>`<rect x="${44+k*11}" y="110" width="6" height="90" fill="url(#r_alH)"/>`).join("")}<rect x="40" y="110" width="240" height="8" fill="url(#r_alV)"/>
+ ${rBox(110,200,100,34,8,"black",{r:4})}<circle cx="160" cy="217" r="14" fill="#2c3237"/>
+ ${rL(90,76,60,24,6,20,"IGBT module")}${rL(200,160,280,200,336,214,"Aluminum fins","end")}${rL(160,217,90,240,6,240,"Cooling fan")}${RT(336,236,"Fan blows across them","end")}`)()},
+"vfd:fanload":{s:(()=>`${rSh(170,236,150,6)}<path d="M150 230 C60 230 40 160 40 130 C40 70 90 30 150 30 C220 30 250 70 250 110 V40 H300 V230 Z" fill="url(#r_galvV)" filter="url(#rGrain)"/><circle cx="150" cy="130" r="70" fill="#1d2124"/>${Array.from({length:28},(_,k)=>{const a=k/28*2*Math.PI;return `<path d="M${150+46*Math.cos(a)} ${130+46*Math.sin(a)} L${150+66*Math.cos(a+.18)} ${130+66*Math.sin(a+.18)}" stroke="#aeb6bb" stroke-width="3.5"/>`}).join("")}<circle cx="150" cy="130" r="20" fill="url(#r_galvV)"/>
+ ${rArr("M276 50 V10","#9aa3a9")}${rL(200,130,280,160,336,170,"Heavy wheel coasts","end")}${RT(6,226,"Variable torque:")}${RT(6,240,"power ≈ speed³")}`)()},
+"vfd:conveyor":{s:(()=>`${rSh(170,230,160,6)}<rect x="40" y="110" width="260" height="20" rx="10" fill="#1d2124"/>${rCylH(30,50,120,22,"chrome",{end:true})}<circle cx="40" cy="120" r="22" fill="url(#r_chromeV)"/><circle cx="300" cy="120" r="22" fill="url(#r_chromeV)"/>${[80,160,230].map(x=>rBox(x,74,40,36,10,"tan",{r:2})).join("")}
+ ${rCylH(160,250,190,22,"blue",{end:true})}${rBox(250,166,50,48,8,"paint",{r:4})}<path d="M296 166 L300 142" stroke="#444" stroke-width="6"/><rect x="150" y="212" width="160" height="10" fill="url(#r_ironH)"/>
+ ${rL(200,190,140,230,6,240,"Motor")}${rL(275,190,300,236,336,240,"Gearbox","end")}${RT(6,30,"Constant torque: near full")}${RT(6,44,"current even at low speed")}`)()},
+"vfd:plate":{s:(()=>`${rSh(170,232,150,6)}<rect x="30" y="30" width="280" height="190" rx="8" fill="url(#r_chromeV)"/><rect x="38" y="38" width="264" height="174" rx="5" fill="none" stroke="#7c8388"/>${[[50,50],[290,50],[50,200],[290,200]].map(([x,y])=>rBolt(x,y,4)).join("")}
+ ${[["HP 10","V 460"],["FLA 13.3","RPM 1760"],["SF 1.15","INS F"],["Hz 60","TEFC"]].map((r,i)=>r.map((t,j)=>`<text x="${66+j*130}" y="${88+i*34}" font-family="IBM Plex Mono,monospace" font-size="16" fill="#1d2124" opacity=".85">${t}</text><text x="${65+j*130}" y="${87+i*34}" font-family="IBM Plex Mono,monospace" font-size="16" fill="#fff" opacity=".35">${t}</text>`).join("")).join("")}
+ ${RT(6,244,"Set the drive overload to the FLA")}`)()}
+});
 
 /*RZ-END*/
 let speed=10, running=true, cur=null, openKey=null, tab="controls";
