@@ -18,7 +18,10 @@ fa='<script>\n'+open('fb_about.js').read()+'</script>\n'
 import glob
 for f in glob.glob('dist/*-trainer.html')+glob.glob('dist/full*.html'):
     s=open(f).read()
-    if 'fbAbout' in s:continue
+    if 'Systems:' not in s and 'class="seg"' in s:
+        css=open('base.css').read();css=css[css.index('/* System tabs'):]
+        j=s.index('</style>');s=s[:j]+css+s[j:]
+    if 'fbAbout' in s:open(f,'w').write(s);continue
     i=s.rfind('</body>')
     s=s[:i]+fa+s[i:] if i>=0 else s+fa
     open(f,'w').write(s)
