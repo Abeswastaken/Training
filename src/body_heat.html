@@ -3,6 +3,7 @@
   <h1>Heating Trainer <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
   <div class="seg" role="group" aria-label="Simulator">
     <button data-sim="furnace" aria-pressed="true">Gas furnace</button>
+    <button data-sim="oil" aria-pressed="false">Oil furnace</button>
   </div>
   <div class="tools">
     <button class="btn" id="run" aria-pressed="false">Pause</button>
@@ -19,7 +20,7 @@
     <div class="drawing" id="drawing">
       <div class="scroller"><svg id="svg" viewBox="0 0 800 470" role="img" aria-label="Gas furnace drawing"></svg></div>
       <div class="legend" aria-label="Color key">
-        <span><i style="background:#3d7de0"></i>Flame (blue is healthy)</span>
+        <span><i style="background:#3d7de0"></i>Flame (gas: blue is healthy; oil: yellow-orange)</span>
         <span><i style="background:#e0662a"></i>Hot flue gas</span>
         <span><i class="ar" style="border-color:var(--air-warm)"></i>Warm air</span>
         <span><i class="ar" style="border-color:var(--air-cool)"></i>Cool air</span>
