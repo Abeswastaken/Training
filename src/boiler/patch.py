@@ -2,11 +2,12 @@ b=open('bt.orig.html').read()
 def B(a,c,cnt=1):
     global b
     assert b.count(a)==cnt,(a[:70],b.count(a));b=b.replace(a,c)
-rz=open('../rz.js').read()+open('../rz_cards.js').read()
+rz=open('../rz.js').read()+open('../rz_cards.js').read()+open('../real.js').read()+open('../real_cards.js').read()+open('../boiler_cards.js').read()
 B("<script>\n(()=>{\nconst $=id=>document.getElementById(id);","<script>\n(()=>{\nconst $=id=>document.getElementById(id);\n"+rz+"\nrzEnsureDefs();\n")
 for key in ['const HYD={id:"hyd",p:"h_",name:"Hot water",\n svg:`','const STEAM={id:"steam",p:"s_",name:"Steam",\n svg:`']:
     a=b.index(key);s1=b.index('svg:`',a);e1=b.index('`,\n consts:',s1)
     b=b[:s1]+('svg:HYD_SVG' if 'hyd' in key else 'svg:STEAM_SVG')+b[e1+1:]
+B('function ill(simId,k){const key=(ILL_MAP[simId]||{})[k]||k;','function ill(simId,k){const rr=RILL[simId+":"+k];if(rr)return `<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${typeof rr.s==="function"?rr.s():rr.s}</svg>`;const key=(ILL_MAP[simId]||{})[k]||k;')
 B("/* ============ HOT WATER ============ */",open('boiler_rz.js').read()+"\n/* ============ HOT WATER ============ */")
 B('function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;','function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;bzPipes($("svg"));')
 B('cur.draw(running?real:0);syncStrip();','cur.draw(running?real:0);bzFollow($("svg"));syncStrip();')
