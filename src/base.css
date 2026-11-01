@@ -127,3 +127,6 @@ details .group{gap:10px}
 .modalCard textarea{min-height:110px;resize:vertical}
 .modalRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .modalCard .note{font-size:12px;color:var(--muted)}
+.ticket{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--paper)}
+.ticket p{margin:6px 0}.ticket select{width:100%;margin:4px 0 8px}.ticket .hint{color:var(--warn);font-weight:600}
+.ticket .good{color:var(--ok);font-weight:700}.svcmeta{font-size:12px;color:var(--muted)}
