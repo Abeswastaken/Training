@@ -4,11 +4,11 @@ app=open('app.js').read()
 head=app[:app.index("const SPLIT_LAMPS")]
 glob=app[app.index("let speed=10"):app.index("/* ============ SPLIT AC")]
 fw=app[app.index("const SIMS="):]
-fur=open('furnace.js').read()+'\n'+open('oil.js').read()
+fur=open('furnace.js').read()+'\n'+open('oil.js').read()+'\n'+open('hyd.js').read()
 def rep(s,a,b):
     assert a in s,a
     return s.replace(a,b)
-fw=rep(fw,"const SIMS={split:SPLIT,hp:HP,cooler:COOLER,freezer:FREEZER};","const SIMS={furnace:FURNACE,oil:OIL};")
+fw=rep(fw,"const SIMS={split:SPLIT,hp:HP,cooler:COOLER,freezer:FREEZER};","const SIMS={furnace:FURNACE,oil:OIL,ahu:AHU};")
 fw=rep(fw,"if(meter&&sim===SPLIT)","if(meter&&sim.id===\"split\")")
 fw=rep(fw,'let startSim="split"','let startSim="furnace"')
 fw=rep(fw,"cur=SIMS[startSim]||SPLIT","cur=SIMS[startSim]||FURNACE")

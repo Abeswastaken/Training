@@ -18,7 +18,6 @@ fw=rep(fw,'"[Refrigeration] "+text','"[Motors] "+text')
 fw=rep(fw,"Read the gauges, superheat, subcooling and air split, then reveal it.","Read the readings and the log, then reveal it.")
 fw=rep(fw,'<output id="o_${s.k}">${Math.round(v)}${s.u}</output>','<output id="o_${s.k}">${s.step<1?(+v).toFixed(1):Math.round(v)}${s.u}</output>')
 fw=rep(fw,'setSpeed(10);','setSpeed(1);')
-fw=rep(fw,'renderLog();lastAlerts=""}','renderLog();lastAlerts="__"}')
 fw=rep(fw,'setSpeed(60);running=true','setSpeed(sc.speed||60);running=true')
 fw=fw.replace('Runs at 60x.','Runs sped up.')
 js=head+glob+fur+"\n"+fw

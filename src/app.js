@@ -1855,7 +1855,7 @@ function partHTML(k){const sim=cur,d=sim.parts[k];const im=ill(sim.id,k)+(k==="r
 function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
-function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=""}
+function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=null}
 function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
@@ -1864,7 +1864,7 @@ function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur
   cur.draw(0)}
 function showTab(t){tab=t;document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));["controls","failures","parts","log"].forEach(x=>$("p-"+x).hidden=x!==t);try{localStorage.setItem("rt-tab",t)}catch(e){}}
 function setSpeed(s){speed=s;$("speed").value=String(s)}
-let lastAlerts="";
+let lastAlerts=null;
 function syncStrip(){const S=cur.S;
   const rd=cur.reads(S).map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");if($("reads").innerHTML!==rd)$("reads").innerHTML=rd;
   const on=cur.lampOn(S);cur.lamps.forEach(l=>{const e=$("L_"+l[0]);if(e)e.classList.toggle("on",!!on[l[0]])});

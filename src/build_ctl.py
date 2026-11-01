@@ -18,7 +18,6 @@ fw=rep(fw,"function fbContext(){return `Refrigeration trainer (${cur.name}, ${cu
 fw=rep(fw,'"[Refrigeration] "+text','"[Controls] "+text')
 fw=rep(fw,"Read the gauges, superheat, subcooling and air split, then reveal it.","Read the gauges, the meter, the points and the trend, then reveal it.")
 fw=rep(fw,'<output id="o_${s.k}">${Math.round(v)}${s.u}</output>','<output id="o_${s.k}">${s.step<1?(+v).toFixed(1):Math.round(v)}${s.u}</output>')
-fw=rep(fw,'renderLog();lastAlerts=""}','renderLog();lastAlerts="__"}')
 fw=rep(fw,'setSpeed(60);running=true','setSpeed(sc.speed||60);running=true')
 fw=fw.replace('Runs at 60x.','Runs sped up.')
 fw=fw.replace('Sliders go well past normal so you can see what a wrong setting or wrong charge does.','Sliders go well past normal so you can see what a wrong setting does.')
