@@ -1,7 +1,7 @@
 css=open('base.css').read()+open('ladder.css').read()
 body=open('ladder-body.html').read();js=open('ladder.js').read()
-rz=open('rz.js').read()+open('rz_cards.js').read()
-js=js.replace('(()=>{','(()=>{\n'+rz+'\nrzEnsureDefs();\n',1).replace('/* ---------- drawing ---------- */',open('ladder_rz.js').read()+'\n/* ---------- drawing ---------- */',1)
+rz=open('rz.js').read()+open('rz_cards.js').read()+open('real.js').read()+open('real_cards.js').read()
+js=js.replace('(()=>{','(()=>{\n'+rz+'\nrzEnsureDefs();\n',1).replace('/* ---------- drawing ---------- */',open('ladder_rz.js').read()+open('ladder_cards.js').read()+'\n/* ---------- drawing ---------- */',1)
 hd='''<title>Ladder Builder FB-Enable</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
