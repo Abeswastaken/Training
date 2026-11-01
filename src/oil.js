@@ -72,7 +72,7 @@ ${zTstat(720,230,44,50,p+"tstatTxt",p+"tstatLamp","70")}
 <text class="lblS" x="440" y="446">Return air</text><text class="val" id="${p}retTxt" x="520" y="446" font-size="12">68°F</text>
 
 <!-- furnace cabinet -->
-<rect x="170" y="90" width="250" height="362" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="176" y="96" width="238" height="350" fill="url(#zCabIn)" stroke="#9aa3a9"/>
+<path d="M420 92 L432.0 83.6 V443.6 L420 452 Z" fill="url(#r_cabS)"/><path d="M300 90 L312.0 81.6 H432.0 L420 90 Z" fill="url(#r_cabT)"/><rect x="170" y="90" width="250" height="362" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="176" y="96" width="238" height="350" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 <rect x="176" y="112" width="238" height="190" fill="url(#zInside)" opacity=".2"/>
 <line x1="170" y1="306" x2="420" y2="306" stroke="#6f787e" stroke-width="3"/>${[[174,94],[416,94],[174,448],[416,448]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
 <text class="zl" x="180" y="108">Oil furnace</text>

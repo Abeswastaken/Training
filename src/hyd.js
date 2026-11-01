@@ -50,7 +50,7 @@ ${zTstat(720,230,44,50,p+"tstatTxt",p+"tstatLamp","70")}
 <text class="lblS" x="470" y="446">Return air</text><text class="val" id="${p}retTxt" x="520" y="370" font-size="12">68°F</text>
 
 <!-- air handler -->
-<rect x="290" y="92" width="160" height="360" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="296" y="98" width="148" height="348" fill="url(#zCabIn)" stroke="#9aa3a9"/>
+<path d="M450 94 L462.0 85.6 V443.6 L450 452 Z" fill="url(#r_cabS)"/><path d="M410 92 L422.0 83.6 H462.0 L450 92 Z" fill="url(#r_cabT)"/><rect x="290" y="92" width="160" height="360" rx="3" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/><rect x="296" y="98" width="148" height="348" fill="url(#zCabIn)" stroke="#9aa3a9"/>
 ${[[294,96],[446,96],[294,448],[446,448]].map(([x,y])=>zScrew(x,y,2.2)).join("")}
 <text class="zl" x="300" y="112">Air handler</text>
 <g class="part" data-p="coil" tabindex="0">
@@ -79,6 +79,7 @@ ${zBlower(366,384,42,p+"blades")}<text class="zl" x="366" y="444" text-anchor="m
 
 <!-- boiler -->
 <g class="part" data-p="boiler" tabindex="0">
+ <path d="M154 222 L160 217.8 V437.8 L154 442 Z" fill="url(#r_cabS)"/><path d="M30 220 L36 215.8 H160 L154 220 Z" fill="url(#r_cabT)"/>
  <rect class="hl" x="30" y="220" width="124" height="222" rx="4" fill="url(#zCab)" stroke="#5f686d" stroke-width="1.5" filter="url(#zShadow)"/>
  <rect x="36" y="226" width="112" height="210" fill="url(#zCabIn)" stroke="#9aa3a9"/>
  <rect x="54" y="370" width="76" height="44" rx="3" fill="#1b1f22" stroke="#000"/>
