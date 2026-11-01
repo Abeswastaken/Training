@@ -89,6 +89,6 @@ const LFIELD={
  buzz:["An alarm horn or buzzer.","Check: voltage across it when the alarm rung should be energized."],
  tterm:["A field wiring terminal: where a wire leaves one piece of equipment for another (for example the thermostat's Y going to the condenser).","Check: measure from this terminal to C to see if the signal is getting out."]
 };
-function partCardHTML(k){const pk=LPMAP[k];const pic=pk&&LPIC[pk]?(typeof LPIC[pk]==="function"?(pk==="lim"?LPIC.disc("HIGH LIMIT (SNAP DISC)","opens on overheating; auto or manual reset"):pk==="tsw"?LPIC.disc("SNAP DISC (CLOSES ON RISE)","bimetal disc snaps over at its rated temperature"):LPIC[pk]()):LPIC[pk]):"";
+function partCardHTML(k){const pk=LPMAP[k];const pic=pk&&LPIC[pk]?(typeof LPIC[pk]==="function"?LPIC[pk]():LPIC[pk]):"";
  const f=LFIELD[k]||[];return `<div class="pcard">${pic?`<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${pic}</svg>`:""}<div>${f.map(x=>`<p class="note">${esc(x)}</p>`).join("")}</div></div>`}
 LPIC.lim=()=>LPIC.disc("HIGH LIMIT (SNAP DISC)","opens on overheating");LPIC.tsw=()=>LPIC.disc("SNAP DISC","closes on rise");
