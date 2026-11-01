@@ -1,159 +1,98 @@
 
-// Detailed 340x250 Parts-card drawings (realistic drawn style, cutaways, leader labels).
-// Sample set for the gas tab; same style as the compressor and TXV cards.
+// Gas tab Parts cards, 340x250, drawn with the 3/4-view kit in real.js (realism sample, round 2).
 const GASC="#e8c33a";
-const ironH=(x,y,w,h=14)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#zSteel)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#2b3034" opacity=".55"/><rect x="${x}" y="${y+2}" width="${w}" height="${h*0.18}" fill="#fff" opacity=".18"/>`;
-const ironV=(x,y,h,w=14)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#zSteelH)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#2b3034" opacity=".55"/><rect x="${x+2}" y="${y}" width="${w*0.18}" height="${h}" fill="#fff" opacity=".18"/>`;
-const hexN=(cx,cy,r)=>`<polygon points="${[0,1,2,3,4,5].map(i=>`${(cx+r*Math.cos(i*Math.PI/3+Math.PI/6)).toFixed(1)},${(cy+r*0.62*Math.sin(i*Math.PI/3+Math.PI/6)).toFixed(1)}`).join(" ")}" fill="url(#zBrass)" stroke="#6b5200" stroke-width=".8"/>`;
-const cutEdge=d=>`<path d="${d}" fill="none" stroke="#9aa3a9" stroke-width="2.2" stroke-linejoin="round"/>`;
-const dialFace=(cx,cy,r,a,red)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fbfbf6" stroke="${red?"#b8322a":"#555"}" stroke-width="${red?1.4:.8}"/>${Array.from({length:10},(_,i)=>{const t=i*Math.PI/5;return `<line x1="${(cx+r*0.78*Math.sin(t)).toFixed(1)}" y1="${(cy-r*0.78*Math.cos(t)).toFixed(1)}" x2="${(cx+r*0.95*Math.sin(t)).toFixed(1)}" y2="${(cy-r*0.95*Math.cos(t)).toFixed(1)}" stroke="#666" stroke-width=".6"/>`}).join("")}<line x1="${cx}" y1="${cy}" x2="${(cx+r*0.75*Math.sin(a)).toFixed(1)}" y2="${(cy-r*0.75*Math.cos(a)).toFixed(1)}" stroke="${red?"#b8322a":"#222"}" stroke-width="1.3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="1.4" fill="#222"/>`;
+const rCut=d=>`<path d="${d}" fill="url(#rCav)"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="2.4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".7" stroke-linejoin="round"/>`;
+const rClip=(id,d,body)=>`<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${body}</g>`;
 
 GAS.illL={
- meter:`
- ${zShade(170,236,110)}
- ${ironV(92,0,30)}${ironV(234,0,30)}${hexN(99,30,14)}${hexN(241,30,14)}
- ${zFA("M99 2 V26",GASC)}${zFA("M241 26 V2",GASC)}
- <g filter="url(#zShadow)">
-  <rect x="62" y="34" width="216" height="196" rx="14" fill="url(#zSteel)"/>
-  <rect x="62" y="34" width="216" height="196" rx="14" fill="#6b7a70" opacity=".35"/>
-  <rect x="70" y="40" width="10" height="184" rx="5" fill="#fff" opacity=".14"/>
-  <rect x="62" y="104" width="216" height="6" fill="#000" opacity=".18"/>
- </g>
- <!-- index window -->
- <rect x="96" y="48" width="148" height="50" rx="5" fill="#1d2226"/><rect x="99" y="51" width="142" height="44" rx="4" fill="#e9ecea"/>
- ${dialFace(116,66,10,1.1)}${dialFace(141,66,10,4.2)}${dialFace(166,66,10,2.5)}${dialFace(191,66,10,5.6)}
- ${dialFace(220,74,15,2.2,true)}<text x="220" y="93" font-size="6" text-anchor="middle" font-family="sans-serif" fill="#b8322a">2 ft³</text>
- <text x="153" y="90" font-size="6" text-anchor="middle" font-family="sans-serif" fill="#444">CUBIC FEET</text>
- <!-- cutaway: diaphragm chambers and slide valves -->
- <clipPath id="zg_mcut"><path d="M74 120 L266 116 L268 214 L246 222 L222 214 L190 224 L150 214 L120 222 L76 214 Z"/></clipPath>
- <g clip-path="url(#zg_mcut)">
-  <rect x="60" y="110" width="220" height="120" fill="url(#zInside)"/>
-  <rect x="84" y="122" width="172" height="20" fill="#3a3f44"/>
-  ${[0,1].map(i=>`<rect x="${112+i*76}" y="126" width="40" height="10" rx="2" fill="url(#zBrassH)"/><rect class="zSlide" x="${118+i*76}" y="124" width="14" height="14" rx="2" fill="url(#zBrass)"/>`).join("")}
-  ${[0,1].map(i=>`<rect x="${86+i*86}" y="150" width="82" height="60" rx="6" fill="#2a2f33" stroke="#555d62"/><path d="M${127+i*86} 152 V208" stroke="#c9b48a" stroke-width="4"/><path d="M${97+i*86} 160 Q${112+i*86} 180 ${97+i*86} 200 M${157+i*86} 160 Q${142+i*86} 180 ${157+i*86} 200" fill="none" stroke="#c9b48a" stroke-width="2.4"/><rect x="${92+i*86}" y="156" width="30" height="48" fill="${GASC}" opacity=".18"/>`).join("")}
- </g>
- ${cutEdge("M74 120 L266 116 L268 214 L246 222 L222 214 L190 224 L150 214 L120 222 L76 214 Z")}
- ${zL(99,14,60,14,6,17,"Inlet (from service regulator)")}${zL(241,14,280,40,272,60,"Outlet")}
+/* ---------- diaphragm gas meter, cutaway lower front ---------- */
+meter:(()=>{const cut="M100 152 L110 147 L120 153 L133 146 L146 152 L160 147 L172 153 L186 146 L198 151 L204 148 V198 H100 Z";
+ const dia=(x,flip)=>`<path d="M${x} 158 Q${x-14*flip} 176 ${x} 194 H${x+14*flip} Q${x+22*flip} 176 ${x+14*flip} 158 Z" fill="url(#r_tanV)" filter="url(#rGrain)"/>${[3,6,9,12].map(k=>`<path d="M${x+k*flip} 159 Q${x+k*flip-8*flip} 176 ${x+k*flip} 193" fill="none" stroke="#5a3f1f" stroke-opacity=".45" stroke-width=".7"/>`).join("")}<ellipse cx="${x+15*flip}" cy="176" rx="4" ry="15" fill="url(#r_alV)"/><path d="M${x+15*flip} 161 V150" stroke="#c9ced1" stroke-width="1.6"/>`;
+ return `${rSh(172,210,100,9)}
+ ${rCylV(132.8,0,40,8,"iron",{top:false})}${rThrV(132.8,30,38,8)}${rHexV(132.8,36,14,12,"galv")}
+ ${rCylV(192.8,0,40,8,"iron",{top:false})}${rThrV(192.8,30,38,8)}${rHexV(192.8,36,14,12,"galv")}
+ ${rBox(92,72,120,134,36,"al",{r:6,grain:true})}
+ ${rCylV(132.8,50,64,11,"al",{ry:3.4})}${rCylV(192.8,50,64,11,"al",{ry:3.4})}
+ <rect x="90" y="131" width="124" height="9" rx="2" fill="url(#r_alH)"/><path d="M214 131 L235.6 116 V125 L214 140 Z" fill="url(#r_alS)"/>${[100,124,180,204].map(x=>rBolt(x,135.5,2.6)).join("")}
+ <rect x="106" y="80" width="92" height="46" rx="5" fill="url(#r_paintF)"/><rect x="110" y="84" width="84" height="38" rx="3" fill="#f7f5ec"/>
+ ${[122,140,158,176].map((x,i)=>rDial(x,95,6.8,[40,250,120,310][i])).join("")}<text x="149" y="108" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="4.6" font-weight="700" fill="#333">CUBIC FEET</text>
+ ${rDial(136,115,5.4,70,"#c0281c",false)}${rDial(164,115,5.4,200,"#c0281c",false)}<text x="145" y="117" font-size="3.6" font-family="IBM Plex Sans,sans-serif" fill="#c0281c">½</text><text x="172" y="117" font-size="3.6" font-family="IBM Plex Sans,sans-serif" fill="#c0281c">2</text>
+ <rect x="110" y="84" width="84" height="38" rx="3" fill="url(#rGlass)"/>
+ <path d="M216 90 L230 80.5 V112 L216 121.5 Z" fill="#ebe7da"/>${[0,1,2,3,4].map(k=>`<path d="M218.5 ${94+k*4.6} l9 -6.2" stroke="#7a7666" stroke-width=".7"/>`).join("")}
+ ${rCut(cut)}${rClip("rg_mcut",cut,`<rect x="150" y="146" width="4" height="54" fill="url(#r_alV)"/>${dia(108,1)}${dia(196,-1)}<rect x="100" y="194" width="104" height="5" fill="#15181a"/>`)}
+ ${rL(126,20,80,20,6,24,"Inlet")}${rL(199,20,250,20,254,24,"Outlet")}
+ ${rL(122,95,60,70,6,66,"Index: cubic feet used")}${rL(164,115,262,100,256,96,"Test dials: clock these")}
+ ${rL(213,136,262,150,256,154,"Case seam, bolted")}${rL(112,176,60,186,6,198,"Leather or synthetic")}<text x="6" y="210" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135">diaphragms (cutaway)</text>`})(),
 
- ${zL(220,74,300,80,290,96,"Test dial","start")}
- ${zL(166,60,60,60,6,64,"Index dials")}
- ${zL(142,131,40,124,6,120,"Slide valves")}
- ${zL(108,190,40,200,6,214,"Leather/synthetic diaphragms")}
- ${zL(220,170,300,170,282,186,"Chambers")}`,
+/* ---------- service regulator with the bonnet cut open ---------- */
+sreg:(()=>{return `${rSh(170,214,120,8)}
+ ${rCylH(0,104,196,10,"iron")}${rThrH(94,104,196,10)}${rCylH(236,340,196,10,"iron")}${rThrH(236,246,196,10)}
+ ${rSregArt(true)}
+ ${zFA("M6 196 H330",GASC)}
+ ${rL(170,44,120,28,6,28,"Adjusting screw under cap")}${rL(181,108,250,70,250,66,"Spring sets outlet pressure")}
+ ${rL(140,130,70,112,6,108,"Diaphragm")}${rL(282,142,300,170,336,176,"Vent: screened, faces down","end")}
+ ${rL(40,196,40,226,6,238,"In: service-line pressure")}${rL(300,196,300,226,336,238,"Out: about 7 in. w.c.","end")}`})(),
 
- sreg:`
- ${zShade(170,236,120)}
- ${ironH(0,170,98,18)}${ironH(242,170,98,18)}${zFA("M4 179 H92",GASC)}${zFA("M248 179 H336",GASC)}
- <g filter="url(#zShadow)">
-  <path d="M96 156 H244 V204 Q170 222 96 204 Z" fill="url(#zSteel)"/>
-  <path d="M74 112 Q170 62 266 112 L262 122 Q170 108 78 122 Z" fill="url(#zSteel)"/>
-  <rect x="72" y="118" width="196" height="14" rx="3" fill="#59626a"/>
-  ${Array.from({length:9},(_,i)=>`<circle cx="${82+i*22}" cy="125" r="3" fill="url(#zScrew)"/>`).join("")}
-  <path d="M150 74 Q170 54 190 74 V84 H150 Z" fill="url(#zSteel)"/><rect x="160" y="46" width="20" height="18" rx="3" fill="url(#zSteel)"/>
- </g>
- <!-- vent -->
- <path d="M266 112 H300 V140" fill="none" stroke="url(#zSteel)" stroke-width="12"/><rect x="292" y="140" width="16" height="10" rx="2" fill="#3a3f44"/><path d="M300 152 v10" stroke="#9aa3aa" stroke-width="1.5" stroke-dasharray="2 2"/>
- <!-- cutaway -->
- <clipPath id="zg_rcut"><path d="M104 88 L236 88 L238 202 L210 210 L170 204 L130 210 L102 202 Z"/></clipPath>
- <g clip-path="url(#zg_rcut)">
-  <rect x="90" y="80" width="160" height="140" fill="url(#zInside)"/>
-  <path d="M120 104 ${Array.from({length:7},(_,i)=>`L${i%2?140:200} ${104+i*3.2}`).join(" ")}" fill="none" stroke="#c4cacf" stroke-width="0"/>
-  ${Array.from({length:6},(_,i)=>`<ellipse cx="170" cy="${92+i*4}" rx="20" ry="3" fill="none" stroke="#c4cacf" stroke-width="2.2"/>`).join("")}
-  <path d="M106 122 Q170 132 234 122" fill="none" stroke="#1f1f1f" stroke-width="3.5"/>
-  <rect x="164" y="124" width="12" height="36" fill="#9aa3aa"/>
-  <path d="M170 160 L210 166" stroke="#9aa3aa" stroke-width="4"/><circle cx="170" cy="160" r="3" fill="#59626a"/>
-  <rect x="120" y="168" width="100" height="22" fill="${GASC}" opacity=".25"/>
-  <rect x="196" y="176" width="8" height="18" fill="#59626a"/><rect x="206" y="160" width="14" height="12" rx="2" fill="#2b2f33"/>
- </g>
- ${cutEdge("M104 88 L236 88 L238 202 L210 210 L170 204 L130 210 L102 202 Z")}
- ${zL(170,48,120,30,6,28,"Adjusting screw under cap")}
- ${zL(150,98,60,90,6,88,"Spring sets outlet pressure")}
- ${zL(118,126,40,140,6,144,"Diaphragm")}
- ${zL(208,168,280,206,250,226,"Valve disc and orifice")}
- ${zL(300,146,320,110,250,104,"Vent, faces down","start")}
- ${zL(20,179,20,214,6,226,"Street ~60 psi in")}`,
+/* ---------- quarter-turn ball valve, front of the body cut away ---------- */
+cock:(()=>{const win="M128 126 H212 V176 Q170 182 128 176 Z";
+ return `${rSh(170,190,120,7)}
+ ${rCylH(0,80,150,11,"iron")}${rThrH(70,80,150,11)}${rCylH(260,340,150,11,"iron")}${rThrH(260,270,150,11)}
+ ${rHexH(72,150,28,22,"brass")}${rHexH(240,150,28,22,"brass")}${rCylH(100,240,150,28,"brass",{grain:true})}
+ ${rCut(win)}${rClip("rg_bcut",win,`<rect x="128" y="126" width="84" height="56" fill="#1a1c1e"/><rect x="139" y="128" width="7" height="46" fill="#f2f1ea"/><rect x="194" y="128" width="7" height="46" fill="#f2f1ea"/><circle cx="170" cy="151" r="25" fill="url(#r_chromeV)"/><circle cx="170" cy="151" r="25" fill="none" stroke="#000" stroke-opacity=".4"/><rect x="145" y="142" width="50" height="18" fill="#2b2f33"/><rect x="145" y="142" width="50" height="5" fill="#000" opacity=".45"/>${zFA("M130 151 H210",GASC)}`)}
+ ${rCylV(170,96,124,6,"brass")}${rHexV(170,104,12,11,"brass")}
+ <path d="M150 90 L159 84 H302 L293 90 Z" fill="#e24a3c"/><path d="M150 90 H293 V99 H150 Z" fill="url(#r_redH)"/><path d="M293 90 L302 84 V93 L293 99 Z" fill="#7e160d"/><path d="M151 90.6 H292" stroke="#fff" stroke-opacity=".5"/>
+ ${rCylV(166,74,88,7,"chrome",{ry:2.4})}
+ ${zFA("M6 150 H126",GASC)}${zFA("M214 150 H334",GASC)}
+ ${rL(266,88,266,60,336,56,"Lever in line with pipe = OPEN","end")}${rL(176,108,80,96,6,92,"Packing nut")}
+ ${rL(142,166,90,196,6,210,"PTFE seats")}${rL(170,170,190,212,336,228,"Chrome ball, bore lined up with flow","end")}${rL(84,160,60,240,6,242,"Brass body, hex ends")}`})(),
 
- cock:`
- ${zShade(170,212,120)}
- ${ironH(0,118,104,24)}${ironH(236,118,104,24)}
- <g filter="url(#zShadow)">
-  <path d="M104 104 H236 V156 H104 Z" fill="url(#zBrass)"/>
-  ${hexN(112,130,22)}${hexN(228,130,22)}
-  <rect x="160" y="80" width="20" height="26" fill="url(#zBrassH)"/>
-  <rect x="96" y="62" width="150" height="20" rx="8" fill="#c0281c"/><rect x="100" y="64" width="142" height="5" rx="2" fill="#fff" opacity=".25"/>
- </g>
- <clipPath id="zg_bcut"><path d="M128 110 H212 V150 H128 Z"/></clipPath>
- <g clip-path="url(#zg_bcut)"><rect x="120" y="100" width="100" height="60" fill="url(#zInside)"/><circle cx="170" cy="130" r="24" fill="url(#zSteel)"/><rect x="140" y="122" width="60" height="16" fill="#2a2f33"/><rect x="140" y="124" width="60" height="12" fill="${GASC}" opacity=".35"/></g>
- ${cutEdge("M128 110 H212 V150 H128 Z")}
- ${zFA("M10 130 H330",GASC)}
- ${zL(220,72,280,48,240,40,"Handle in line = OPEN")}
- ${zL(170,148,170,190,120,206,"Ball bore lines up with the flow")}
- ${zL(112,144,60,180,6,196,"Threaded body")}`,
+/* ---------- sediment trap (drip leg), nipple cut open ---------- */
+drip:(()=>{const win="M144 154 H156 V198 H144 Z";
+ return `${rSh(160,232,60,6)}
+ ${rCylV(150,0,104,10,"iron",{top:false})}${rThrV(150,92,100,10)}
+ ${rCylV(150,98,144,15,"iron",{grain:true,top:false})}${rBandV(150,96,16,7,"iron")}${rBandV(150,138,16,7,"iron")}
+ ${rCylH(160,194,120,15,"iron",{grain:true})}${rBand(190,120,16,7,"iron")}${rCylH(197,340,120,10,"iron")}${rThrH(197,205,120,10)}
+ ${rCylV(150,145,212,10,"iron",{top:false})}${rThrV(150,145,152,10)}${rCylV(150,208,226,14,"iron",{grain:true})}${rBandV(150,206,15,6,"iron")}
+ ${rCut(win)}${rClip("rg_dcut",win,`<rect x="144" y="186" width="12" height="12" fill="#2f5d8a" opacity=".8"/>${[[147,184,2],[151,182,1.6],[154,185,1.8],[148,179,1.4],[152,176,1.2]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#8a6d4d"/>`).join("")}`)}
+ ${zFA("M150 4 V114 H334",GASC)}${zFA("M150 128 V176","#a4835c")}
+ ${rL(150,40,90,40,6,36,"Gas drops in from the branch")}${rL(178,110,230,80,232,76,"Tee: gas turns out the side")}
+ ${rL(150,186,90,196,6,206,"Dirt and water drop")}<text x="6" y="219" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135">into the nipple</text>
+ ${rL(164,218,220,228,224,232,"Cap: remove to clean")}${rL(320,120,320,150,336,160,"To the appliance","end")}`})(),
 
- drip:`
- ${zShade(170,240,90)}
- ${ironV(158,0,82,24)}${zFA("M170 4 V80",GASC)}
- <g filter="url(#zShadow)"><rect x="142" y="78" width="56" height="56" rx="6" fill="#2b3034"/><rect x="146" y="82" width="10" height="48" fill="#fff" opacity=".1"/></g>
- ${ironH(198,94,142,24)}${zFA("M196 106 H334",GASC)}
- ${ironV(158,134,74,24)}<rect x="152" y="206" width="36" height="20" rx="4" fill="#2b3034"/>
- <clipPath id="zg_dcut"><path d="M160 140 H180 V204 H160 Z"/></clipPath>
- <g clip-path="url(#zg_dcut)"><rect x="150" y="136" width="40" height="72" fill="url(#zInside)"/>${[[166,198],[173,200],[169,194],[175,192],[164,190]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#8a6a3a"/>`).join("")}<rect x="160" y="196" width="20" height="8" fill="#5a7fa6" opacity=".6"/></g>
- ${cutEdge("M160 140 H180 V204 H160 Z")}
- <path d="M170 86 V120" stroke="#8a6a3a" stroke-width="2" stroke-dasharray="2 3"/>
- ${zL(160,30,90,30,6,26,"Gas drops in from the branch")}
- ${zL(260,106,260,150,226,166,"Out the side to the appliance")}
- ${zL(170,196,100,226,6,236,"Dirt and water drop into the nipple")}
- ${zL(188,216,240,226,244,232,"Cap: remove to clean")}`,
+/* ---------- furnace combination gas valve, front cut away ---------- */
+furn:(()=>{const win="M104 122 H204 V174 H104 Z";
+ return `${rSh(178,190,120,7)}
+ ${rCylH(0,92,150,9,"iron")}${rThrH(82,92,150,9)}${rCylH(256,340,150,9,"iron")}${rHexH(254,150,10,13,"al")}
+ ${rBox(90,110,150,70,40,"al",{r:6,grain:true})}
+ ${[0,1,2,3].map(k=>`<path d="M${212+k*6} 114 V176" stroke="#000" stroke-opacity=".12" stroke-width="1.6"/>`).join("")}
+ ${rBox(100,84,70,22,24,"black",{r:3})}
+ <path d="M116 0 C114 40 118 70 118 90" fill="none" stroke="#222" stroke-width="3.4"/><path d="M116 0 C114 40 118 70 118 90" fill="none" stroke="#f2f2ee" stroke-width="2.2"/><path d="M134 0 C138 40 132 70 132 90" fill="none" stroke="#222" stroke-width="3.4"/><path d="M134 0 C138 40 132 70 132 90" fill="none" stroke="#c0281c" stroke-width="2.2"/>
+ <rect x="114" y="88" width="8" height="6" fill="url(#r_chromeV)"/><rect x="128" y="88" width="8" height="6" fill="url(#r_chromeV)"/>
+ ${rCylV(198,92,104,12,"red",{ry:4})}<rect x="186" y="90.5" width="24" height="3" rx="1.5" fill="#7e160d"/><text x="198" y="99" text-anchor="middle" font-size="4" font-weight="700" font-family="IBM Plex Sans,sans-serif" fill="#fff">ON</text>
+ ${rHexV(228,98,6,8,"al")}${rCylV(228,86,99,6.5,"black",{ry:2.2})}
+ ${rCut(win)}${rClip("rg_gcut",win,`<path d="M104 162 H122 V142 H140 V162 H160 V142 H178 V162 H204 V174 H104 Z" fill="url(#r_alF)"/>${[131,169].map(x=>`<rect x="${x-3}" y="122" width="6" height="18" fill="url(#r_chromeV)"/><rect x="${x-10}" y="137" width="20" height="6" rx="1.5" fill="#1a1a1a"/>${Array.from({length:3},(_,k)=>`<path d="M${x-5} ${126+k*4} l10 2" stroke="#9aa3a9" stroke-width="1.2"/>`).join("")}`).join("")}${zFA("M106 152 H131 V132 M169 132 V152 H202",GASC)}`)}
+ <circle cx="97" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M94.5 168 h5" stroke="#4c3407" stroke-width="1.1"/><circle cx="224" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M221.5 168 h5" stroke="#4c3407" stroke-width="1.1"/>
+ ${rL(134,30,80,30,6,34,"24 V wires")}${rL(206,92,262,70,336,66,"Gas knob: ON / OFF","end")}${rL(228,86,262,44,336,40,"Regulator cap: sets 3.5 in. w.c.","end")}
+ ${rL(150,140,90,200,6,212,"Two valves in series")}${rL(97,168,60,232,6,240,"Inlet pressure tap")}${rL(224,168,270,226,336,238,"Outlet (manifold) tap","end")}`})(),
 
- furn:`
- ${zShade(170,224,130)}
- ${ironH(0,128,70,20)}${zFA("M4 138 H66",GASC)}
- <rect x="270" y="132" width="70" height="12" fill="url(#zAlu)"/>${zFA("M274 138 H336",GASC)}
- <g filter="url(#zShadow)">
-  <rect x="66" y="88" width="208" height="100" rx="8" fill="#2f3337"/><rect x="70" y="92" width="200" height="8" rx="3" fill="#fff" opacity=".08"/>
-  <circle cx="200" cy="72" r="20" fill="#c0281c"/><rect x="186" y="68" width="28" height="8" rx="3" fill="#8a1c14"/><text x="200" y="58" font-size="8" font-family="sans-serif" text-anchor="middle" fill="#2a3135" font-weight="700">ON  OFF</text>
-  <rect x="100" y="60" width="44" height="30" rx="4" fill="#3d4247"/><rect x="104" y="64" width="36" height="22" rx="2" fill="#1d2023"/>
- </g>
- <clipPath id="zg_gcut"><path d="M76 104 H262 V180 H76 Z"/></clipPath>
- <g clip-path="url(#zg_gcut)"><rect x="70" y="100" width="200" height="86" fill="url(#zInside)"/>
-  <path d="M76 140 H110 V122 H140 V150 H170 V122 H200 V150 H262" fill="none" stroke="${GASC}" stroke-width="7" opacity=".55"/>
-  ${[0,1].map(i=>`<rect x="${106+i*60}" y="108" width="38" height="14" fill="#7d6a3a"/><rect x="${118+i*60}" y="122" width="14" height="22" fill="#9aa3aa"/><rect x="${112+i*60}" y="142" width="26" height="6" rx="2" fill="#1f1f1f"/>`).join("")}
-  ${Array.from({length:5},(_,i)=>`<ellipse cx="236" cy="${112+i*4}" rx="10" ry="2.2" fill="none" stroke="#c4cacf" stroke-width="1.8"/>`).join("")}<rect x="226" y="132" width="20" height="3" fill="#1f1f1f"/>
- </g>
- ${cutEdge("M76 104 H262 V180 H76 Z")}
- <circle cx="84" cy="182" r="5" fill="url(#zBrass)"/><circle cx="254" cy="182" r="5" fill="url(#zBrass)"/>
- <path d="M114 60 C114 30 150 26 180 22 M130 60 C130 36 160 34 190 30" fill="none" stroke="#e8c33a" stroke-width="2"/>
- ${zL(124,115,60,60,6,52,"Two valves in series (24 V coils)")}
- ${zL(236,118,300,96,278,84,"Regulator: 3.5\" w.c.","start")}
- ${zL(84,186,60,214,6,230,"Inlet pressure tap")}
- ${zL(254,186,280,214,236,230,"Outlet (manifold) tap")}
- ${zL(212,70,260,40,230,30,"Gas knob")}`,
-
- wh:`
- ${zShade(170,240,70)}
- <g filter="url(#zShadow)">
-  <rect x="104" y="40" width="132" height="186" rx="12" fill="url(#zSteelH)"/>
-  <path d="M120 40 L112 22 H228 L220 40 Z" fill="url(#zSteel)"/><rect x="156" y="0" width="28" height="24" fill="url(#zSteelH)"/>
-  <rect x="236" y="70" width="18" height="12" fill="url(#zBrass)"/><rect x="250" y="76" width="10" height="120" fill="url(#zCuV)"/>
-  <rect x="120" y="196" width="40" height="22" rx="3" fill="#2f3337"/><circle cx="140" cy="206" r="6" fill="#c0281c"/>
- </g>
- <clipPath id="zg_wcut"><path d="M150 52 H230 V218 H150 Z"/></clipPath>
- <defs><linearGradient id="zg_wtr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e56a55"/><stop offset=".55" stop-color="#d9a0a0"/><stop offset="1" stop-color="#6f9fd6"/></linearGradient></defs>
- <g clip-path="url(#zg_wcut)">
-  <rect x="146" y="48" width="90" height="174" fill="#e8c873"/>
-  <rect x="156" y="58" width="68" height="146" fill="url(#zg_wtr)"/>
-  <rect x="184" y="48" width="12" height="160" fill="#59626a"/><path d="M186 60 l8 6 -8 6 8 6 -8 6 8 6 -8 6 8 6 -8 6 8 6 -8 6" fill="none" stroke="#c4cacf" stroke-width="1.6"/>
-  <rect x="164" y="48" width="5" height="148" fill="#e9e9e2"/>
-  <rect x="212" y="48" width="4" height="120" fill="#9aa3aa"/>
-  <rect x="146" y="204" width="90" height="16" fill="#1d2023"/>${[0,1,2].map(i=>`<path d="M${176+i*12} 218 q4 -12 8 0 z" fill="#3d7de0"/>`).join("")}
- </g>
- ${cutEdge("M150 52 H230 V218 H150 Z")}
- ${zFA("M190 204 V30","#e0662a")}
- ${zL(170,12,100,12,6,16,"Draft hood")}
- ${zL(190,120,290,40,262,30,"Flue with baffle")}
- ${zL(166,180,70,150,6,146,"Dip tube (cold in, to bottom)")}
- ${zL(214,140,290,120,262,136,"Anode rod","start")}
- ${zL(150,120,70,100,6,96,"Foam insulation")}
- ${zL(140,206,70,226,6,240,"Gas control / thermostat")}
- ${zL(254,150,300,170,262,188,"T&P discharge pipe","start")}`
+/* ---------- tank-type water heater, cutaway ---------- */
+wh:(()=>{const win="M118 76 L212 64 V190 L118 200 Z",tank="M126 80 L212 69 V184 L126 194 Z";
+ return `${rSh(165,224,84,10)}
+ ${rCylV(165,210,222,64,"black",{ry:16})}${rCylV(165,52,214,62,"white",{ry:16})}
+ 
+ ${rCut(win)}${rClip("rg_wcut",win,`<path d="${win}" fill="url(#rFoam)" filter="url(#rGrain)"/><path d="${tank}" fill="url(#rWater)"/><path d="${tank}" fill="url(#rHot)"/><path d="${tank}" fill="none" stroke="#3a4046" stroke-width="2.4"/>
+  <rect x="157" y="40" width="16" height="160" fill="url(#r_galvV)"/><path d="M159 70 ${Array.from({length:15},(_,k)=>`L${k%2?171:159} ${76+k*8}`).join(" ")}" fill="none" stroke="#6b5530" stroke-width="2"/>
+  <rect x="132" y="70" width="5" height="114" fill="#eceee8"/><rect x="132" y="70" width="1.6" height="114" fill="#fff"/>
+  <rect x="192" y="60" width="5" height="108" fill="url(#r_alV)"/>
+  <ellipse cx="165" cy="198" rx="26" ry="4" fill="#111"/>${[150,158,166,174].map(x=>`<path d="M${x} 199 q4 -12 8 0 z" fill="url(#rFlame)"/>`).join("")}`)}
+ <rect x="150" y="204" width="30" height="9" rx="2" fill="#1f2326"/><rect x="160" y="206" width="10" height="5" rx="1" fill="#3a6ea4" opacity=".7"/>
+ ${rCylH(0,94,190,5,"iron")}${rBox(92,172,26,26,8,"black",{r:3})}<circle cx="105" cy="181" r="5.4" fill="url(#r_redV)"/><rect x="96" y="190" width="18" height="4" rx="1" fill="#59626a"/>
+ ${rCylV(135,0,30,5,"cu",{top:false})}${rHexV(135,28,8,9,"brass")}${rCylV(135,36,58,6,"galv",{ry:2})}
+ ${rCylV(195,0,30,5,"cu",{top:false})}${rHexV(195,28,8,9,"brass")}${rCylV(195,36,58,6,"galv",{ry:2})}
+ ${rCylV(165,0,30,10,"galv",{top:false})}<path d="M147 46 L183 46 L176 30 L154 30 Z" fill="url(#r_galvV)"/><path d="M150 46 V54 M180 46 V54" stroke="#6d757b" stroke-width="2"/>${rCylV(165,44,56,9,"galv",{ry:2.8})}
+ <rect x="224" y="74" width="14" height="14" rx="2" fill="url(#r_brassV)"/><rect x="226" y="68" width="10" height="4" fill="#4c3407"/>${rCylH(238,252,81,3.5,"cu")}${rCylV(252,81,214,3.5,"cu",{top:false})}
+ <text x="128" y="12" text-anchor="end" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#2f74c8">cold in</text><text x="202" y="12" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#c0281c">hot out</text>
+ ${rL(165,36,110,24,6,28,"Draft hood")}${rL(168,112,270,104,336,100,"Flue with baffle","end")}${rL(195,140,270,138,336,134,"Anode rod","end")}
+ ${rL(135,150,60,150,6,146,"Dip tube: cold to bottom")}${rL(121,110,60,112,6,108,"Foam insulation")}${rL(238,80,270,58,336,54,"T&P valve + tube","end")}
+ ${rL(105,186,60,214,6,226,"Gas control / thermostat")}${rL(178,200,240,226,336,232,"Burner","end")}`})()
 };

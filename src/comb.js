@@ -37,28 +37,29 @@ function gSvg(p){
 <linearGradient id="${p}glass" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5b6670"/><stop offset=".45" stop-color="#1f262c"/><stop offset="1" stop-color="#0f1316"/></linearGradient>
 <linearGradient id="${p}dome" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e3e8eb"/><stop offset=".55" stop-color="#9aa4aa"/><stop offset="1" stop-color="#5e676d"/></linearGradient></defs>
 <rect x="10" y="462" width="780" height="14" fill="url(#${p}floor)"/><line x1="10" y1="462" x2="790" y2="462" stroke="#8d918b" stroke-width="1.2"/>
-<line x1="10" y1="300" x2="128" y2="300" stroke="#7a6a4a" stroke-width="1.2" stroke-dasharray="6 3"/>
+<line x1="10" y1="392" x2="128" y2="392" stroke="#7a6a4a" stroke-width="1.2" stroke-dasharray="6 3"/>
 <rect x="126" y="120" width="14" height="342" fill="url(#${p}conc)" stroke="#7c7f79"/>${[160,210,260,310,360,410].map(y=>`<line x1="126" y1="${y}" x2="140" y2="${y}" stroke="#8f928c" stroke-width=".6"/>`).join("")}<text class="lblS" x="60" y="96" text-anchor="middle">Outside</text><text class="lblS" x="146" y="132">Basement</text>
 <!-- meter set (natural gas) -->
 <g id="${p}ngSet">
-<g class="part" data-p="sreg" tabindex="0">${pipe("M70 470 V420",8)}${zShade(70,176,26,3)}<path class="hl" d="M44 152 Q46 128 70 126 Q94 128 96 152 Z" fill="url(#${p}dome)" stroke="#4d555a"/><path d="M42 152 H98 V157 H42 Z" fill="#7d868c" stroke="#4d555a"/>${[48,58,70,82,92].map(x=>`<circle cx="${x}" cy="154.5" r="1.4" fill="#3a4045"/>`).join("")}<path d="M46 157 Q48 170 70 172 Q92 170 94 157 Z" fill="url(#zSteelH)" stroke="#4d555a"/><rect x="64" y="118" width="12" height="10" rx="2" fill="url(#zSteel)" stroke="#4d555a"/>
- <path d="M96 140 h12 v12" stroke="#3b4247" stroke-width="5" fill="none"/><rect x="104" y="152" width="8" height="6" rx="1" fill="#2a2f33"/><rect x="62" y="166" width="16" height="8" fill="url(#zSteel)" stroke="#4d555a"/>
- <text class="cht" x="70" y="112" text-anchor="middle">service regulator</text><text class="val" id="${p}sregTxt" x="70" y="148" text-anchor="middle" font-size="10">7.0"</text></g>
-<g class="part" data-p="meter" tabindex="0">${pipe("M70 172 V196",8)}${pipe("M70 300 V420 M70 420 H96",8)}
- ${zShade(70,304,46,4)}<rect class="hl" x="24" y="194" width="92" height="108" rx="10" fill="url(#${p}jak)" stroke="#4d555a" stroke-width="1.4" filter="url(#zShadow)"/>
- ${[268,276,284,292].map(y=>`<line x1="30" y1="${y}" x2="110" y2="${y}" stroke="#6c767c" stroke-width=".8" opacity=".7"/>`).join("")}<rect x="24" y="262" width="92" height="3" fill="#59626a" opacity=".6"/>
- <rect x="31" y="203" width="78" height="60" rx="5" fill="#59626a"/><rect x="34" y="206" width="72" height="54" rx="4" fill="#f4f4ee" stroke="#777"/><path d="M36 208 L62 208 L44 258 L36 258 Z" fill="#fff" opacity=".35"/>
- ${[0,1,2,3].map(i=>`<circle cx="${44+i*17}" cy="220" r="7" fill="#fff" stroke="#555"/><line x1="${44+i*17}" y1="220" x2="${44+i*17}" y2="214" stroke="#222" stroke-width="1.2"/>`).join("")}
- <circle cx="58" cy="244" r="11" fill="#fff" stroke="#c0281c" stroke-width="1.5"/><line id="${p}test" x1="58" y1="244" x2="58" y2="234" stroke="#c0281c" stroke-width="1.8"/><text class="cht" x="58" y="259" text-anchor="middle" style="fill:#c0281c">2 ft³</text>
- <circle cx="88" cy="244" r="7" fill="#fff" stroke="#c0281c"/><line id="${p}test2" x1="88" y1="244" x2="88" y2="238" stroke="#c0281c" stroke-width="1.4"/><text class="cht" x="88" y="259" text-anchor="middle" style="fill:#c0281c">½</text>
- <rect x="30" y="273" width="80" height="17" rx="3" fill="#1d2226" opacity=".85"/><text class="val" id="${p}secTxt" x="70" y="286" style="fill:#e8eef0" text-anchor="middle" font-size="10">--</text></g>
+<g class="part" data-p="sreg" tabindex="0">${pipe("M8 396 V166 H14",7)}<g transform="translate(-17.6 111.1) scale(.28)">${rSregArt(false)}</g><rect class="hl" x="6" y="120" width="50" height="56" rx="4" fill="transparent"/>
+ <text class="cht" x="34" y="106" text-anchor="middle">service regulator</text><text class="val" id="${p}sregTxt" x="30" y="190" text-anchor="middle" font-size="10">7.0"</text></g>
+<g class="part" data-p="meter" tabindex="0">${pipe("M48 166 H54 V184",7)}
+ ${rSh(74,304,54,5)}${rBox(28,206,84,96,22,"al",{r:5,grain:true})}<rect class="hl" x="28" y="206" width="84" height="96" rx="5" fill="transparent"/>
+ ${rCylV(54,190,201,8,"al",{ry:2.4})}${rHexV(54,182,9,9,"galv")}${rCylV(94,190,201,8,"al",{ry:2.4})}${rHexV(94,182,9,9,"galv")}
+ <rect x="27" y="264" width="86" height="6" rx="1.5" fill="url(#r_alH)"/>${[34,52,88,106].map(x=>rBolt(x,267,1.7)).join("")}
+ <rect x="32" y="209" width="76" height="52" rx="4" fill="url(#r_paintF)"/><rect x="35" y="212" width="70" height="46" rx="3" fill="#f7f5ec"/>
+ ${[44,61,78,95].map((x,i)=>rDial(x,221,6.2,[40,250,120,310][i])).join("")}
+ <circle cx="58" cy="244" r="10" fill="#fbfaf4" stroke="#c0281c" stroke-width="1.2"/><line id="${p}test" x1="58" y1="244" x2="58" y2="235" stroke="#c0281c" stroke-width="1.8" stroke-linecap="round"/><circle cx="58" cy="244" r="1.6" fill="#c0281c"/><text x="70" y="255" font-family="var(--body)" font-size="6" fill="#c0281c">2 ft³</text>
+ <circle cx="92" cy="244" r="7" fill="#fbfaf4" stroke="#c0281c"/><line id="${p}test2" x1="92" y1="244" x2="92" y2="238" stroke="#c0281c" stroke-width="1.4" stroke-linecap="round"/><text x="99" y="255" font-family="var(--body)" font-size="6" fill="#c0281c">½</text>
+ <rect x="35" y="212" width="70" height="46" rx="3" fill="url(#rGlass)"/>
+ <rect x="32" y="276" width="76" height="17" rx="3" fill="#1d2226" opacity=".88"/><text class="val" id="${p}secTxt" x="70" y="289" style="fill:#e8eef0" text-anchor="middle" font-size="10">--</text></g>
 </g>
 <!-- propane tank -->
 <g id="${p}lpSet" opacity="0"><g class="part" data-p="tank" tabindex="0"><rect class="hl" x="12" y="330" width="110" height="60" rx="30" fill="#e8e8e2" stroke="#666"/><rect x="58" y="318" width="18" height="14" fill="url(#zBrass)"/>
  <text class="cht onm" x="67" y="364" text-anchor="middle">PROPANE</text><circle cx="70" cy="200" r="16" fill="url(#zSteelH)" stroke="#4d555a"/><text class="cht" x="70" y="178" text-anchor="middle">2nd-stage regulator</text>
- <text class="val" id="${p}lpTxt" x="70" y="204" text-anchor="middle" font-size="10">11"</text>${pipe("M67 318 V216",6)}</g></g>
+ <text class="val" id="${p}lpTxt" x="70" y="204" text-anchor="middle" font-size="10">11"</text>${pipe("M67 318 V216",6)}${pipe("M86 200 H94 V184",6)}</g></g>
 <!-- main and branches -->
-<g class="part" data-p="main" tabindex="0">${pipe("M96 420 H150 V240 H690",9)}<path class="hl" d="M96 420 H150 V240 H690" fill="none" stroke="transparent" stroke-width="12"/></g>
+<g class="part" data-p="main" tabindex="0">${pipe("M94 184 V170 H150 V240 H690",9)}<path class="hl" d="M94 184 V170 H150 V240 H690" fill="none" stroke="transparent" stroke-width="12"/></g>
 <text class="cht" id="${p}mainTxt" x="420" y="232" text-anchor="middle">main</text>
 <g id="${p}leakG" opacity="0"><g class="puff"><circle cx="170" cy="236" r="4" fill="#d9e6c8"/><circle cx="176" cy="229" r="3" fill="#d9e6c8"/></g></g>
 <g id="${p}bub" opacity="0">${[0,1,2,3].map(i=>`<circle cx="${164+i*4}" cy="${246+(i%2)*4}" r="2.4" fill="#fff" stroke="#7aa0c8"/>`).join("")}<text class="cht" x="186" y="256" style="fill:var(--bad)">bubbles</text></g>
@@ -69,43 +70,42 @@ ${GAPP.map((a,i)=>{const x=X[i];return `
 <path id="${p}kink" d="M670 312 q4 -6 8 0" stroke="#c0281c" stroke-width="3" fill="none" opacity="0"/>
 <!-- appliances -->
 <!-- vent pipes and flexible connectors -->
-<path d="M312 300 V264 Q312 258 318 258 H340" fill="none" stroke="#5f686d" stroke-width="12"/><path d="M312 300 V264 Q312 258 318 258 H340" fill="none" stroke="#c9d0d4" stroke-width="10"/>${[290,276].map(y=>`<line x1="307" y1="${y}" x2="317" y2="${y}" stroke="#7d868c"/>`).join("")}<text class="cht" x="343" y="262">vent</text>
-<path d="M426 278 V262" stroke="#5f686d" stroke-width="12"/><path d="M426 278 V262" stroke="#c9d0d4" stroke-width="10"/><path d="M420 262 h12" stroke="#7d868c" stroke-width="2"/>
-<path d="M540 312 C566 312 560 336 572 344" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M540 312 C566 312 560 336 572 344" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
-<path d="M680 312 C700 312 694 322 706 324" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M680 312 C700 312 694 322 706 324" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
-<g class="part" data-p="furn" tabindex="0">${zShade(285,456,42,4)}<rect class="hl" x="250" y="300" width="70" height="152" rx="3" fill="url(#zCab)" stroke="#4d555a" filter="url(#zShadow)"/>
- <rect x="254" y="304" width="62" height="54" rx="2" fill="none" stroke="#7d868c"/>${[0,1,2,3,4].map(k=>`<rect x="${290+k*5}" y="307" width="2.4" height="9" rx="1" fill="#59626a"/>`).join("")}
- <rect x="257" y="319" width="56" height="32" rx="2" fill="#5f686d"/><rect x="258" y="320" width="54" height="30" fill="url(#zInside)"/><path d="M260 322 H310" stroke="#8a4a1a" stroke-width="1.2" opacity=".7"/>
- <g id="${p}flF" opacity="0">${[0,1,2].map(k=>`<path d="M${266+k*16} 346 q4 -12 8 0 z" fill="url(#zFlame)"/>`).join("")}</g>${[0,1,2].map(k=>`<rect x="${266+k*16}" y="346" width="8" height="3" fill="#8b949a"/>`).join("")}
- <rect x="236" y="324" width="16" height="16" rx="2" fill="url(#zPlasticDk)" stroke="#222"/><rect x="238" y="326" width="12" height="4" fill="#59626a"/><circle cx="244" cy="334" r="2.4" fill="#ffd34d"/>
- <rect x="262" y="306" width="22" height="10" rx="2" fill="#2a2f33"/><rect x="264" y="308" width="8" height="3" fill="#3fbf6a" opacity=".8"/>
- <rect x="254" y="362" width="62" height="86" rx="2" fill="none" stroke="#7d868c"/><rect x="278" y="364" width="14" height="4" rx="2" fill="#8f979d"/>
- <text class="cht onm" x="285" y="382" text-anchor="middle">FURNACE</text>${[0,1,2,3].map(k=>`<rect x="262" y="${414+k*8}" width="46" height="3" rx="1" fill="#6f787e"/>`).join("")}</g>
-<g class="part" data-p="wh" tabindex="0"><g id="${p}whTank">${zShade(426,456,34,4)}
- <path d="M412 286 h28 l-4 -8 h-20 z" fill="url(#zSteel)" stroke="#555"/><rect x="420" y="286" width="12" height="10" fill="url(#zSteel)" stroke="#555"/>
- <rect x="406" y="288" width="5" height="12" fill="url(#zCuV)" stroke="#6b3a1a" stroke-width=".6"/><rect x="441" y="288" width="5" height="12" fill="url(#zCuV)" stroke="#6b3a1a" stroke-width=".6"/>
- <rect class="hl" x="398" y="302" width="56" height="146" rx="6" fill="url(#${p}jak)" stroke="#5f686d" filter="url(#zShadow)"/><ellipse cx="426" cy="302" rx="28" ry="5" fill="#dfe5e8" stroke="#5f686d"/>
- <rect x="400" y="446" width="52" height="5" rx="1" fill="#4a5257"/>
- <rect x="452" y="316" width="10" height="8" rx="1" fill="url(#zBrass)" stroke="#6b5200"/><rect x="458" y="312" width="4" height="5" fill="#c0281c"/><path d="M462 320 h4 V440" fill="none" stroke="#6b3a1a" stroke-width="4.6"/><path d="M462 320 h4 V440" fill="none" stroke="#c97a3a" stroke-width="3"/>
- <rect x="402" y="404" width="20" height="18" rx="2" fill="url(#zPlasticDk)" stroke="#222"/><circle cx="412" cy="411" r="3.6" fill="#c0281c"/><rect x="406" y="417" width="12" height="3" fill="#59626a"/>
- <rect x="422" y="428" width="24" height="16" rx="2" fill="#2a2f33" stroke="#111"/>
- <rect x="404" y="330" width="44" height="22" rx="2" fill="#f4f4ee" opacity=".85"/><text class="cht" x="426" y="340" text-anchor="middle" style="fill:#2a3034;font-size:7px">WATER</text><text class="cht" x="426" y="349" text-anchor="middle" style="fill:#2a3034;font-size:7px">HEATER</text>
- <g id="${p}flW" opacity="0"><path d="M426 440 q4 -10 8 0 z M436 440 q3 -9 6 0 z" fill="url(#zFlame)"/></g></g></g>
-<g class="part" data-p="tl" tabindex="0"><g id="${p}whTl" opacity="0"><rect class="hl" x="398" y="300" width="56" height="86" rx="4" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="408" y="312" width="36" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}tlCode" x="426" y="324" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="#1f2a22">120°</text><text class="cht onm" x="426" y="350" text-anchor="middle">TANKLESS</text><text class="cht" x="426" y="360" text-anchor="middle">199k</text></g></g>
-<g class="part" data-p="dryer" tabindex="0">${zShade(572,456,38,4)}<rect x="540" y="344" width="64" height="14" rx="2" fill="url(#${p}enam)" stroke="#5f686d"/><circle cx="552" cy="351" r="4" fill="#9aa3aa" stroke="#4d555a"/><rect x="562" y="347" width="22" height="8" rx="1" fill="url(#zLcd)"/><circle cx="594" cy="351" r="4" fill="#9aa3aa" stroke="#4d555a"/>
- <rect class="hl" x="540" y="358" width="64" height="92" rx="3" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/>
- <circle cx="572" cy="404" r="25" fill="url(#zSteel)" stroke="#5f686d"/><circle cx="572" cy="404" r="19" fill="url(#${p}glass)"/><path d="M558 392 A19 19 0 0 1 580 387" stroke="#fff" stroke-width="2" fill="none" opacity=".35"/><rect x="596" y="398" width="4" height="12" rx="2" fill="#8b949a"/>
- <path d="M604 440 H620" stroke="#8b949a" stroke-width="8"/>${[606,610,614,618].map(x=>`<line x1="${x}" y1="436" x2="${x}" y2="444" stroke="#5f686d" stroke-width=".8"/>`).join("")}
+${rCylV(312,262,300,6,"galv",{top:false})}${rCylH(312,336,258,6,"galv",{end:true})}${rBand(306,258,7,12,"galv")}<text class="cht" x="343" y="262">vent</text>
+${rCylV(426,260,284,6,"galv",{top:false})}
+<path d="M540 312 C566 312 560 336 572 346" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M540 312 C566 312 560 336 572 346" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
+<path d="M680 312 C700 312 694 322 706 326" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M680 312 C700 312 694 322 706 326" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
+<g class="part" data-p="furn" tabindex="0">${rSh(292,452,50,6)}${rBox(250,302,70,148,18,"cab",{r:2})}<rect class="hl" x="250" y="302" width="70" height="148" rx="2" fill="transparent"/>
+ <rect x="254" y="306" width="62" height="52" rx="1.5" fill="none" stroke="#8a9094"/>${[0,1,2,3,4].map(k=>`<rect x="${290+k*5}" y="308" width="2.6" height="9" rx="1.2" fill="#3a4045"/>`).join("")}
+ <rect x="257" y="319" width="56" height="33" rx="1.5" fill="#454c52"/><rect x="258" y="320" width="54" height="31" fill="url(#rCav)"/><path d="M260 323 H310" stroke="#8a4a1a" stroke-width="1.2" opacity=".7"/>
+ <g id="${p}flF" opacity="0">${[0,1,2].map(k=>`<path d="M${266+k*16} 346 q4 -13 8 0 z" fill="url(#rFlame)"/>`).join("")}</g>${[0,1,2].map(k=>`<rect x="${265+k*16}" y="346" width="10" height="4" rx="1" fill="url(#r_alH)"/>`).join("")}
+ ${rBox(234,324,16,16,6,"black",{r:2})}<circle cx="242" cy="333" r="2.6" fill="#ffd34d"/>
+ <rect x="262" y="307" width="22" height="10" rx="1.5" fill="#22272b"/><rect x="264" y="309" width="8" height="3" fill="#3fbf6a" opacity=".85"/>
+ <rect x="254" y="362" width="62" height="84" rx="1.5" fill="none" stroke="#8a9094"/><rect x="277" y="365" width="16" height="4" rx="2" fill="#7d8387"/>
+ <text class="cht onm" x="285" y="384" text-anchor="middle">FURNACE</text>${[0,1,2,3].map(k=>`<rect x="262" y="${414+k*8}" width="46" height="3" rx="1.4" fill="#4a5055"/>`).join("")}</g>
+<g class="part" data-p="wh" tabindex="0"><g id="${p}whTank">${rSh(428,452,42,6)}
+ <path d="M412 290 L440 290 L434 282 L418 282 Z" fill="url(#r_galvV)"/><path d="M415 290 V298 M437 290 V298" stroke="#6d757b" stroke-width="1.6"/>
+ ${rCylV(408,288,302,3,"cu",{ry:1})}${rCylV(444,288,302,3,"cu",{ry:1})}
+ ${rCylV(426,440,450,29,"black",{ry:7})}${rCylV(426,302,444,28,"white",{ry:7})}<rect class="hl" x="398" y="295" width="56" height="155" rx="6" fill="transparent"/>
+ ${rCylH(452,463,321,2.4,"cu")}${rCylV(463,321,440,2.4,"cu",{top:false})}<rect x="450" y="316" width="9" height="10" rx="1.5" fill="url(#r_brassV)"/>
+ <rect x="406" y="330" width="40" height="22" rx="2" fill="#f4f2e8"/><text x="426" y="340" text-anchor="middle" font-family="var(--body)" font-size="7" font-weight="600" fill="#2a3034">WATER</text><text x="426" y="349" text-anchor="middle" font-family="var(--body)" font-size="7" font-weight="600" fill="#2a3034">HEATER</text>
+ ${rBox(402,404,20,18,5,"black",{r:2})}<circle cx="412" cy="412" r="3.8" fill="url(#r_redV)"/>
+ <rect x="422" y="426" width="26" height="17" rx="2" fill="#15181a"/>
+ <g id="${p}flW" opacity="0"><path d="M427 441 q4 -11 8 0 z M437 441 q3 -9 6 0 z" fill="url(#rFlame)"/></g></g></g>
+<g class="part" data-p="tl" tabindex="0"><g id="${p}whTl" opacity="0">${rBox(398,300,56,86,12,"white",{r:4})}<rect class="hl" x="398" y="300" width="56" height="86" rx="4" fill="transparent"/><rect x="408" y="312" width="36" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}tlCode" x="426" y="324" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="#1f2a22">120°</text><text class="cht onm" x="426" y="350" text-anchor="middle">TANKLESS</text><text class="cht onm" x="426" y="360" text-anchor="middle">199k</text></g></g>
+<g class="part" data-p="dryer" tabindex="0">${rSh(578,452,46,6)}${rBox(540,358,64,92,18,"white",{r:3})}${rBox(548,340,62,12,5,"white",{r:2})}<rect class="hl" x="540" y="340" width="70" height="110" rx="3" fill="transparent"/>
+ <circle cx="556" cy="346" r="3.6" fill="url(#r_chromeV)"/><rect x="566" y="342" width="22" height="8" rx="1" fill="url(#zLcd)"/><circle cx="598" cy="346" r="3.6" fill="url(#r_chromeV)"/>
+ <circle cx="572" cy="404" r="25" fill="url(#r_chromeV)"/><circle cx="572" cy="404" r="20" fill="#20262b"/><circle cx="572" cy="404" r="20" fill="url(#rGlass)"/><rect x="595" y="398" width="4" height="12" rx="2" fill="url(#r_chromeV)"/>
+ ${rCylH(612,628,440,4.5,"al",{end:true,bore:true})}${[615,619,623].map(x=>`<line x1="${x}" y1="435.5" x2="${x}" y2="444.5" stroke="#5f686d" stroke-width=".8"/>`).join("")}
  <text class="cht onm" x="572" y="372" text-anchor="middle">DRYER</text></g>
-<g class="part" data-p="range" tabindex="0">${zShade(720,456,46,4)}<rect x="680" y="322" width="80" height="22" rx="2" fill="url(#${p}enam)" stroke="#5f686d"/><rect x="684" y="326" width="72" height="3" fill="#9aa3aa" opacity=".6"/>
- <rect class="hl" x="680" y="350" width="80" height="100" rx="3" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="682" y="342" width="76" height="9" rx="1" fill="#2a2f33"/>${[0,1,2,3].map(k=>`<path d="M${688+k*17} 344 h12" stroke="#59626a" stroke-width="1.4"/>`).join("")}
- ${[0,1,2,3].map(k=>`<circle cx="${694+k*17}" cy="360" r="3.6" fill="url(#zSteel)" stroke="#2a2f33"/><line x1="${694+k*17}" y1="357" x2="${694+k*17}" y2="360" stroke="#2a2f33"/>`).join("")}
- <g id="${p}flR" opacity="0">${[0,1,2,3].map(k=>`<ellipse cx="${694+k*17}" cy="342" rx="6" ry="2.4" fill="none" stroke="#3d7de0" stroke-width="2"/>`).join("")}</g>
- <rect x="688" y="368" width="64" height="3" rx="1.5" fill="url(#zSteel)"/><rect x="690" y="374" width="60" height="50" rx="2" fill="#2a2f33"/><rect x="695" y="379" width="50" height="34" rx="2" fill="url(#${p}glass)"/><path d="M698 382 L716 382 L702 410 L698 410 Z" fill="#fff" opacity=".12"/>
+<g class="part" data-p="range" tabindex="0">${rSh(724,452,52,6)}${rBox(692,324,78,18,4,"white",{r:2})}${rBox(680,350,80,100,20,"white",{r:2})}<rect class="hl" x="680" y="324" width="92" height="126" rx="3" fill="transparent"/>
+ <path d="M681 349.5 L691.5 342 H771 L760 349.5 Z" fill="#1d2124"/>${[0,1,2,3].map(k=>`<ellipse cx="${700+k*17}" cy="345.8" rx="5" ry="1.8" fill="#3a4045"/>`).join("")}<path d="M686 345.8 H766" stroke="#4a5055" stroke-width=".8"/>
+ <g id="${p}flR" opacity="0">${[0,1,2,3].map(k=>`<ellipse cx="${700+k*17}" cy="344.6" rx="6" ry="2.2" fill="none" stroke="#3d7de0" stroke-width="2"/>`).join("")}</g>
+ ${[0,1,2,3].map(k=>`<circle cx="${694+k*17}" cy="360" r="3.6" fill="url(#r_chromeV)" stroke="#2a2f33" stroke-width=".5"/><line x1="${694+k*17}" y1="357" x2="${694+k*17}" y2="360" stroke="#2a2f33"/>`).join("")}
+ <rect x="688" y="368" width="64" height="3.4" rx="1.7" fill="url(#r_chromeH)"/><rect x="690" y="374" width="60" height="50" rx="2" fill="#20262b"/><rect x="695" y="379" width="50" height="34" rx="2" fill="#0f1316"/><rect x="695" y="379" width="50" height="34" rx="2" fill="url(#rGlass)"/>
  <rect x="684" y="430" width="72" height="14" rx="1" fill="none" stroke="#9aa3aa"/><text class="cht onm" x="720" y="441" text-anchor="middle">RANGE</text></g>
 ${GAPP.map((a,i)=>`<text class="val" id="${p}in${i}" x="${[280,482,594,720][i]}" y="${[294,296,334,314][i]-0}" text-anchor="middle" font-size="10"></text>`).join("")}
 <text class="cht" id="${p}mfTxt" x="285" y="400" text-anchor="middle" font-weight="600"></text>
-<g class="part" data-p="mano" tabindex="0"><rect class="hl" x="170" y="380" width="62" height="40" rx="6" fill="#f2b632" stroke="#7a5600"/><rect x="176" y="386" width="50" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}mano" x="201" y="398" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="#1f2a22"></text><text class="cht" x="201" y="414" text-anchor="middle" style="fill:#3a2a00">furnace inlet</text></g>
+<g class="part" data-p="mano" tabindex="0">${rBox(170,380,62,40,6,"yel",{r:6})}<rect class="hl" x="170" y="380" width="62" height="40" rx="6" fill="transparent"/><rect x="176" y="386" width="50" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}mano" x="201" y="398" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="#1f2a22"></text><text class="cht" x="201" y="414" text-anchor="middle" style="fill:#3a2a00">furnace inlet</text></g>
 <!-- summary panel -->
 <rect x="200" y="20" width="586" height="94" rx="6" fill="#16201a" stroke="#0b0f0c"/>
 ${[0,1,2,3,4,5].map(i=>`<text id="${p}s${i}" x="${i<3?212:500}" y="${44+(i%3)*24}" font-family="var(--mono)" font-size="11" fill="#bfe8c4"></text>`).join("")}`}
@@ -186,7 +186,7 @@ const GAS={id:"gas",p:"g_",name:"Gas piping and meter",svg:gSvg("g_"),lamps:GLAM
  },
  draw(dt){const S=this.S,F=this.F,V=this.V,p="g_",ng=S.fuel==="ng";
   at(p+"ngSet","opacity",ng?1:0);at(p+"lpSet","opacity",ng?0:1);
-  at(p+"test","transform",`rotate(${S.ang.toFixed(1)} 58 244)`);at(p+"test2","transform",`rotate(${S.ang2.toFixed(1)} 88 244)`);
+  at(p+"test","transform",`rotate(${S.ang.toFixed(1)} 58 244)`);at(p+"test2","transform",`rotate(${S.ang2.toFixed(1)} 92 244)`);
   txt(p+"secTxt",S.qtot>0.5?`${(7200/S.qtot).toFixed(1)} s/rev`:"stopped");txt(p+"sregTxt",`${S.sup.toFixed(1)}"`);txt(p+"lpTxt",`${S.sup.toFixed(1)}"`);
   txt(p+"mainTxt",`${nps(V.msize)} main, ${V.mlen} ft, drop ${S.dMain.toFixed(2)}"`);at(p+"mainTxt","fill",S.dMain>0.5?"var(--bad)":"var(--muted)");
   at(p+"leakG","opacity",F.leak&&S.qtot>0?(blink(600)?1:.4):0);at(p+"bub","opacity",S.soap>0&&F.leak?1:0);at(p+"kink","opacity",F.csst?1:0);

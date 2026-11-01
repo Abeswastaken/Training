@@ -629,6 +629,87 @@ function clock(t){const s=Math.floor(t),h=Math.floor(s/3600),m=Math.floor(s/60)%
 function log(sim,msg,c=""){sim.logs.unshift([clock(sim.S.t),msg,c]);if(sim.logs.length>150)sim.logs.pop();if(sim===cur){const d=document.createElement("div");d.innerHTML=`<time>${clock(sim.S.t)}</time><span class="${c}">${msg}</span>`;const L=$("log");L.prepend(d);while(L.children.length>150)L.lastChild.remove()}}
 const li=(fail,txtF,txtOk)=>`<li class="${fail?"f":"k"}"><b>${fail?"Failed":"Worked"}</b>${fail?txtF:txtOk}</li>`;
 
+
+/* ============ REALISTIC 3/4-VIEW DRAWING KIT (light from upper left) ============
+   Materials are gradients named r_<mat>V (across a vertical cylinder), r_<mat>H (across a horizontal one),
+   r_<mat>F/T/S (box front, top, side). rGrain adds cast or painted texture. */
+const R_MAT={
+ al:["#5f676d","#aeb6bb","#eef1f3","#c4cbcf","#8d969c","#a7afb4","#535a60"],
+ iron:["#0b0d0f","#2c3237","#6d767c","#353b40","#1c2024","#2a3035","#090a0b"],
+ galv:["#59605f","#a2a9a7","#e3e7e5","#b3bab8","#7f8785","#959c9a","#4b5150"],
+ brass:["#4c3407","#a77a22","#f6dd8e","#c99a3a","#86601a","#a2772a","#3e2a06"],
+ cu:["#4e200c","#a5532a","#f2b88c","#c97a48","#8a3f1c","#a35a33","#3f1a0a"],
+ white:["#9ea4a6","#dfe3e3","#ffffff","#eef0ef","#cdd2d2","#dde1e0","#8f9597"],
+ blue:["#16314f","#2b5c8f","#6e9fd0","#3a6ea4","#22496f","#2f5d8a","#112640"],
+ paint:["#3a444c","#6c7882","#b4bec5","#7f8b94","#56616a","#68747d","#2f383f"],
+ black:["#050607","#1d2124","#5c6368","#272b2f","#121518","#1d2124","#030404"],
+ red:["#4a0b06","#9a1d12","#f0675a","#c0281c","#7e160d","#9a1d12","#3a0804"],
+ chrome:["#4f5559","#c9ced1","#ffffff","#8e959a","#e3e7e9","#7c8388","#3c4145"],
+ cab:["#7a8084","#bfc5c8","#f1f3f3","#d6dadb","#a7aeb1","#bcc2c4","#686e72"],
+ yel:["#6a4a00","#c99a1a","#ffe08a","#f2b632","#b98510","#d29e22","#5a3e00"],
+ tan:["#5a3f1f","#9c7444","#e4c690","#b98f5a","#86613a","#9c7444","#4a3218"]
+};
+const R_OFF=[0,.14,.32,.5,.72,.88,1];
+const rLight=(c,k)=>{const n=parseInt(c.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(k>0?v+(255-v)*k:v*(1+k))));return "#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("")};
+const R_DEFS=(()=>{let d="";for(const [m,c] of Object.entries(R_MAT)){
+ const st=c.map((x,i)=>`<stop offset="${R_OFF[i]}" stop-color="${x}"/>`).join("");
+ d+=`<linearGradient id="r_${m}V" x1="0" x2="1">${st}</linearGradient><linearGradient id="r_${m}H" x1="0" x2="0" y1="0" y2="1">${st}</linearGradient>`;
+ d+=`<linearGradient id="r_${m}F" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[3],.18)}"/><stop offset=".55" stop-color="${c[3]}"/><stop offset="1" stop-color="${rLight(c[3],-.22)}"/></linearGradient>`;
+ d+=`<linearGradient id="r_${m}T" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[2],-.02)}"/><stop offset="1" stop-color="${rLight(c[3],.12)}"/></linearGradient>`;
+ d+=`<linearGradient id="r_${m}S" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rLight(c[3],-.3)}"/><stop offset="1" stop-color="${rLight(c[3],-.5)}"/></linearGradient>`;}
+ return d+`<filter id="rGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -.55 .33" result="a"/><feComposite in="a" in2="SourceGraphic" operator="in" result="g"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge></filter>
+<filter id="rBrush" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".015 .9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -.9 .5" result="a"/><feComposite in="a" in2="SourceGraphic" operator="in" result="g"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge></filter>
+<radialGradient id="rAO"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset=".6" stop-color="#000" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+<radialGradient id="rCav" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#3b4146"/><stop offset="1" stop-color="#0c0e10"/></radialGradient>
+<linearGradient id="rGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset=".5" stop-color="#fff" stop-opacity=".22"/><stop offset=".62" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="rWater" x1="0" x2="1"><stop offset="0" stop-color="#1d4f86"/><stop offset=".35" stop-color="#5e9bd6"/><stop offset="1" stop-color="#173f6b"/></linearGradient>
+<linearGradient id="rHot" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d9482f" stop-opacity=".55"/><stop offset=".55" stop-color="#8d5fa0" stop-opacity=".25"/><stop offset="1" stop-color="#2f74c8" stop-opacity=".45"/></linearGradient>
+<linearGradient id="rFoam" x1="0" x2="1"><stop offset="0" stop-color="#d9b44a"/><stop offset="1" stop-color="#f2d77c"/></linearGradient>
+<radialGradient id="rFlame" cx=".5" cy=".9" r=".9"><stop offset="0" stop-color="#e6f3ff"/><stop offset=".3" stop-color="#5aa0ff"/><stop offset=".75" stop-color="#2a5fd0" stop-opacity=".7"/><stop offset="1" stop-color="#2a5fd0" stop-opacity="0"/></radialGradient>`})();
+function rEnsure(){if(document.getElementById("rDefs"))return;const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.id="rDefs";s.setAttribute("aria-hidden","true");s.setAttribute("width","0");s.setAttribute("height","0");s.style.cssText="position:absolute;width:0;height:0;overflow:hidden";s.innerHTML="<defs>"+R_DEFS+"</defs>";document.body.prepend(s)}
+if(document.body)rEnsure();else document.addEventListener("DOMContentLoaded",rEnsure);
+
+/* contact shadow */
+const rSh=(cx,cy,rx,ry=rx*.18)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#rAO)"/>`;
+/* vertical cylinder, top ellipse visible */
+const rCylV=(cx,y1,y2,rx,m,o={})=>{const ry=o.ry??rx*.32;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<path d="M${cx-rx} ${y1} V${y2} A${rx} ${ry} 0 0 0 ${cx+rx} ${y2} V${y1} Z" fill="url(#r_${m}V)"${g}/>`+(o.top===false?"":`<ellipse cx="${cx}" cy="${y1}" rx="${rx}" ry="${ry}" fill="url(#r_${m}T)"/><ellipse cx="${cx}" cy="${y1}" rx="${rx}" ry="${ry}" fill="none" stroke="${rLight(R_MAT[m][0],.1)}" stroke-width=".6" opacity=".7"/>`)};
+/* horizontal pipe / cylinder seen from the side, optional open or capped right end */
+const rCylH=(x1,x2,cy,r,m,o={})=>{const rx=o.rx??r*.32;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<rect x="${x1}" y="${cy-r}" width="${x2-x1}" height="${2*r}" fill="url(#r_${m}H)"${g}/>`+(o.end?`<ellipse cx="${x2}" cy="${cy}" rx="${rx}" ry="${r}" fill="url(#r_${m}V)"/>`:"")+(o.bore?`<ellipse cx="${x2}" cy="${cy}" rx="${rx*.7}" ry="${r*.72}" fill="#0d0f10"/>`:"")};
+/* banded fitting (malleable iron bead) */
+const rBand=(x,cy,r,w,m)=>`<rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" rx="${w*.25}" fill="url(#r_${m}H)"/><rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" rx="${w*.25}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".6"/>`;
+const rBandV=(cx,y,r,h,m)=>`<rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" ry="${h*.25}" fill="url(#r_${m}V)"/><rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" ry="${h*.25}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".6"/>`;
+/* pipe threads showing at a joint */
+const rThrH=(x1,x2,cy,r)=>{let s="";for(let x=x1;x<x2;x+=2.2)s+=`<path d="M${x} ${cy-r} l1.4 ${2*r}" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`;return s};
+const rThrV=(cx,y1,y2,r)=>{let s="";for(let y=y1;y<y2;y+=2.2)s+=`<path d="M${cx-r} ${y} l${2*r} 1.4" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`;return s};
+/* hex nut seen across the flats, on a horizontal axis: three visible faces */
+const rHexH=(x,cy,w,r,m)=>`<rect x="${x}" y="${cy-r}" width="${w}" height="${r*.5}" fill="${rLight(R_MAT[m][3],-.25)}"/><rect x="${x}" y="${cy-r*.5}" width="${w}" height="${r}" fill="${R_MAT[m][2]}"/><rect x="${x}" y="${cy-r*.5}" width="${w}" height="${r}" fill="url(#r_${m}F)" opacity=".55"/><rect x="${x}" y="${cy+r*.5}" width="${w}" height="${r*.5}" fill="${rLight(R_MAT[m][3],-.45)}"/><rect x="${x}" y="${cy-r}" width="${w}" height="${2*r}" fill="none" stroke="#000" stroke-opacity=".4" stroke-width=".6"/>`;
+const rHexV=(cx,y,h,r,m)=>`<rect x="${cx-r}" y="${y}" width="${r*.5}" height="${h}" fill="${rLight(R_MAT[m][3],-.1)}"/><rect x="${cx-r*.5}" y="${y}" width="${r}" height="${h}" fill="${R_MAT[m][2]}"/><rect x="${cx-r*.5}" y="${y}" width="${r}" height="${h}" fill="url(#r_${m}F)" opacity=".5"/><rect x="${cx+r*.5}" y="${y}" width="${r*.5}" height="${h}" fill="${rLight(R_MAT[m][3],-.45)}"/><rect x="${cx-r}" y="${y}" width="${2*r}" height="${h}" fill="none" stroke="#000" stroke-opacity=".4" stroke-width=".6"/>`;
+/* box in oblique 3/4 view: front w x h at (x,y), depth goes up and right */
+const rBox=(x,y,w,h,d,m,o={})=>{const dx=d*.6,dy=-d*.42,rr=o.r??2;const g=o.grain?` filter="url(#rGrain)"`:"";
+ return `<path d="M${x} ${y} L${x+dx} ${y+dy} H${x+w+dx} L${x+w} ${y} Z" fill="url(#r_${m}T)"${g}/><path d="M${x+w} ${y} L${x+w+dx} ${y+dy} V${y+h+dy} L${x+w} ${y+h} Z" fill="url(#r_${m}S)"${g}/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rr}" fill="url(#r_${m}F)"${g}/>`+
+ `<path d="M${x+1} ${y+.6} H${x+w-1}" stroke="#fff" stroke-opacity=".55" stroke-width="1"/><path d="M${x+w} ${y+1} L${x+w+dx-.6} ${y+dy+1}" stroke="#fff" stroke-opacity=".3" stroke-width=".8"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rr}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".7"/>`};
+/* round head bolt */
+const rBolt=(cx,cy,r=2.4)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#r_chromeV)" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><circle cx="${cx-r*.35}" cy="${cy-r*.35}" r="${r*.35}" fill="#fff" opacity=".7"/>`;
+/* screw slot dial face */
+const rDial=(cx,cy,r,ang,col="#1d2124",num=true)=>{let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fbfaf4" stroke="#4a4f53" stroke-width=".7"/>`;
+ if(num)for(let i=0;i<10;i++){const a=i/10*2*Math.PI-Math.PI/2;s+=`<line x1="${cx+r*.78*Math.cos(a)}" y1="${cy+r*.78*Math.sin(a)}" x2="${cx+r*.95*Math.cos(a)}" y2="${cy+r*.95*Math.sin(a)}" stroke="#333" stroke-width=".5"/>`}
+ const a=ang*Math.PI/180-Math.PI/2;return s+`<line x1="${cx}" y1="${cy}" x2="${cx+r*.78*Math.cos(a)}" y2="${cy+r*.78*Math.sin(a)}" stroke="${col}" stroke-width="${Math.max(.8,r*.13)}" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="${r*.12}" fill="${col}"/>`};
+/* label with leader, same look as zL */
+const rL=(x1,y1,x2,y2,tx,ty,t,anchor)=>zL(x1,y1,x2,y2,tx,ty,t,anchor);
+/* service regulator body, card coordinates (pipe axis y 196, x 100..240); cut=true opens the bonnet */
+const rSregArt=cut=>{const win="M138 133 L138 100 Q170 91 202 100 L202 135 Q170 141 138 133 Z";
+ return `${rCylH(108,232,196,22,"paint",{grain:true})}${rHexH(100,196,14,21,"paint")}${rHexH(226,196,14,21,"paint")}
+ ${rCylV(170,140,178,18,"paint",{grain:true,top:false})}
+ <path d="M78 129 Q84 154 170 158 Q256 154 262 129 Z" fill="url(#r_paintV)" filter="url(#rGrain)"/>
+ <path d="M76 128 A94 22 0 0 0 264 128 V134 A94 22 0 0 1 76 134 Z" fill="url(#r_paintH)"/>
+ ${Array.from({length:9},(_,i)=>{const t=(12+i*19.5)*Math.PI/180;return rBolt(170+92*Math.cos(t),131+20*Math.sin(t),2.3)}).join("")}
+ <path d="M80 128 C84 94 122 82 170 82 C218 82 256 94 260 128 A90 20 0 0 1 80 128 Z" fill="url(#r_paintV)" filter="url(#rGrain)"/>
+ <ellipse cx="128" cy="98" rx="30" ry="9" fill="#fff" opacity=".28" filter="url(#zSoft)"/>
+ ${cut?`<path d="${win}" fill="url(#rCav)"/><path d="${win}" fill="none" stroke="#e6eaec" stroke-width="2.4"/><clipPath id="rg_rcut"><path d="${win}"/></clipPath><g clip-path="url(#rg_rcut)"><ellipse cx="170" cy="130" rx="34" ry="6" fill="#26282a"/><ellipse cx="170" cy="127" rx="18" ry="4" fill="url(#r_alV)"/>${Array.from({length:7},(_,k)=>`<ellipse cx="170" cy="${123-k*4}" rx="11" ry="3" fill="none" stroke="#1b1d1f" stroke-width="3"/><ellipse cx="170" cy="${123-k*4}" rx="11" ry="3" fill="none" stroke="url(#r_chromeV)" stroke-width="1.8"/>`).join("")}</g>`:""}
+ ${rCylV(170,58,92,13,"paint",{grain:true})}${rHexV(170,48,10,11,"black")}${rCylV(170,40,50,9,"black",{ry:2.8})}
+ ${rCylH(238,276,104,6,"paint")}${rBand(270,104,8,10,"paint")}${rCylV(282,104,140,7,"paint",{top:false})}<ellipse cx="282" cy="140" rx="7" ry="2.4" fill="#111"/>`};
 /* ============ COMBUSTION AND GAS: gas supply piping + meter, atmospheric burner + combustion analysis ============ */
 SRC.ifgc=["IFGC 402.4 (Seattle Fuel Gas Code ch. 4): low-pressure sizing equation, Cr 0.6094 natural gas / 1.2462 propane, Table 402.4(2) Schedule 40 capacities","https://www.seattle.gov/documents/departments/sdci/codes/fuelgascode/2012sfgcchapter4.pdf"];
 SRC.orif=["BC Plumbing textbook: orifice capacity table (CFH, orifice factor 0.90; #44 = 20.94 CFH natural gas at 3.5 in. w.c.)","https://opentextbc.ca/plumbing3e/back-matter/imperial-orifice-capacity-table-flow-values-in-cfh/"];
@@ -668,28 +749,29 @@ function gSvg(p){
 <linearGradient id="${p}glass" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5b6670"/><stop offset=".45" stop-color="#1f262c"/><stop offset="1" stop-color="#0f1316"/></linearGradient>
 <linearGradient id="${p}dome" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e3e8eb"/><stop offset=".55" stop-color="#9aa4aa"/><stop offset="1" stop-color="#5e676d"/></linearGradient></defs>
 <rect x="10" y="462" width="780" height="14" fill="url(#${p}floor)"/><line x1="10" y1="462" x2="790" y2="462" stroke="#8d918b" stroke-width="1.2"/>
-<line x1="10" y1="300" x2="128" y2="300" stroke="#7a6a4a" stroke-width="1.2" stroke-dasharray="6 3"/>
+<line x1="10" y1="392" x2="128" y2="392" stroke="#7a6a4a" stroke-width="1.2" stroke-dasharray="6 3"/>
 <rect x="126" y="120" width="14" height="342" fill="url(#${p}conc)" stroke="#7c7f79"/>${[160,210,260,310,360,410].map(y=>`<line x1="126" y1="${y}" x2="140" y2="${y}" stroke="#8f928c" stroke-width=".6"/>`).join("")}<text class="lblS" x="60" y="96" text-anchor="middle">Outside</text><text class="lblS" x="146" y="132">Basement</text>
 <!-- meter set (natural gas) -->
 <g id="${p}ngSet">
-<g class="part" data-p="sreg" tabindex="0">${pipe("M70 470 V420",8)}${zShade(70,176,26,3)}<path class="hl" d="M44 152 Q46 128 70 126 Q94 128 96 152 Z" fill="url(#${p}dome)" stroke="#4d555a"/><path d="M42 152 H98 V157 H42 Z" fill="#7d868c" stroke="#4d555a"/>${[48,58,70,82,92].map(x=>`<circle cx="${x}" cy="154.5" r="1.4" fill="#3a4045"/>`).join("")}<path d="M46 157 Q48 170 70 172 Q92 170 94 157 Z" fill="url(#zSteelH)" stroke="#4d555a"/><rect x="64" y="118" width="12" height="10" rx="2" fill="url(#zSteel)" stroke="#4d555a"/>
- <path d="M96 140 h12 v12" stroke="#3b4247" stroke-width="5" fill="none"/><rect x="104" y="152" width="8" height="6" rx="1" fill="#2a2f33"/><rect x="62" y="166" width="16" height="8" fill="url(#zSteel)" stroke="#4d555a"/>
- <text class="cht" x="70" y="112" text-anchor="middle">service regulator</text><text class="val" id="${p}sregTxt" x="70" y="148" text-anchor="middle" font-size="10">7.0"</text></g>
-<g class="part" data-p="meter" tabindex="0">${pipe("M70 172 V196",8)}${pipe("M70 300 V420 M70 420 H96",8)}
- ${zShade(70,304,46,4)}<rect class="hl" x="24" y="194" width="92" height="108" rx="10" fill="url(#${p}jak)" stroke="#4d555a" stroke-width="1.4" filter="url(#zShadow)"/>
- ${[268,276,284,292].map(y=>`<line x1="30" y1="${y}" x2="110" y2="${y}" stroke="#6c767c" stroke-width=".8" opacity=".7"/>`).join("")}<rect x="24" y="262" width="92" height="3" fill="#59626a" opacity=".6"/>
- <rect x="31" y="203" width="78" height="60" rx="5" fill="#59626a"/><rect x="34" y="206" width="72" height="54" rx="4" fill="#f4f4ee" stroke="#777"/><path d="M36 208 L62 208 L44 258 L36 258 Z" fill="#fff" opacity=".35"/>
- ${[0,1,2,3].map(i=>`<circle cx="${44+i*17}" cy="220" r="7" fill="#fff" stroke="#555"/><line x1="${44+i*17}" y1="220" x2="${44+i*17}" y2="214" stroke="#222" stroke-width="1.2"/>`).join("")}
- <circle cx="58" cy="244" r="11" fill="#fff" stroke="#c0281c" stroke-width="1.5"/><line id="${p}test" x1="58" y1="244" x2="58" y2="234" stroke="#c0281c" stroke-width="1.8"/><text class="cht" x="58" y="259" text-anchor="middle" style="fill:#c0281c">2 ft³</text>
- <circle cx="88" cy="244" r="7" fill="#fff" stroke="#c0281c"/><line id="${p}test2" x1="88" y1="244" x2="88" y2="238" stroke="#c0281c" stroke-width="1.4"/><text class="cht" x="88" y="259" text-anchor="middle" style="fill:#c0281c">½</text>
- <rect x="30" y="273" width="80" height="17" rx="3" fill="#1d2226" opacity=".85"/><text class="val" id="${p}secTxt" x="70" y="286" style="fill:#e8eef0" text-anchor="middle" font-size="10">--</text></g>
+<g class="part" data-p="sreg" tabindex="0">${pipe("M8 396 V166 H14",7)}<g transform="translate(-17.6 111.1) scale(.28)">${rSregArt(false)}</g><rect class="hl" x="6" y="120" width="50" height="56" rx="4" fill="transparent"/>
+ <text class="cht" x="34" y="106" text-anchor="middle">service regulator</text><text class="val" id="${p}sregTxt" x="30" y="190" text-anchor="middle" font-size="10">7.0"</text></g>
+<g class="part" data-p="meter" tabindex="0">${pipe("M48 166 H54 V184",7)}
+ ${rSh(74,304,54,5)}${rBox(28,206,84,96,22,"al",{r:5,grain:true})}<rect class="hl" x="28" y="206" width="84" height="96" rx="5" fill="transparent"/>
+ ${rCylV(54,190,201,8,"al",{ry:2.4})}${rHexV(54,182,9,9,"galv")}${rCylV(94,190,201,8,"al",{ry:2.4})}${rHexV(94,182,9,9,"galv")}
+ <rect x="27" y="264" width="86" height="6" rx="1.5" fill="url(#r_alH)"/>${[34,52,88,106].map(x=>rBolt(x,267,1.7)).join("")}
+ <rect x="32" y="209" width="76" height="52" rx="4" fill="url(#r_paintF)"/><rect x="35" y="212" width="70" height="46" rx="3" fill="#f7f5ec"/>
+ ${[44,61,78,95].map((x,i)=>rDial(x,221,6.2,[40,250,120,310][i])).join("")}
+ <circle cx="58" cy="244" r="10" fill="#fbfaf4" stroke="#c0281c" stroke-width="1.2"/><line id="${p}test" x1="58" y1="244" x2="58" y2="235" stroke="#c0281c" stroke-width="1.8" stroke-linecap="round"/><circle cx="58" cy="244" r="1.6" fill="#c0281c"/><text x="70" y="255" font-family="var(--body)" font-size="6" fill="#c0281c">2 ft³</text>
+ <circle cx="92" cy="244" r="7" fill="#fbfaf4" stroke="#c0281c"/><line id="${p}test2" x1="92" y1="244" x2="92" y2="238" stroke="#c0281c" stroke-width="1.4" stroke-linecap="round"/><text x="99" y="255" font-family="var(--body)" font-size="6" fill="#c0281c">½</text>
+ <rect x="35" y="212" width="70" height="46" rx="3" fill="url(#rGlass)"/>
+ <rect x="32" y="276" width="76" height="17" rx="3" fill="#1d2226" opacity=".88"/><text class="val" id="${p}secTxt" x="70" y="289" style="fill:#e8eef0" text-anchor="middle" font-size="10">--</text></g>
 </g>
 <!-- propane tank -->
 <g id="${p}lpSet" opacity="0"><g class="part" data-p="tank" tabindex="0"><rect class="hl" x="12" y="330" width="110" height="60" rx="30" fill="#e8e8e2" stroke="#666"/><rect x="58" y="318" width="18" height="14" fill="url(#zBrass)"/>
  <text class="cht onm" x="67" y="364" text-anchor="middle">PROPANE</text><circle cx="70" cy="200" r="16" fill="url(#zSteelH)" stroke="#4d555a"/><text class="cht" x="70" y="178" text-anchor="middle">2nd-stage regulator</text>
- <text class="val" id="${p}lpTxt" x="70" y="204" text-anchor="middle" font-size="10">11"</text>${pipe("M67 318 V216",6)}</g></g>
+ <text class="val" id="${p}lpTxt" x="70" y="204" text-anchor="middle" font-size="10">11"</text>${pipe("M67 318 V216",6)}${pipe("M86 200 H94 V184",6)}</g></g>
 <!-- main and branches -->
-<g class="part" data-p="main" tabindex="0">${pipe("M96 420 H150 V240 H690",9)}<path class="hl" d="M96 420 H150 V240 H690" fill="none" stroke="transparent" stroke-width="12"/></g>
+<g class="part" data-p="main" tabindex="0">${pipe("M94 184 V170 H150 V240 H690",9)}<path class="hl" d="M94 184 V170 H150 V240 H690" fill="none" stroke="transparent" stroke-width="12"/></g>
 <text class="cht" id="${p}mainTxt" x="420" y="232" text-anchor="middle">main</text>
 <g id="${p}leakG" opacity="0"><g class="puff"><circle cx="170" cy="236" r="4" fill="#d9e6c8"/><circle cx="176" cy="229" r="3" fill="#d9e6c8"/></g></g>
 <g id="${p}bub" opacity="0">${[0,1,2,3].map(i=>`<circle cx="${164+i*4}" cy="${246+(i%2)*4}" r="2.4" fill="#fff" stroke="#7aa0c8"/>`).join("")}<text class="cht" x="186" y="256" style="fill:var(--bad)">bubbles</text></g>
@@ -700,43 +782,42 @@ ${GAPP.map((a,i)=>{const x=X[i];return `
 <path id="${p}kink" d="M670 312 q4 -6 8 0" stroke="#c0281c" stroke-width="3" fill="none" opacity="0"/>
 <!-- appliances -->
 <!-- vent pipes and flexible connectors -->
-<path d="M312 300 V264 Q312 258 318 258 H340" fill="none" stroke="#5f686d" stroke-width="12"/><path d="M312 300 V264 Q312 258 318 258 H340" fill="none" stroke="#c9d0d4" stroke-width="10"/>${[290,276].map(y=>`<line x1="307" y1="${y}" x2="317" y2="${y}" stroke="#7d868c"/>`).join("")}<text class="cht" x="343" y="262">vent</text>
-<path d="M426 278 V262" stroke="#5f686d" stroke-width="12"/><path d="M426 278 V262" stroke="#c9d0d4" stroke-width="10"/><path d="M420 262 h12" stroke="#7d868c" stroke-width="2"/>
-<path d="M540 312 C566 312 560 336 572 344" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M540 312 C566 312 560 336 572 344" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
-<path d="M680 312 C700 312 694 322 706 324" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M680 312 C700 312 694 322 706 324" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
-<g class="part" data-p="furn" tabindex="0">${zShade(285,456,42,4)}<rect class="hl" x="250" y="300" width="70" height="152" rx="3" fill="url(#zCab)" stroke="#4d555a" filter="url(#zShadow)"/>
- <rect x="254" y="304" width="62" height="54" rx="2" fill="none" stroke="#7d868c"/>${[0,1,2,3,4].map(k=>`<rect x="${290+k*5}" y="307" width="2.4" height="9" rx="1" fill="#59626a"/>`).join("")}
- <rect x="257" y="319" width="56" height="32" rx="2" fill="#5f686d"/><rect x="258" y="320" width="54" height="30" fill="url(#zInside)"/><path d="M260 322 H310" stroke="#8a4a1a" stroke-width="1.2" opacity=".7"/>
- <g id="${p}flF" opacity="0">${[0,1,2].map(k=>`<path d="M${266+k*16} 346 q4 -12 8 0 z" fill="url(#zFlame)"/>`).join("")}</g>${[0,1,2].map(k=>`<rect x="${266+k*16}" y="346" width="8" height="3" fill="#8b949a"/>`).join("")}
- <rect x="236" y="324" width="16" height="16" rx="2" fill="url(#zPlasticDk)" stroke="#222"/><rect x="238" y="326" width="12" height="4" fill="#59626a"/><circle cx="244" cy="334" r="2.4" fill="#ffd34d"/>
- <rect x="262" y="306" width="22" height="10" rx="2" fill="#2a2f33"/><rect x="264" y="308" width="8" height="3" fill="#3fbf6a" opacity=".8"/>
- <rect x="254" y="362" width="62" height="86" rx="2" fill="none" stroke="#7d868c"/><rect x="278" y="364" width="14" height="4" rx="2" fill="#8f979d"/>
- <text class="cht onm" x="285" y="382" text-anchor="middle">FURNACE</text>${[0,1,2,3].map(k=>`<rect x="262" y="${414+k*8}" width="46" height="3" rx="1" fill="#6f787e"/>`).join("")}</g>
-<g class="part" data-p="wh" tabindex="0"><g id="${p}whTank">${zShade(426,456,34,4)}
- <path d="M412 286 h28 l-4 -8 h-20 z" fill="url(#zSteel)" stroke="#555"/><rect x="420" y="286" width="12" height="10" fill="url(#zSteel)" stroke="#555"/>
- <rect x="406" y="288" width="5" height="12" fill="url(#zCuV)" stroke="#6b3a1a" stroke-width=".6"/><rect x="441" y="288" width="5" height="12" fill="url(#zCuV)" stroke="#6b3a1a" stroke-width=".6"/>
- <rect class="hl" x="398" y="302" width="56" height="146" rx="6" fill="url(#${p}jak)" stroke="#5f686d" filter="url(#zShadow)"/><ellipse cx="426" cy="302" rx="28" ry="5" fill="#dfe5e8" stroke="#5f686d"/>
- <rect x="400" y="446" width="52" height="5" rx="1" fill="#4a5257"/>
- <rect x="452" y="316" width="10" height="8" rx="1" fill="url(#zBrass)" stroke="#6b5200"/><rect x="458" y="312" width="4" height="5" fill="#c0281c"/><path d="M462 320 h4 V440" fill="none" stroke="#6b3a1a" stroke-width="4.6"/><path d="M462 320 h4 V440" fill="none" stroke="#c97a3a" stroke-width="3"/>
- <rect x="402" y="404" width="20" height="18" rx="2" fill="url(#zPlasticDk)" stroke="#222"/><circle cx="412" cy="411" r="3.6" fill="#c0281c"/><rect x="406" y="417" width="12" height="3" fill="#59626a"/>
- <rect x="422" y="428" width="24" height="16" rx="2" fill="#2a2f33" stroke="#111"/>
- <rect x="404" y="330" width="44" height="22" rx="2" fill="#f4f4ee" opacity=".85"/><text class="cht" x="426" y="340" text-anchor="middle" style="fill:#2a3034;font-size:7px">WATER</text><text class="cht" x="426" y="349" text-anchor="middle" style="fill:#2a3034;font-size:7px">HEATER</text>
- <g id="${p}flW" opacity="0"><path d="M426 440 q4 -10 8 0 z M436 440 q3 -9 6 0 z" fill="url(#zFlame)"/></g></g></g>
-<g class="part" data-p="tl" tabindex="0"><g id="${p}whTl" opacity="0"><rect class="hl" x="398" y="300" width="56" height="86" rx="4" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="408" y="312" width="36" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}tlCode" x="426" y="324" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="#1f2a22">120°</text><text class="cht onm" x="426" y="350" text-anchor="middle">TANKLESS</text><text class="cht" x="426" y="360" text-anchor="middle">199k</text></g></g>
-<g class="part" data-p="dryer" tabindex="0">${zShade(572,456,38,4)}<rect x="540" y="344" width="64" height="14" rx="2" fill="url(#${p}enam)" stroke="#5f686d"/><circle cx="552" cy="351" r="4" fill="#9aa3aa" stroke="#4d555a"/><rect x="562" y="347" width="22" height="8" rx="1" fill="url(#zLcd)"/><circle cx="594" cy="351" r="4" fill="#9aa3aa" stroke="#4d555a"/>
- <rect class="hl" x="540" y="358" width="64" height="92" rx="3" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/>
- <circle cx="572" cy="404" r="25" fill="url(#zSteel)" stroke="#5f686d"/><circle cx="572" cy="404" r="19" fill="url(#${p}glass)"/><path d="M558 392 A19 19 0 0 1 580 387" stroke="#fff" stroke-width="2" fill="none" opacity=".35"/><rect x="596" y="398" width="4" height="12" rx="2" fill="#8b949a"/>
- <path d="M604 440 H620" stroke="#8b949a" stroke-width="8"/>${[606,610,614,618].map(x=>`<line x1="${x}" y1="436" x2="${x}" y2="444" stroke="#5f686d" stroke-width=".8"/>`).join("")}
+${rCylV(312,262,300,6,"galv",{top:false})}${rCylH(312,336,258,6,"galv",{end:true})}${rBand(306,258,7,12,"galv")}<text class="cht" x="343" y="262">vent</text>
+${rCylV(426,260,284,6,"galv",{top:false})}
+<path d="M540 312 C566 312 560 336 572 346" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M540 312 C566 312 560 336 572 346" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
+<path d="M680 312 C700 312 694 322 706 326" fill="none" stroke="#7a6a10" stroke-width="5"/><path d="M680 312 C700 312 694 322 706 326" fill="none" stroke="#e8c33a" stroke-width="3.4" stroke-dasharray="1.5 1.2"/>
+<g class="part" data-p="furn" tabindex="0">${rSh(292,452,50,6)}${rBox(250,302,70,148,18,"cab",{r:2})}<rect class="hl" x="250" y="302" width="70" height="148" rx="2" fill="transparent"/>
+ <rect x="254" y="306" width="62" height="52" rx="1.5" fill="none" stroke="#8a9094"/>${[0,1,2,3,4].map(k=>`<rect x="${290+k*5}" y="308" width="2.6" height="9" rx="1.2" fill="#3a4045"/>`).join("")}
+ <rect x="257" y="319" width="56" height="33" rx="1.5" fill="#454c52"/><rect x="258" y="320" width="54" height="31" fill="url(#rCav)"/><path d="M260 323 H310" stroke="#8a4a1a" stroke-width="1.2" opacity=".7"/>
+ <g id="${p}flF" opacity="0">${[0,1,2].map(k=>`<path d="M${266+k*16} 346 q4 -13 8 0 z" fill="url(#rFlame)"/>`).join("")}</g>${[0,1,2].map(k=>`<rect x="${265+k*16}" y="346" width="10" height="4" rx="1" fill="url(#r_alH)"/>`).join("")}
+ ${rBox(234,324,16,16,6,"black",{r:2})}<circle cx="242" cy="333" r="2.6" fill="#ffd34d"/>
+ <rect x="262" y="307" width="22" height="10" rx="1.5" fill="#22272b"/><rect x="264" y="309" width="8" height="3" fill="#3fbf6a" opacity=".85"/>
+ <rect x="254" y="362" width="62" height="84" rx="1.5" fill="none" stroke="#8a9094"/><rect x="277" y="365" width="16" height="4" rx="2" fill="#7d8387"/>
+ <text class="cht onm" x="285" y="384" text-anchor="middle">FURNACE</text>${[0,1,2,3].map(k=>`<rect x="262" y="${414+k*8}" width="46" height="3" rx="1.4" fill="#4a5055"/>`).join("")}</g>
+<g class="part" data-p="wh" tabindex="0"><g id="${p}whTank">${rSh(428,452,42,6)}
+ <path d="M412 290 L440 290 L434 282 L418 282 Z" fill="url(#r_galvV)"/><path d="M415 290 V298 M437 290 V298" stroke="#6d757b" stroke-width="1.6"/>
+ ${rCylV(408,288,302,3,"cu",{ry:1})}${rCylV(444,288,302,3,"cu",{ry:1})}
+ ${rCylV(426,440,450,29,"black",{ry:7})}${rCylV(426,302,444,28,"white",{ry:7})}<rect class="hl" x="398" y="295" width="56" height="155" rx="6" fill="transparent"/>
+ ${rCylH(452,463,321,2.4,"cu")}${rCylV(463,321,440,2.4,"cu",{top:false})}<rect x="450" y="316" width="9" height="10" rx="1.5" fill="url(#r_brassV)"/>
+ <rect x="406" y="330" width="40" height="22" rx="2" fill="#f4f2e8"/><text x="426" y="340" text-anchor="middle" font-family="var(--body)" font-size="7" font-weight="600" fill="#2a3034">WATER</text><text x="426" y="349" text-anchor="middle" font-family="var(--body)" font-size="7" font-weight="600" fill="#2a3034">HEATER</text>
+ ${rBox(402,404,20,18,5,"black",{r:2})}<circle cx="412" cy="412" r="3.8" fill="url(#r_redV)"/>
+ <rect x="422" y="426" width="26" height="17" rx="2" fill="#15181a"/>
+ <g id="${p}flW" opacity="0"><path d="M427 441 q4 -11 8 0 z M437 441 q3 -9 6 0 z" fill="url(#rFlame)"/></g></g></g>
+<g class="part" data-p="tl" tabindex="0"><g id="${p}whTl" opacity="0">${rBox(398,300,56,86,12,"white",{r:4})}<rect class="hl" x="398" y="300" width="56" height="86" rx="4" fill="transparent"/><rect x="408" y="312" width="36" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}tlCode" x="426" y="324" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="#1f2a22">120°</text><text class="cht onm" x="426" y="350" text-anchor="middle">TANKLESS</text><text class="cht onm" x="426" y="360" text-anchor="middle">199k</text></g></g>
+<g class="part" data-p="dryer" tabindex="0">${rSh(578,452,46,6)}${rBox(540,358,64,92,18,"white",{r:3})}${rBox(548,340,62,12,5,"white",{r:2})}<rect class="hl" x="540" y="340" width="70" height="110" rx="3" fill="transparent"/>
+ <circle cx="556" cy="346" r="3.6" fill="url(#r_chromeV)"/><rect x="566" y="342" width="22" height="8" rx="1" fill="url(#zLcd)"/><circle cx="598" cy="346" r="3.6" fill="url(#r_chromeV)"/>
+ <circle cx="572" cy="404" r="25" fill="url(#r_chromeV)"/><circle cx="572" cy="404" r="20" fill="#20262b"/><circle cx="572" cy="404" r="20" fill="url(#rGlass)"/><rect x="595" y="398" width="4" height="12" rx="2" fill="url(#r_chromeV)"/>
+ ${rCylH(612,628,440,4.5,"al",{end:true,bore:true})}${[615,619,623].map(x=>`<line x1="${x}" y1="435.5" x2="${x}" y2="444.5" stroke="#5f686d" stroke-width=".8"/>`).join("")}
  <text class="cht onm" x="572" y="372" text-anchor="middle">DRYER</text></g>
-<g class="part" data-p="range" tabindex="0">${zShade(720,456,46,4)}<rect x="680" y="322" width="80" height="22" rx="2" fill="url(#${p}enam)" stroke="#5f686d"/><rect x="684" y="326" width="72" height="3" fill="#9aa3aa" opacity=".6"/>
- <rect class="hl" x="680" y="350" width="80" height="100" rx="3" fill="url(#${p}enam)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="682" y="342" width="76" height="9" rx="1" fill="#2a2f33"/>${[0,1,2,3].map(k=>`<path d="M${688+k*17} 344 h12" stroke="#59626a" stroke-width="1.4"/>`).join("")}
- ${[0,1,2,3].map(k=>`<circle cx="${694+k*17}" cy="360" r="3.6" fill="url(#zSteel)" stroke="#2a2f33"/><line x1="${694+k*17}" y1="357" x2="${694+k*17}" y2="360" stroke="#2a2f33"/>`).join("")}
- <g id="${p}flR" opacity="0">${[0,1,2,3].map(k=>`<ellipse cx="${694+k*17}" cy="342" rx="6" ry="2.4" fill="none" stroke="#3d7de0" stroke-width="2"/>`).join("")}</g>
- <rect x="688" y="368" width="64" height="3" rx="1.5" fill="url(#zSteel)"/><rect x="690" y="374" width="60" height="50" rx="2" fill="#2a2f33"/><rect x="695" y="379" width="50" height="34" rx="2" fill="url(#${p}glass)"/><path d="M698 382 L716 382 L702 410 L698 410 Z" fill="#fff" opacity=".12"/>
+<g class="part" data-p="range" tabindex="0">${rSh(724,452,52,6)}${rBox(692,324,78,18,4,"white",{r:2})}${rBox(680,350,80,100,20,"white",{r:2})}<rect class="hl" x="680" y="324" width="92" height="126" rx="3" fill="transparent"/>
+ <path d="M681 349.5 L691.5 342 H771 L760 349.5 Z" fill="#1d2124"/>${[0,1,2,3].map(k=>`<ellipse cx="${700+k*17}" cy="345.8" rx="5" ry="1.8" fill="#3a4045"/>`).join("")}<path d="M686 345.8 H766" stroke="#4a5055" stroke-width=".8"/>
+ <g id="${p}flR" opacity="0">${[0,1,2,3].map(k=>`<ellipse cx="${700+k*17}" cy="344.6" rx="6" ry="2.2" fill="none" stroke="#3d7de0" stroke-width="2"/>`).join("")}</g>
+ ${[0,1,2,3].map(k=>`<circle cx="${694+k*17}" cy="360" r="3.6" fill="url(#r_chromeV)" stroke="#2a2f33" stroke-width=".5"/><line x1="${694+k*17}" y1="357" x2="${694+k*17}" y2="360" stroke="#2a2f33"/>`).join("")}
+ <rect x="688" y="368" width="64" height="3.4" rx="1.7" fill="url(#r_chromeH)"/><rect x="690" y="374" width="60" height="50" rx="2" fill="#20262b"/><rect x="695" y="379" width="50" height="34" rx="2" fill="#0f1316"/><rect x="695" y="379" width="50" height="34" rx="2" fill="url(#rGlass)"/>
  <rect x="684" y="430" width="72" height="14" rx="1" fill="none" stroke="#9aa3aa"/><text class="cht onm" x="720" y="441" text-anchor="middle">RANGE</text></g>
 ${GAPP.map((a,i)=>`<text class="val" id="${p}in${i}" x="${[280,482,594,720][i]}" y="${[294,296,334,314][i]-0}" text-anchor="middle" font-size="10"></text>`).join("")}
 <text class="cht" id="${p}mfTxt" x="285" y="400" text-anchor="middle" font-weight="600"></text>
-<g class="part" data-p="mano" tabindex="0"><rect class="hl" x="170" y="380" width="62" height="40" rx="6" fill="#f2b632" stroke="#7a5600"/><rect x="176" y="386" width="50" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}mano" x="201" y="398" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="#1f2a22"></text><text class="cht" x="201" y="414" text-anchor="middle" style="fill:#3a2a00">furnace inlet</text></g>
+<g class="part" data-p="mano" tabindex="0">${rBox(170,380,62,40,6,"yel",{r:6})}<rect class="hl" x="170" y="380" width="62" height="40" rx="6" fill="transparent"/><rect x="176" y="386" width="50" height="16" rx="2" fill="url(#zLcd)"/><text id="${p}mano" x="201" y="398" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="#1f2a22"></text><text class="cht" x="201" y="414" text-anchor="middle" style="fill:#3a2a00">furnace inlet</text></g>
 <!-- summary panel -->
 <rect x="200" y="20" width="586" height="94" rx="6" fill="#16201a" stroke="#0b0f0c"/>
 ${[0,1,2,3,4,5].map(i=>`<text id="${p}s${i}" x="${i<3?212:500}" y="${44+(i%3)*24}" font-family="var(--mono)" font-size="11" fill="#bfe8c4"></text>`).join("")}`}
@@ -817,7 +898,7 @@ const GAS={id:"gas",p:"g_",name:"Gas piping and meter",svg:gSvg("g_"),lamps:GLAM
  },
  draw(dt){const S=this.S,F=this.F,V=this.V,p="g_",ng=S.fuel==="ng";
   at(p+"ngSet","opacity",ng?1:0);at(p+"lpSet","opacity",ng?0:1);
-  at(p+"test","transform",`rotate(${S.ang.toFixed(1)} 58 244)`);at(p+"test2","transform",`rotate(${S.ang2.toFixed(1)} 88 244)`);
+  at(p+"test","transform",`rotate(${S.ang.toFixed(1)} 58 244)`);at(p+"test2","transform",`rotate(${S.ang2.toFixed(1)} 92 244)`);
   txt(p+"secTxt",S.qtot>0.5?`${(7200/S.qtot).toFixed(1)} s/rev`:"stopped");txt(p+"sregTxt",`${S.sup.toFixed(1)}"`);txt(p+"lpTxt",`${S.sup.toFixed(1)}"`);
   txt(p+"mainTxt",`${nps(V.msize)} main, ${V.mlen} ft, drop ${S.dMain.toFixed(2)}"`);at(p+"mainTxt","fill",S.dMain>0.5?"var(--bad)":"var(--muted)");
   at(p+"leakG","opacity",F.leak&&S.qtot>0?(blink(600)?1:.4):0);at(p+"bub","opacity",S.soap>0&&F.leak?1:0);at(p+"kink","opacity",F.csst?1:0);
@@ -1078,163 +1159,102 @@ BURN.ill={
  chart:`<rect x="20" y="10" width="126" height="86" fill="${WH}" stroke="${K}"/>${[0,1,2,3].map(i=>`<line x1="20" y1="${10+i*21.5}" x2="146" y2="${10+i*21.5}" stroke="#d8dcdf"/>`).join("")}<path d="M20 92 C60 70 100 40 146 18" fill="none" stroke="#2f6fd6" stroke-width="2.4"/><path d="M20 20 C60 40 100 66 146 86" fill="none" stroke="#c0281c" stroke-width="2.4"/><line x1="70" y1="10" x2="70" y2="96" stroke="${K}" stroke-dasharray="3 3"/>${label(126,32,"O2",BL,8)}${label(128,78,"CO2",RD,8)}${label(83,106,"EXCESS AIR →",K,7)}${label(80,117,"O2 UP = CO2 DOWN",K,6)}`
 };
 
-// Detailed 340x250 Parts-card drawings (realistic drawn style, cutaways, leader labels).
-// Sample set for the gas tab; same style as the compressor and TXV cards.
+// Gas tab Parts cards, 340x250, drawn with the 3/4-view kit in real.js (realism sample, round 2).
 const GASC="#e8c33a";
-const ironH=(x,y,w,h=14)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#zSteel)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#2b3034" opacity=".55"/><rect x="${x}" y="${y+2}" width="${w}" height="${h*0.18}" fill="#fff" opacity=".18"/>`;
-const ironV=(x,y,h,w=14)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#zSteelH)"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#2b3034" opacity=".55"/><rect x="${x+2}" y="${y}" width="${w*0.18}" height="${h}" fill="#fff" opacity=".18"/>`;
-const hexN=(cx,cy,r)=>`<polygon points="${[0,1,2,3,4,5].map(i=>`${(cx+r*Math.cos(i*Math.PI/3+Math.PI/6)).toFixed(1)},${(cy+r*0.62*Math.sin(i*Math.PI/3+Math.PI/6)).toFixed(1)}`).join(" ")}" fill="url(#zBrass)" stroke="#6b5200" stroke-width=".8"/>`;
-const cutEdge=d=>`<path d="${d}" fill="none" stroke="#9aa3a9" stroke-width="2.2" stroke-linejoin="round"/>`;
-const dialFace=(cx,cy,r,a,red)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fbfbf6" stroke="${red?"#b8322a":"#555"}" stroke-width="${red?1.4:.8}"/>${Array.from({length:10},(_,i)=>{const t=i*Math.PI/5;return `<line x1="${(cx+r*0.78*Math.sin(t)).toFixed(1)}" y1="${(cy-r*0.78*Math.cos(t)).toFixed(1)}" x2="${(cx+r*0.95*Math.sin(t)).toFixed(1)}" y2="${(cy-r*0.95*Math.cos(t)).toFixed(1)}" stroke="#666" stroke-width=".6"/>`}).join("")}<line x1="${cx}" y1="${cy}" x2="${(cx+r*0.75*Math.sin(a)).toFixed(1)}" y2="${(cy-r*0.75*Math.cos(a)).toFixed(1)}" stroke="${red?"#b8322a":"#222"}" stroke-width="1.3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="1.4" fill="#222"/>`;
+const rCut=d=>`<path d="${d}" fill="url(#rCav)"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="2.4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".7" stroke-linejoin="round"/>`;
+const rClip=(id,d,body)=>`<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${body}</g>`;
 
 GAS.illL={
- meter:`
- ${zShade(170,236,110)}
- ${ironV(92,0,30)}${ironV(234,0,30)}${hexN(99,30,14)}${hexN(241,30,14)}
- ${zFA("M99 2 V26",GASC)}${zFA("M241 26 V2",GASC)}
- <g filter="url(#zShadow)">
-  <rect x="62" y="34" width="216" height="196" rx="14" fill="url(#zSteel)"/>
-  <rect x="62" y="34" width="216" height="196" rx="14" fill="#6b7a70" opacity=".35"/>
-  <rect x="70" y="40" width="10" height="184" rx="5" fill="#fff" opacity=".14"/>
-  <rect x="62" y="104" width="216" height="6" fill="#000" opacity=".18"/>
- </g>
- <!-- index window -->
- <rect x="96" y="48" width="148" height="50" rx="5" fill="#1d2226"/><rect x="99" y="51" width="142" height="44" rx="4" fill="#e9ecea"/>
- ${dialFace(116,66,10,1.1)}${dialFace(141,66,10,4.2)}${dialFace(166,66,10,2.5)}${dialFace(191,66,10,5.6)}
- ${dialFace(220,74,15,2.2,true)}<text x="220" y="93" font-size="6" text-anchor="middle" font-family="sans-serif" fill="#b8322a">2 ft³</text>
- <text x="153" y="90" font-size="6" text-anchor="middle" font-family="sans-serif" fill="#444">CUBIC FEET</text>
- <!-- cutaway: diaphragm chambers and slide valves -->
- <clipPath id="zg_mcut"><path d="M74 120 L266 116 L268 214 L246 222 L222 214 L190 224 L150 214 L120 222 L76 214 Z"/></clipPath>
- <g clip-path="url(#zg_mcut)">
-  <rect x="60" y="110" width="220" height="120" fill="url(#zInside)"/>
-  <rect x="84" y="122" width="172" height="20" fill="#3a3f44"/>
-  ${[0,1].map(i=>`<rect x="${112+i*76}" y="126" width="40" height="10" rx="2" fill="url(#zBrassH)"/><rect class="zSlide" x="${118+i*76}" y="124" width="14" height="14" rx="2" fill="url(#zBrass)"/>`).join("")}
-  ${[0,1].map(i=>`<rect x="${86+i*86}" y="150" width="82" height="60" rx="6" fill="#2a2f33" stroke="#555d62"/><path d="M${127+i*86} 152 V208" stroke="#c9b48a" stroke-width="4"/><path d="M${97+i*86} 160 Q${112+i*86} 180 ${97+i*86} 200 M${157+i*86} 160 Q${142+i*86} 180 ${157+i*86} 200" fill="none" stroke="#c9b48a" stroke-width="2.4"/><rect x="${92+i*86}" y="156" width="30" height="48" fill="${GASC}" opacity=".18"/>`).join("")}
- </g>
- ${cutEdge("M74 120 L266 116 L268 214 L246 222 L222 214 L190 224 L150 214 L120 222 L76 214 Z")}
- ${zL(99,14,60,14,6,17,"Inlet (from service regulator)")}${zL(241,14,280,40,272,60,"Outlet")}
+/* ---------- diaphragm gas meter, cutaway lower front ---------- */
+meter:(()=>{const cut="M100 152 L110 147 L120 153 L133 146 L146 152 L160 147 L172 153 L186 146 L198 151 L204 148 V198 H100 Z";
+ const dia=(x,flip)=>`<path d="M${x} 158 Q${x-14*flip} 176 ${x} 194 H${x+14*flip} Q${x+22*flip} 176 ${x+14*flip} 158 Z" fill="url(#r_tanV)" filter="url(#rGrain)"/>${[3,6,9,12].map(k=>`<path d="M${x+k*flip} 159 Q${x+k*flip-8*flip} 176 ${x+k*flip} 193" fill="none" stroke="#5a3f1f" stroke-opacity=".45" stroke-width=".7"/>`).join("")}<ellipse cx="${x+15*flip}" cy="176" rx="4" ry="15" fill="url(#r_alV)"/><path d="M${x+15*flip} 161 V150" stroke="#c9ced1" stroke-width="1.6"/>`;
+ return `${rSh(172,210,100,9)}
+ ${rCylV(132.8,0,40,8,"iron",{top:false})}${rThrV(132.8,30,38,8)}${rHexV(132.8,36,14,12,"galv")}
+ ${rCylV(192.8,0,40,8,"iron",{top:false})}${rThrV(192.8,30,38,8)}${rHexV(192.8,36,14,12,"galv")}
+ ${rBox(92,72,120,134,36,"al",{r:6,grain:true})}
+ ${rCylV(132.8,50,64,11,"al",{ry:3.4})}${rCylV(192.8,50,64,11,"al",{ry:3.4})}
+ <rect x="90" y="131" width="124" height="9" rx="2" fill="url(#r_alH)"/><path d="M214 131 L235.6 116 V125 L214 140 Z" fill="url(#r_alS)"/>${[100,124,180,204].map(x=>rBolt(x,135.5,2.6)).join("")}
+ <rect x="106" y="80" width="92" height="46" rx="5" fill="url(#r_paintF)"/><rect x="110" y="84" width="84" height="38" rx="3" fill="#f7f5ec"/>
+ ${[122,140,158,176].map((x,i)=>rDial(x,95,6.8,[40,250,120,310][i])).join("")}<text x="149" y="108" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="4.6" font-weight="700" fill="#333">CUBIC FEET</text>
+ ${rDial(136,115,5.4,70,"#c0281c",false)}${rDial(164,115,5.4,200,"#c0281c",false)}<text x="145" y="117" font-size="3.6" font-family="IBM Plex Sans,sans-serif" fill="#c0281c">½</text><text x="172" y="117" font-size="3.6" font-family="IBM Plex Sans,sans-serif" fill="#c0281c">2</text>
+ <rect x="110" y="84" width="84" height="38" rx="3" fill="url(#rGlass)"/>
+ <path d="M216 90 L230 80.5 V112 L216 121.5 Z" fill="#ebe7da"/>${[0,1,2,3,4].map(k=>`<path d="M218.5 ${94+k*4.6} l9 -6.2" stroke="#7a7666" stroke-width=".7"/>`).join("")}
+ ${rCut(cut)}${rClip("rg_mcut",cut,`<rect x="150" y="146" width="4" height="54" fill="url(#r_alV)"/>${dia(108,1)}${dia(196,-1)}<rect x="100" y="194" width="104" height="5" fill="#15181a"/>`)}
+ ${rL(126,20,80,20,6,24,"Inlet")}${rL(199,20,250,20,254,24,"Outlet")}
+ ${rL(122,95,60,70,6,66,"Index: cubic feet used")}${rL(164,115,262,100,256,96,"Test dials: clock these")}
+ ${rL(213,136,262,150,256,154,"Case seam, bolted")}${rL(112,176,60,186,6,198,"Leather or synthetic")}<text x="6" y="210" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135">diaphragms (cutaway)</text>`})(),
 
- ${zL(220,74,300,80,290,96,"Test dial","start")}
- ${zL(166,60,60,60,6,64,"Index dials")}
- ${zL(142,131,40,124,6,120,"Slide valves")}
- ${zL(108,190,40,200,6,214,"Leather/synthetic diaphragms")}
- ${zL(220,170,300,170,282,186,"Chambers")}`,
+/* ---------- service regulator with the bonnet cut open ---------- */
+sreg:(()=>{return `${rSh(170,214,120,8)}
+ ${rCylH(0,104,196,10,"iron")}${rThrH(94,104,196,10)}${rCylH(236,340,196,10,"iron")}${rThrH(236,246,196,10)}
+ ${rSregArt(true)}
+ ${zFA("M6 196 H330",GASC)}
+ ${rL(170,44,120,28,6,28,"Adjusting screw under cap")}${rL(181,108,250,70,250,66,"Spring sets outlet pressure")}
+ ${rL(140,130,70,112,6,108,"Diaphragm")}${rL(282,142,300,170,336,176,"Vent: screened, faces down","end")}
+ ${rL(40,196,40,226,6,238,"In: service-line pressure")}${rL(300,196,300,226,336,238,"Out: about 7 in. w.c.","end")}`})(),
 
- sreg:`
- ${zShade(170,236,120)}
- ${ironH(0,170,98,18)}${ironH(242,170,98,18)}${zFA("M4 179 H92",GASC)}${zFA("M248 179 H336",GASC)}
- <g filter="url(#zShadow)">
-  <path d="M96 156 H244 V204 Q170 222 96 204 Z" fill="url(#zSteel)"/>
-  <path d="M74 112 Q170 62 266 112 L262 122 Q170 108 78 122 Z" fill="url(#zSteel)"/>
-  <rect x="72" y="118" width="196" height="14" rx="3" fill="#59626a"/>
-  ${Array.from({length:9},(_,i)=>`<circle cx="${82+i*22}" cy="125" r="3" fill="url(#zScrew)"/>`).join("")}
-  <path d="M150 74 Q170 54 190 74 V84 H150 Z" fill="url(#zSteel)"/><rect x="160" y="46" width="20" height="18" rx="3" fill="url(#zSteel)"/>
- </g>
- <!-- vent -->
- <path d="M266 112 H300 V140" fill="none" stroke="url(#zSteel)" stroke-width="12"/><rect x="292" y="140" width="16" height="10" rx="2" fill="#3a3f44"/><path d="M300 152 v10" stroke="#9aa3aa" stroke-width="1.5" stroke-dasharray="2 2"/>
- <!-- cutaway -->
- <clipPath id="zg_rcut"><path d="M104 88 L236 88 L238 202 L210 210 L170 204 L130 210 L102 202 Z"/></clipPath>
- <g clip-path="url(#zg_rcut)">
-  <rect x="90" y="80" width="160" height="140" fill="url(#zInside)"/>
-  <path d="M120 104 ${Array.from({length:7},(_,i)=>`L${i%2?140:200} ${104+i*3.2}`).join(" ")}" fill="none" stroke="#c4cacf" stroke-width="0"/>
-  ${Array.from({length:6},(_,i)=>`<ellipse cx="170" cy="${92+i*4}" rx="20" ry="3" fill="none" stroke="#c4cacf" stroke-width="2.2"/>`).join("")}
-  <path d="M106 122 Q170 132 234 122" fill="none" stroke="#1f1f1f" stroke-width="3.5"/>
-  <rect x="164" y="124" width="12" height="36" fill="#9aa3aa"/>
-  <path d="M170 160 L210 166" stroke="#9aa3aa" stroke-width="4"/><circle cx="170" cy="160" r="3" fill="#59626a"/>
-  <rect x="120" y="168" width="100" height="22" fill="${GASC}" opacity=".25"/>
-  <rect x="196" y="176" width="8" height="18" fill="#59626a"/><rect x="206" y="160" width="14" height="12" rx="2" fill="#2b2f33"/>
- </g>
- ${cutEdge("M104 88 L236 88 L238 202 L210 210 L170 204 L130 210 L102 202 Z")}
- ${zL(170,48,120,30,6,28,"Adjusting screw under cap")}
- ${zL(150,98,60,90,6,88,"Spring sets outlet pressure")}
- ${zL(118,126,40,140,6,144,"Diaphragm")}
- ${zL(208,168,280,206,250,226,"Valve disc and orifice")}
- ${zL(300,146,320,110,250,104,"Vent, faces down","start")}
- ${zL(20,179,20,214,6,226,"Street ~60 psi in")}`,
+/* ---------- quarter-turn ball valve, front of the body cut away ---------- */
+cock:(()=>{const win="M128 126 H212 V176 Q170 182 128 176 Z";
+ return `${rSh(170,190,120,7)}
+ ${rCylH(0,80,150,11,"iron")}${rThrH(70,80,150,11)}${rCylH(260,340,150,11,"iron")}${rThrH(260,270,150,11)}
+ ${rHexH(72,150,28,22,"brass")}${rHexH(240,150,28,22,"brass")}${rCylH(100,240,150,28,"brass",{grain:true})}
+ ${rCut(win)}${rClip("rg_bcut",win,`<rect x="128" y="126" width="84" height="56" fill="#1a1c1e"/><rect x="139" y="128" width="7" height="46" fill="#f2f1ea"/><rect x="194" y="128" width="7" height="46" fill="#f2f1ea"/><circle cx="170" cy="151" r="25" fill="url(#r_chromeV)"/><circle cx="170" cy="151" r="25" fill="none" stroke="#000" stroke-opacity=".4"/><rect x="145" y="142" width="50" height="18" fill="#2b2f33"/><rect x="145" y="142" width="50" height="5" fill="#000" opacity=".45"/>${zFA("M130 151 H210",GASC)}`)}
+ ${rCylV(170,96,124,6,"brass")}${rHexV(170,104,12,11,"brass")}
+ <path d="M150 90 L159 84 H302 L293 90 Z" fill="#e24a3c"/><path d="M150 90 H293 V99 H150 Z" fill="url(#r_redH)"/><path d="M293 90 L302 84 V93 L293 99 Z" fill="#7e160d"/><path d="M151 90.6 H292" stroke="#fff" stroke-opacity=".5"/>
+ ${rCylV(166,74,88,7,"chrome",{ry:2.4})}
+ ${zFA("M6 150 H126",GASC)}${zFA("M214 150 H334",GASC)}
+ ${rL(266,88,266,60,336,56,"Lever in line with pipe = OPEN","end")}${rL(176,108,80,96,6,92,"Packing nut")}
+ ${rL(142,166,90,196,6,210,"PTFE seats")}${rL(170,170,190,212,336,228,"Chrome ball, bore lined up with flow","end")}${rL(84,160,60,240,6,242,"Brass body, hex ends")}`})(),
 
- cock:`
- ${zShade(170,212,120)}
- ${ironH(0,118,104,24)}${ironH(236,118,104,24)}
- <g filter="url(#zShadow)">
-  <path d="M104 104 H236 V156 H104 Z" fill="url(#zBrass)"/>
-  ${hexN(112,130,22)}${hexN(228,130,22)}
-  <rect x="160" y="80" width="20" height="26" fill="url(#zBrassH)"/>
-  <rect x="96" y="62" width="150" height="20" rx="8" fill="#c0281c"/><rect x="100" y="64" width="142" height="5" rx="2" fill="#fff" opacity=".25"/>
- </g>
- <clipPath id="zg_bcut"><path d="M128 110 H212 V150 H128 Z"/></clipPath>
- <g clip-path="url(#zg_bcut)"><rect x="120" y="100" width="100" height="60" fill="url(#zInside)"/><circle cx="170" cy="130" r="24" fill="url(#zSteel)"/><rect x="140" y="122" width="60" height="16" fill="#2a2f33"/><rect x="140" y="124" width="60" height="12" fill="${GASC}" opacity=".35"/></g>
- ${cutEdge("M128 110 H212 V150 H128 Z")}
- ${zFA("M10 130 H330",GASC)}
- ${zL(220,72,280,48,240,40,"Handle in line = OPEN")}
- ${zL(170,148,170,190,120,206,"Ball bore lines up with the flow")}
- ${zL(112,144,60,180,6,196,"Threaded body")}`,
+/* ---------- sediment trap (drip leg), nipple cut open ---------- */
+drip:(()=>{const win="M144 154 H156 V198 H144 Z";
+ return `${rSh(160,232,60,6)}
+ ${rCylV(150,0,104,10,"iron",{top:false})}${rThrV(150,92,100,10)}
+ ${rCylV(150,98,144,15,"iron",{grain:true,top:false})}${rBandV(150,96,16,7,"iron")}${rBandV(150,138,16,7,"iron")}
+ ${rCylH(160,194,120,15,"iron",{grain:true})}${rBand(190,120,16,7,"iron")}${rCylH(197,340,120,10,"iron")}${rThrH(197,205,120,10)}
+ ${rCylV(150,145,212,10,"iron",{top:false})}${rThrV(150,145,152,10)}${rCylV(150,208,226,14,"iron",{grain:true})}${rBandV(150,206,15,6,"iron")}
+ ${rCut(win)}${rClip("rg_dcut",win,`<rect x="144" y="186" width="12" height="12" fill="#2f5d8a" opacity=".8"/>${[[147,184,2],[151,182,1.6],[154,185,1.8],[148,179,1.4],[152,176,1.2]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#8a6d4d"/>`).join("")}`)}
+ ${zFA("M150 4 V114 H334",GASC)}${zFA("M150 128 V176","#a4835c")}
+ ${rL(150,40,90,40,6,36,"Gas drops in from the branch")}${rL(178,110,230,80,232,76,"Tee: gas turns out the side")}
+ ${rL(150,186,90,196,6,206,"Dirt and water drop")}<text x="6" y="219" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135">into the nipple</text>
+ ${rL(164,218,220,228,224,232,"Cap: remove to clean")}${rL(320,120,320,150,336,160,"To the appliance","end")}`})(),
 
- drip:`
- ${zShade(170,240,90)}
- ${ironV(158,0,82,24)}${zFA("M170 4 V80",GASC)}
- <g filter="url(#zShadow)"><rect x="142" y="78" width="56" height="56" rx="6" fill="#2b3034"/><rect x="146" y="82" width="10" height="48" fill="#fff" opacity=".1"/></g>
- ${ironH(198,94,142,24)}${zFA("M196 106 H334",GASC)}
- ${ironV(158,134,74,24)}<rect x="152" y="206" width="36" height="20" rx="4" fill="#2b3034"/>
- <clipPath id="zg_dcut"><path d="M160 140 H180 V204 H160 Z"/></clipPath>
- <g clip-path="url(#zg_dcut)"><rect x="150" y="136" width="40" height="72" fill="url(#zInside)"/>${[[166,198],[173,200],[169,194],[175,192],[164,190]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#8a6a3a"/>`).join("")}<rect x="160" y="196" width="20" height="8" fill="#5a7fa6" opacity=".6"/></g>
- ${cutEdge("M160 140 H180 V204 H160 Z")}
- <path d="M170 86 V120" stroke="#8a6a3a" stroke-width="2" stroke-dasharray="2 3"/>
- ${zL(160,30,90,30,6,26,"Gas drops in from the branch")}
- ${zL(260,106,260,150,226,166,"Out the side to the appliance")}
- ${zL(170,196,100,226,6,236,"Dirt and water drop into the nipple")}
- ${zL(188,216,240,226,244,232,"Cap: remove to clean")}`,
+/* ---------- furnace combination gas valve, front cut away ---------- */
+furn:(()=>{const win="M104 122 H204 V174 H104 Z";
+ return `${rSh(178,190,120,7)}
+ ${rCylH(0,92,150,9,"iron")}${rThrH(82,92,150,9)}${rCylH(256,340,150,9,"iron")}${rHexH(254,150,10,13,"al")}
+ ${rBox(90,110,150,70,40,"al",{r:6,grain:true})}
+ ${[0,1,2,3].map(k=>`<path d="M${212+k*6} 114 V176" stroke="#000" stroke-opacity=".12" stroke-width="1.6"/>`).join("")}
+ ${rBox(100,84,70,22,24,"black",{r:3})}
+ <path d="M116 0 C114 40 118 70 118 90" fill="none" stroke="#222" stroke-width="3.4"/><path d="M116 0 C114 40 118 70 118 90" fill="none" stroke="#f2f2ee" stroke-width="2.2"/><path d="M134 0 C138 40 132 70 132 90" fill="none" stroke="#222" stroke-width="3.4"/><path d="M134 0 C138 40 132 70 132 90" fill="none" stroke="#c0281c" stroke-width="2.2"/>
+ <rect x="114" y="88" width="8" height="6" fill="url(#r_chromeV)"/><rect x="128" y="88" width="8" height="6" fill="url(#r_chromeV)"/>
+ ${rCylV(198,92,104,12,"red",{ry:4})}<rect x="186" y="90.5" width="24" height="3" rx="1.5" fill="#7e160d"/><text x="198" y="99" text-anchor="middle" font-size="4" font-weight="700" font-family="IBM Plex Sans,sans-serif" fill="#fff">ON</text>
+ ${rHexV(228,98,6,8,"al")}${rCylV(228,86,99,6.5,"black",{ry:2.2})}
+ ${rCut(win)}${rClip("rg_gcut",win,`<path d="M104 162 H122 V142 H140 V162 H160 V142 H178 V162 H204 V174 H104 Z" fill="url(#r_alF)"/>${[131,169].map(x=>`<rect x="${x-3}" y="122" width="6" height="18" fill="url(#r_chromeV)"/><rect x="${x-10}" y="137" width="20" height="6" rx="1.5" fill="#1a1a1a"/>${Array.from({length:3},(_,k)=>`<path d="M${x-5} ${126+k*4} l10 2" stroke="#9aa3a9" stroke-width="1.2"/>`).join("")}`).join("")}${zFA("M106 152 H131 V132 M169 132 V152 H202",GASC)}`)}
+ <circle cx="97" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M94.5 168 h5" stroke="#4c3407" stroke-width="1.1"/><circle cx="224" cy="168" r="4.2" fill="url(#r_brassV)"/><path d="M221.5 168 h5" stroke="#4c3407" stroke-width="1.1"/>
+ ${rL(134,30,80,30,6,34,"24 V wires")}${rL(206,92,262,70,336,66,"Gas knob: ON / OFF","end")}${rL(228,86,262,44,336,40,"Regulator cap: sets 3.5 in. w.c.","end")}
+ ${rL(150,140,90,200,6,212,"Two valves in series")}${rL(97,168,60,232,6,240,"Inlet pressure tap")}${rL(224,168,270,226,336,238,"Outlet (manifold) tap","end")}`})(),
 
- furn:`
- ${zShade(170,224,130)}
- ${ironH(0,128,70,20)}${zFA("M4 138 H66",GASC)}
- <rect x="270" y="132" width="70" height="12" fill="url(#zAlu)"/>${zFA("M274 138 H336",GASC)}
- <g filter="url(#zShadow)">
-  <rect x="66" y="88" width="208" height="100" rx="8" fill="#2f3337"/><rect x="70" y="92" width="200" height="8" rx="3" fill="#fff" opacity=".08"/>
-  <circle cx="200" cy="72" r="20" fill="#c0281c"/><rect x="186" y="68" width="28" height="8" rx="3" fill="#8a1c14"/><text x="200" y="58" font-size="8" font-family="sans-serif" text-anchor="middle" fill="#2a3135" font-weight="700">ON  OFF</text>
-  <rect x="100" y="60" width="44" height="30" rx="4" fill="#3d4247"/><rect x="104" y="64" width="36" height="22" rx="2" fill="#1d2023"/>
- </g>
- <clipPath id="zg_gcut"><path d="M76 104 H262 V180 H76 Z"/></clipPath>
- <g clip-path="url(#zg_gcut)"><rect x="70" y="100" width="200" height="86" fill="url(#zInside)"/>
-  <path d="M76 140 H110 V122 H140 V150 H170 V122 H200 V150 H262" fill="none" stroke="${GASC}" stroke-width="7" opacity=".55"/>
-  ${[0,1].map(i=>`<rect x="${106+i*60}" y="108" width="38" height="14" fill="#7d6a3a"/><rect x="${118+i*60}" y="122" width="14" height="22" fill="#9aa3aa"/><rect x="${112+i*60}" y="142" width="26" height="6" rx="2" fill="#1f1f1f"/>`).join("")}
-  ${Array.from({length:5},(_,i)=>`<ellipse cx="236" cy="${112+i*4}" rx="10" ry="2.2" fill="none" stroke="#c4cacf" stroke-width="1.8"/>`).join("")}<rect x="226" y="132" width="20" height="3" fill="#1f1f1f"/>
- </g>
- ${cutEdge("M76 104 H262 V180 H76 Z")}
- <circle cx="84" cy="182" r="5" fill="url(#zBrass)"/><circle cx="254" cy="182" r="5" fill="url(#zBrass)"/>
- <path d="M114 60 C114 30 150 26 180 22 M130 60 C130 36 160 34 190 30" fill="none" stroke="#e8c33a" stroke-width="2"/>
- ${zL(124,115,60,60,6,52,"Two valves in series (24 V coils)")}
- ${zL(236,118,300,96,278,84,"Regulator: 3.5\" w.c.","start")}
- ${zL(84,186,60,214,6,230,"Inlet pressure tap")}
- ${zL(254,186,280,214,236,230,"Outlet (manifold) tap")}
- ${zL(212,70,260,40,230,30,"Gas knob")}`,
-
- wh:`
- ${zShade(170,240,70)}
- <g filter="url(#zShadow)">
-  <rect x="104" y="40" width="132" height="186" rx="12" fill="url(#zSteelH)"/>
-  <path d="M120 40 L112 22 H228 L220 40 Z" fill="url(#zSteel)"/><rect x="156" y="0" width="28" height="24" fill="url(#zSteelH)"/>
-  <rect x="236" y="70" width="18" height="12" fill="url(#zBrass)"/><rect x="250" y="76" width="10" height="120" fill="url(#zCuV)"/>
-  <rect x="120" y="196" width="40" height="22" rx="3" fill="#2f3337"/><circle cx="140" cy="206" r="6" fill="#c0281c"/>
- </g>
- <clipPath id="zg_wcut"><path d="M150 52 H230 V218 H150 Z"/></clipPath>
- <defs><linearGradient id="zg_wtr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e56a55"/><stop offset=".55" stop-color="#d9a0a0"/><stop offset="1" stop-color="#6f9fd6"/></linearGradient></defs>
- <g clip-path="url(#zg_wcut)">
-  <rect x="146" y="48" width="90" height="174" fill="#e8c873"/>
-  <rect x="156" y="58" width="68" height="146" fill="url(#zg_wtr)"/>
-  <rect x="184" y="48" width="12" height="160" fill="#59626a"/><path d="M186 60 l8 6 -8 6 8 6 -8 6 8 6 -8 6 8 6 -8 6 8 6 -8 6" fill="none" stroke="#c4cacf" stroke-width="1.6"/>
-  <rect x="164" y="48" width="5" height="148" fill="#e9e9e2"/>
-  <rect x="212" y="48" width="4" height="120" fill="#9aa3aa"/>
-  <rect x="146" y="204" width="90" height="16" fill="#1d2023"/>${[0,1,2].map(i=>`<path d="M${176+i*12} 218 q4 -12 8 0 z" fill="#3d7de0"/>`).join("")}
- </g>
- ${cutEdge("M150 52 H230 V218 H150 Z")}
- ${zFA("M190 204 V30","#e0662a")}
- ${zL(170,12,100,12,6,16,"Draft hood")}
- ${zL(190,120,290,40,262,30,"Flue with baffle")}
- ${zL(166,180,70,150,6,146,"Dip tube (cold in, to bottom)")}
- ${zL(214,140,290,120,262,136,"Anode rod","start")}
- ${zL(150,120,70,100,6,96,"Foam insulation")}
- ${zL(140,206,70,226,6,240,"Gas control / thermostat")}
- ${zL(254,150,300,170,262,188,"T&P discharge pipe","start")}`
+/* ---------- tank-type water heater, cutaway ---------- */
+wh:(()=>{const win="M118 76 L212 64 V190 L118 200 Z",tank="M126 80 L212 69 V184 L126 194 Z";
+ return `${rSh(165,224,84,10)}
+ ${rCylV(165,210,222,64,"black",{ry:16})}${rCylV(165,52,214,62,"white",{ry:16})}
+ 
+ ${rCut(win)}${rClip("rg_wcut",win,`<path d="${win}" fill="url(#rFoam)" filter="url(#rGrain)"/><path d="${tank}" fill="url(#rWater)"/><path d="${tank}" fill="url(#rHot)"/><path d="${tank}" fill="none" stroke="#3a4046" stroke-width="2.4"/>
+  <rect x="157" y="40" width="16" height="160" fill="url(#r_galvV)"/><path d="M159 70 ${Array.from({length:15},(_,k)=>`L${k%2?171:159} ${76+k*8}`).join(" ")}" fill="none" stroke="#6b5530" stroke-width="2"/>
+  <rect x="132" y="70" width="5" height="114" fill="#eceee8"/><rect x="132" y="70" width="1.6" height="114" fill="#fff"/>
+  <rect x="192" y="60" width="5" height="108" fill="url(#r_alV)"/>
+  <ellipse cx="165" cy="198" rx="26" ry="4" fill="#111"/>${[150,158,166,174].map(x=>`<path d="M${x} 199 q4 -12 8 0 z" fill="url(#rFlame)"/>`).join("")}`)}
+ <rect x="150" y="204" width="30" height="9" rx="2" fill="#1f2326"/><rect x="160" y="206" width="10" height="5" rx="1" fill="#3a6ea4" opacity=".7"/>
+ ${rCylH(0,94,190,5,"iron")}${rBox(92,172,26,26,8,"black",{r:3})}<circle cx="105" cy="181" r="5.4" fill="url(#r_redV)"/><rect x="96" y="190" width="18" height="4" rx="1" fill="#59626a"/>
+ ${rCylV(135,0,30,5,"cu",{top:false})}${rHexV(135,28,8,9,"brass")}${rCylV(135,36,58,6,"galv",{ry:2})}
+ ${rCylV(195,0,30,5,"cu",{top:false})}${rHexV(195,28,8,9,"brass")}${rCylV(195,36,58,6,"galv",{ry:2})}
+ ${rCylV(165,0,30,10,"galv",{top:false})}<path d="M147 46 L183 46 L176 30 L154 30 Z" fill="url(#r_galvV)"/><path d="M150 46 V54 M180 46 V54" stroke="#6d757b" stroke-width="2"/>${rCylV(165,44,56,9,"galv",{ry:2.8})}
+ <rect x="224" y="74" width="14" height="14" rx="2" fill="url(#r_brassV)"/><rect x="226" y="68" width="10" height="4" fill="#4c3407"/>${rCylH(238,252,81,3.5,"cu")}${rCylV(252,81,214,3.5,"cu",{top:false})}
+ <text x="128" y="12" text-anchor="end" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#2f74c8">cold in</text><text x="202" y="12" font-family="IBM Plex Sans,sans-serif" font-size="9" font-weight="700" fill="#c0281c">hot out</text>
+ ${rL(165,36,110,24,6,28,"Draft hood")}${rL(168,112,270,104,336,100,"Flue with baffle","end")}${rL(195,140,270,138,336,134,"Anode rod","end")}
+ ${rL(135,150,60,150,6,146,"Dip tube: cold to bottom")}${rL(121,110,60,112,6,108,"Foam insulation")}${rL(238,80,270,58,336,54,"T&P valve + tube","end")}
+ ${rL(105,186,60,214,6,226,"Gas control / thermostat")}${rL(178,200,240,226,336,232,"Burner","end")}`})()
 };
 
 const SIMS={gas:GAS,burn:BURN};
