@@ -320,7 +320,7 @@ const ILL={
  tstat:`${box(36,20,88,80,"#efece4",10)}${box(48,32,64,34,"#2f3337",4)}${label(80,55,"74°",WH,16)}${label(80,82,"COOL  AUTO",K,7)}`,
  room:`<path d="M20 60 L80 16 L140 60 V110 H20 Z" fill="#e9e6dd" stroke="${K}" stroke-width="1.2"/>${box(66,74,28,36,"#8a6a4a",2)}${box(34,70,20,18,"#cfe6f5",1)}${box(106,70,20,18,"#cfe6f5",1)}${label(80,52,"74°F",K,10)}`
 };
-const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
+const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const big=cur&&cur.id===simId&&cur.illL&&cur.illL[k];if(big)return `<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${big}</svg>`;const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
 
 /*RZ-BEGIN*/
 /* ============ REALISTIC PARTS LIBRARY (shared by every trainer) ============ */
@@ -455,7 +455,7 @@ function zGauge(cx,cy,r,col,needleId,maxLbl){let t="";for(let i=0;i<=20;i++){con
 const ZILL={};
 const zillSvg=k=>ZILL[k]?`<svg class="ill" viewBox="0 0 340 250" aria-hidden="true">${typeof ZILL[k]==="function"?ZILL[k]():ZILL[k]}</svg>`:"";
 
-const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" text-anchor="${anchor}">${t}</text>`;
+const zL=(x1,y1,x2,y2,tx,ty,t,anchor="start")=>{const w=String(t).length*6.6;if(anchor==="start"&&tx+w>336){anchor="end";tx=336}if(anchor==="end"&&tx-w<4){anchor="start";tx=4}return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#4a5257" stroke-width="1" fill="none"/><circle cx="${x1}" cy="${y1}" r="2" fill="#4a5257"/><text x="${tx}" y="${ty}" font-family="IBM Plex Sans,sans-serif" font-size="11" font-weight="600" fill="#2a3135" stroke="#fff" stroke-width="3" stroke-opacity=".85" paint-order="stroke" stroke-linejoin="round" text-anchor="${anchor}">${t}</text>`};
 const zFA=(d,col)=>`<path d="${d}" stroke="${col}" class="zFlow"/>`;
 function zSpiral(cx,cy,a0,turns,b,rot){let d="";for(let i=0;i<=turns*48;i++){const t=i/48*2*Math.PI,r=4+b*t,x=cx+r*Math.cos(t+a0+rot),y=cy+r*0.62*Math.sin(t+a0+rot);d+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return d}
 ZILL.compressor=`
