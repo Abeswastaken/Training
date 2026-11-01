@@ -9,7 +9,7 @@ def wrap(frag):
     head=frag[:j];body=frag[j:]
     return head,body
 SITES=[('refrigeration','refrigeration-trainer.html','Refrigeration'),('heating','heating-trainer.html','Heating'),('controls','controls-trainer.html','Controls'),
- ('wiring','wiring-trainer.html','Wiring Board'),('ladder','ladder-trainer.html','Ladder Builder'),('motors','motors-trainer.html','Motors + VFD'),('boiler-trainer','boiler-trainer.html','Boiler'),('airflow','airflow-trainer.html','Airflow'),('combustion','combustion-trainer.html','Combustion and Gas')]
+ ('wiring','wiring-trainer.html','Wiring Board'),('ladder','ladder-trainer.html','Ladder Builder'),('motors','motors-trainer.html','Motors + VFD'),('boiler-trainer','boiler-trainer.html','Boiler'),('airflow','airflow-trainer.html','Airflow'),('combustion','combustion-trainer.html','Combustion and Gas'),('chiller','chiller-trainer.html','Chiller and Cooling Tower')]
 for d,f,name in SITES:
     s=open(T+f).read()
     s=s.replace('<small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small>','')
@@ -21,7 +21,7 @@ for d,f,name in SITES:
 # home
 h=open('home.html').read()
 h=re.sub(r'\s*<div class="mock">.*?</div>\n','\n',h,count=1,flags=re.S)
-for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('boiler-trainer','4wjw2HSYj2aUenYJB6tzc2'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4')]:
+for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('boiler-trainer','4wjw2HSYj2aUenYJB6tzc2'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4'),('chiller','FwymfU92pf9g7su4G34psU')]:
     a=f'href="https://claude.ai/artifact/{url}" target="_blank" rel="noopener"'
     assert a in h,d; h=h.replace(a,f'href="/{d}/"')
 assert 'claude.ai' not in h
