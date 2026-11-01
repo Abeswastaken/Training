@@ -94,3 +94,7 @@ const rFlameC=(x,y,h,w,yellow)=>`<path d="M${x-w} ${y} C${x-w} ${y-h*.45} ${x-w*
 /* arrows for air (blue) and flue gas (orange) */
 const rArr=(d,col)=>{let x=0,y=0,px=0,py=0;const t=d.match(/[MLHVQC]|[-\d.]+/g);let c="M",a=[];const run=()=>{if(!a.length)return;const n=a.map(Number);if(c==="H"){px=x;py=y;x=n[n.length-1]}else if(c==="V"){px=x;py=y;y=n[n.length-1]}else{const k=n.length;px=k>=4?n[k-4]:x;py=k>=4?n[k-3]:y;x=n[k-2];y=n[k-1]}a=[]};for(const v of t){if(/[A-Z]/.test(v)){run();c=v}else a.push(v)}run();
  const an=Math.atan2(y-py,x-px),L=8,W=4.2;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" opacity=".9"/><path d="M${x+Math.cos(an)*2} ${y+Math.sin(an)*2} L${x-L*Math.cos(an)+W*Math.sin(an)} ${y-L*Math.sin(an)-W*Math.cos(an)} L${x-L*Math.cos(an)-W*Math.sin(an)} ${y-L*Math.sin(an)+W*Math.cos(an)} Z" fill="${col}"/>`};
+
+const rCut=d=>`<path d="${d}" fill="url(#rCav)"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="2.4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".7" stroke-linejoin="round"/>`;
+const rClip=(id,d,body)=>`<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${body}</g>`;
+const rTermS=(cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="2.8" fill="url(#r_chromeV)"/><path d="M${cx-1.8} ${cy} h3.6" stroke="#333" stroke-width=".8"/>`;

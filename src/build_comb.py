@@ -4,7 +4,7 @@ app=open('app.js').read()
 head=app[:app.index("const SPLIT_LAMPS")]
 glob=app[app.index("let speed=10"):app.index("/* ============ SPLIT AC")]
 fw=app[app.index("const SIMS="):]
-fur=open('real.js').read()+open('comb.js').read()+open('comb_ill.js').read()+open('comb_ill2.js').read()
+fur=open('comb.js').read()+open('comb_ill.js').read()+open('comb_ill2.js').read()
 def rep(s,a,b):
     assert a in s,a
     return s.replace(a,b)

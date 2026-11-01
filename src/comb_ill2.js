@@ -1,8 +1,6 @@
 
 // Gas tab Parts cards, 340x250, drawn with the 3/4-view kit in real.js (realism sample, round 2).
 const GASC="#e8c33a";
-const rCut=d=>`<path d="${d}" fill="url(#rCav)"/><path d="${d}" fill="none" stroke="#e6eaec" stroke-width="2.4" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".7" stroke-linejoin="round"/>`;
-const rClip=(id,d,body)=>`<clipPath id="${id}"><path d="${d}"/></clipPath><g clip-path="url(#${id})">${body}</g>`;
 
 GAS.illL={
 /* ---------- diaphragm gas meter, cutaway lower front ---------- */
