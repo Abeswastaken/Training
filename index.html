@@ -74,18 +74,19 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <div class="site">training.colvinj.com</div>
     <h1>HVAC Trainers</h1>
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
-    <div class="specs"><span><b>8</b> trainers</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
+    <div class="specs"><span><b>9</b> trainers</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
   </header>
 
   <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
   <section class="news" aria-labelledby="new">
     <h2 id="new">What's new</h2>
     <ul>
+      <li><time datetime="2026-11-01">Nov 1</time><span>New: Combustion and gas trainer. Size gas piping, clock the meter, read a combustion analyzer, and run a worst-case draft and CAZ test.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>New: Airflow trainer. Static pressure at four test ports, blower and duct curves, room balancing with a flow hood, and a live psychrometric chart.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Service calls: a customer complaint hides one fault. Diagnose it from the readings and get a score. In every trainer with faults.</span></li>
-      <li><time datetime="2026-11-01">Nov 1</time><span>Heating: new oil burner and hydronic air handler tabs. Motors: corrected nameplate, overload and megger numbers, plus an inverter-duty motor switch.</span></li>
     </ul>
     <details><summary>Earlier</summary><ul>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Heating: new oil burner and hydronic air handler tabs. Motors: corrected nameplate, overload and megger numbers, plus an inverter-duty motor switch.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Feedback now asks which part or tab it's about, so reports land in the right place.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Boiler: steam opens as a two-pipe system with radiator traps, an F&amp;T trap and condensate return (one-pipe is on a switch).</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Refrigeration: drag the gauge set out of the way, bi-flow drier on the heat pump, freezer defrost heaters you can see.</span></li>
@@ -136,6 +137,19 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
         <div class="body"><h3>Airflow</h3><p>A 3-ton system with attic ducts and four rooms: static pressure, fan curves, balancing, and what the coil does to the air.</p>
           <div class="tags"><span>Static pressure</span><span>CFM</span><span>Psychrometrics</span></div>
           <div class="path"><span>/airflow</span><em>Open →</em></div></div>
+      </a>
+      <a class="card" href="/combustion/">
+        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
+          <rect x="250" y="10" width="40" height="160" fill="#a5523a" stroke="#6b3a2a" stroke-width="2"/><path d="M262 10 V170 M278 10 V170" stroke="#6b3a2a" stroke-width="1" opacity=".5"/>
+          <path d="M150 62 V48 H250" stroke="#9aa3aa" stroke-width="12" fill="none"/><path d="M118 86 L130 66 H170 L182 86 Z" fill="#c3cacf" stroke="#5f686d" stroke-width="2"/>
+          <rect x="104" y="92" width="92" height="56" rx="4" fill="#d9dee1" stroke="#5f686d" stroke-width="2"/>
+          <path d="M122 146 q6 -26 12 0 M144 146 q6 -30 12 0 M166 146 q6 -26 12 0" fill="#3d7de0" stroke="#9fd0ff" stroke-width="1.5"/>
+          <path d="M40 160 H200" stroke="#e8c547" stroke-width="6"/><rect x="24" y="120" width="40" height="44" rx="4" fill="#c3cacf" stroke="#5f686d" stroke-width="2"/><circle cx="44" cy="136" r="9" fill="#fff" stroke="#d23a26" stroke-width="2"/><path d="M44 136 L50 131" stroke="#d23a26" stroke-width="2"/>
+          <rect x="16" y="30" width="72" height="62" rx="8" fill="#2b5fa8" stroke="#163a6a"/><rect x="22" y="36" width="60" height="40" rx="3" fill="#b9c7a8"/><text x="52" y="52" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#111">O2 8.4</text><text x="52" y="68" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#111">CO 12</text>
+        </svg>
+        <div class="body"><h3>Combustion and gas</h3><p>Gas piping and the meter, orifices and flames, a combustion analyzer, chimney draft and worst-case CAZ testing.</p>
+          <div class="tags"><span>Gas piping</span><span>Combustion</span><span>CO safety</span></div>
+          <div class="path"><span>/combustion</span><em>Open →</em></div></div>
       </a>
     </div>
   </section>

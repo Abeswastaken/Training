@@ -11,7 +11,7 @@ here=os.path.dirname(os.path.abspath(__file__));os.chdir(here)
 os.makedirs('dist',exist_ok=True)
 def run(script,cwd='.'):
     print('==',script);subprocess.run([sys.executable,script],cwd=os.path.join(here,cwd),check=True)
-for s in ['build.py','build_heat.py','build_ctl.py','build_wiring.py','build_ladder.py','build_vfd.py','build_air.py']:run(s)
+for s in ['build.py','build_heat.py','build_ctl.py','build_wiring.py','build_ladder.py','build_vfd.py','build_air.py','build_comb.py']:run(s)
 run('patch.py','boiler')
 # every page gets the feedback About picker
 fa='<script>\n'+open('fb_about.js').read()+'</script>\n'
