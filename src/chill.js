@@ -12,8 +12,8 @@ PHOTOS.chill={tower:[gimg("induced draft counterflow cooling tower")],tfan:[gimg
  orifice:[gimg("chiller float valve expansion orifice")],panel:[gimg("centrifugal chiller control panel display")],chwp:[gimg("chilled water pump")],ahu:[gimg("air handler chilled water coil valve")],fs:[gimg("paddle flow switch chilled water")]};
 
 const PT134=[[0,6.5],[10,12],[20,18.4],[25,22.1],[30,26.1],[35,30.4],[40,35],[45,40.1],[50,45.5],[55,51.3],[60,57.5],[65,64.1],[70,71.2],[75,78.7],[80,86.8],[85,95.3],[90,104],[95,114],[100,124],[105,135],[110,147],[115,159],[120,171],[125,185],[130,199],[140,229],[150,263]];
-const ptP=t=>{const T=PT134;if(t<=T[0][0])return T[0][1];for(let i=1;i<T.length;i++)if(t<=T[i][0]){const[a,b]=[T[i-1],T[i]];return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0])}return T[T.length-1][1]};
-const ptT=p=>{const T=PT134;if(p<=T[0][1])return T[0][0];for(let i=1;i<T.length;i++)if(p<=T[i][1]){const[a,b]=[T[i-1],T[i]];return a[0]+(b[0]-a[0])*(p-a[1])/(b[1]-a[1])}return T[T.length-1][0]};
+const ptP134=t=>{const T=PT134;if(t<=T[0][0])return T[0][1];for(let i=1;i<T.length;i++)if(t<=T[i][0]){const[a,b]=[T[i-1],T[i]];return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0])}return T[T.length-1][1]};
+const ptT134=p=>{const T=PT134;if(p<=T[0][1])return T[0][0];for(let i=1;i<T.length;i++)if(p<=T[i][1]){const[a,b]=[T[i-1],T[i]];return a[0]+(b[0]-a[0])*(p-a[1])/(b[1]-a[1])}return T[T.length-1][0]};
 const CTONS=300,GCHW=720,GCDW=900,BASIN=1500,CMAKE=300;   // plant size, design flows (gpm), basin gallons, makeup water µS/cm
 const CLAMP=[["run","Chiller running","g"],["lim","Current limit","a"],["surge","Surging","a"],["trip","Safety trip","r"],["warm","Building warm","a"],["low","Basin low","r"],["cyc","Cycles over 6","a"]];
 
@@ -25,7 +25,7 @@ function cSvg(p){
 <g class="part" data-p="cdwp" tabindex="0">
  ${pipe("cdwS","M120 184 V442 H172",10,"#5a9bd4")}${pipe("cdwS2","M212 442 H238 V352 H262",10,"#5a9bd4")}
  <circle class="hl" cx="192" cy="442" r="20" fill="url(#zSteel)" stroke="#333"/><circle cx="192" cy="442" r="8" fill="#2a2f33"/><g id="${p}cdwImp"><path d="M192 434 V450 M184 442 H200" stroke="#9aa3aa" stroke-width="2.5"/></g>
- <text class="lblS" x="180" y="414" text-anchor="middle">Condenser water pump</text></g>
+ <text class="lblS" x="192" y="467" text-anchor="middle">Condenser water pump</text></g>
 <g class="part" data-p="strainer" tabindex="0"><rect class="hl" x="128" y="400" width="18" height="26" rx="3" fill="url(#zBrass)" stroke="#6b5200"/><rect x="132" y="406" width="10" height="16" fill="url(#zGrille)"/><rect id="${p}strDirt" x="132" y="410" width="10" height="12" fill="#5b4a2f" opacity="0"/></g>
 <g class="part" data-p="cond" tabindex="0">${pipe("cdwR","M262 324 H226 V84 H206",10,"#d9824a")}<path class="hl" d="M262 324 H226 V84" fill="none" stroke="transparent" stroke-width="12"/></g>
 <!-- cooling tower -->
@@ -67,7 +67,9 @@ function cSvg(p){
  <g id="${p}igv">${[0,1,2,3,4,5].map(i=>`<path d="M412 272 L${412+12*Math.cos(i*1.047)} ${272+12*Math.sin(i*1.047)}" stroke="#d9dee1" stroke-width="2"/>`).join("")}</g>
  <path d="M396 300 V312" stroke="#4d555a" stroke-width="10"/></g>
  <text class="val" id="${p}igvTxt" x="412" y="244" text-anchor="middle" font-size="10">vanes 75%</text></g>
-<text class="val" id="${p}cPress" x="510" y="330" font-size="10">101 psig</text><text class="val" id="${p}ePress" x="514" y="420" font-size="10">38 psig</text>
+<g class="part" data-p="panel" tabindex="0"><path d="M535 315 V322 H500" fill="none" stroke="#b8732e" stroke-width="2"/><path d="M300 436 V430" stroke="#b8732e" stroke-width="2"/>${zGauge(535,296,14,"#c0392b")}<line id="${p}cNeedle" x1="535" y1="296" x2="535" y2="284" stroke="#b3261e" stroke-width="1.8" stroke-linecap="round"/><circle cx="535" cy="296" r="2" fill="#222"/>
+ ${zGauge(300,450,13,"#2f6fd6")}<line id="${p}eNeedle" x1="300" y1="450" x2="300" y2="439" stroke="#b3261e" stroke-width="1.8" stroke-linecap="round"/><circle cx="300" cy="450" r="2" fill="#222"/></g>
+<text class="val" id="${p}cPress" x="512" y="330" font-size="10">101 psig</text><text class="val" id="${p}ePress" x="320" y="455" font-size="10">38 psig</text>
 <!-- chilled water piping and air handler -->
 <g class="part" data-p="chwp" tabindex="0">${pipe("chwS","M508 398 H560 V446 H594",10,"#2f6fd6")}${pipe("chwS2","M634 446 H770 V186",10,"#2f6fd6")}
  <circle class="hl" cx="614" cy="446" r="20" fill="url(#zSteel)" stroke="#333"/><circle cx="614" cy="446" r="8" fill="#2a2f33"/><g id="${p}chwImp"><path d="M614 438 V454 M606 446 H622" stroke="#9aa3aa" stroke-width="2.5"/></g>
@@ -79,7 +81,7 @@ function cSvg(p){
  <path id="${p}airIn" d="M684 150 H700" stroke="var(--air-warm)" stroke-width="3" marker-end="url(#zArrow)"/><path id="${p}airOut" d="M740 160 H786" stroke="var(--air-cool)" stroke-width="3" marker-end="url(#zArrow)"/>
  <rect x="742" y="180" width="18" height="10" fill="#c9a240" stroke="#5e400e"/><text class="cht" x="735" y="202" text-anchor="middle">Air handler coil</text>
  <text class="val" id="${p}roomTxt" x="735" y="48" text-anchor="middle" font-size="11">Building 74°F</text></g>
-${[["tLC","180","300"],["tEC","176","372"],["tLCH","566","392"],["tECH","566","434"],["tSup","676","240"],["tRet","594","282"]].map(([id,x,y])=>`<text class="val" id="${p}${id}" x="${x}" y="${y}" font-size="10"></text>`).join("")}`}
+${[["tLC","180","300"],["tEC","176","372"],["tLCH","566","392"],["tECH","566","434"],["tSup","676","240"],["tRet","576","282"]].map(([id,x,y])=>`<text class="val" id="${p}${id}" x="${x}" y="${y}" font-size="10"></text>`).join("")}`}
 
 const CHILL={id:"chill",p:"c_",name:"Chiller and cooling tower",svg:cSvg("c_"),lamps:CLAMP,txvOnly:[],
  sliders:[
@@ -133,12 +135,12 @@ const CHILL={id:"chill",p:"c_",name:"Chiller and cooling tower",svg:cSvg("c_"),l
   {l:S=>`Labels: ${S.labels===false?"off":"on"}`,on:S=>S.labels!==false,act(sim){sim.S.labels=sim.S.labels===false}}],
  actions:[
   {id:"glass",l:"Check the refrigerant sight glass",show:S=>true,act(sim){log(sim,sim.F.lowCharge?"Evaporator sight glass: liquid level well below the mark. The charge is low; leak-check before adding refrigerant.":"Evaporator sight glass: refrigerant level at the normal mark.",sim.F.lowCharge?"w":"")}},
-  {id:"liq",l:"Compare condenser liquid temperature to saturation",show:S=>S.on,act(sim){const S=sim.S,sat=ptT(S.Pc),liq=S.Tc-1.2;log(sim,`Condenser pressure ${f0(S.Pc)} psig = ${sat.toFixed(1)}°F saturation. Liquid leaving the condenser: ${liq.toFixed(1)}°F, ${(sat-liq).toFixed(1)}°F below saturation.`+(sat-liq>5?" Far colder than saturation: non-condensables (air) are adding pressure. Purge or recover and evacuate.":" Normal for a clean, air-free condenser."),sat-liq>5?"w":"")}},
+  {id:"liq",l:"Compare condenser liquid temperature to saturation",show:S=>S.on,act(sim){const S=sim.S,sat=ptT134(S.Pc),liq=S.Tc-1.2;log(sim,`Condenser pressure ${f0(S.Pc)} psig = ${sat.toFixed(1)}°F saturation. Liquid leaving the condenser: ${liq.toFixed(1)}°F, ${(sat-liq).toFixed(1)}°F below saturation.`+(sat-liq>5?" Far colder than saturation: non-condensables (air) are adding pressure. Purge or recover and evacuate.":" Normal for a clean, air-free condenser."),sat-liq>5?"w":"")}},
   {id:"dp",l:"Read pressure drop across the condenser",show:S=>true,act(sim){const S=sim.S,dp=8*Math.pow(S.gcdw/GCDW,2);log(sim,`Condenser water pressure drop ${dp.toFixed(1)} psi (design 8.0 psi at 900 gpm). Flow ≈ ${f0(GCDW*Math.sqrt(dp/8))} gpm.`+(S.gcdw<0.85*GCDW?" Flow is low: check the strainer, valves and pump.":""),S.gcdw<0.85*GCDW?"w":"")}},
   {id:"coc",l:"Test the tower water",show:S=>true,act(sim){const S=sim.S,c=S.cnd/CMAKE;log(sim,`Tower water ${f0(S.cnd)} µS, makeup ${CMAKE} µS: ${c.toFixed(1)} cycles of concentration.`+(c>6.5?" Too high: scale is forming. Check the blowdown valve.":c<2.5?" Low: wasting water and chemicals.":""),c>6.5?"w":"")}},
   {id:"thermo",l:"Check leaving chilled water with a test thermometer",show:S=>true,act(sim){const S=sim.S;log(sim,`Test thermometer in the leaving chilled water well: ${S.Tsup.toFixed(1)}°F. Panel shows ${(S.Tsup+(sim.F.sensor?5:0)).toFixed(1)}°F.`+(sim.F.sensor?" The panel sensor reads 5°F high: the chiller is overcooling toward the freeze trip.":""),sim.F.sensor?"w":"")}}],
  resets(S){const sim=this;return S.trip?[["Reset the chiller safety",()=>{log(sim,`Safety reset (${S.trip}). Find the cause before restarting.`,"w");S.trip=null;S.surgeN=[];S.cap=0.1}]]:[]},
- reads(S){return [["Load",S.on?`${f0(S.Qch)} tons`:"off"],["kW/ton",S.on&&S.Qch>5?(S.kW/S.Qch).toFixed(2):"—"],["Leaving CHW",`${S.Tsup.toFixed(1)}°F`],["Tower water",`${S.Tb.toFixed(1)}°F`],["Cond approach",S.on?`${(ptT(S.Pc)-S.Tlc).toFixed(1)}°F`:"—"],["Building",`${S.Troom.toFixed(0)}°F`]]},
+ reads(S){return [["Load",S.on?`${f0(S.Qch)} tons`:"off"],["kW/ton",S.on&&S.Qch>5?(S.kW/S.Qch).toFixed(2):"—"],["Leaving CHW",`${S.Tsup.toFixed(1)}°F`],["Tower water",`${S.Tb.toFixed(1)}°F`],["Cond approach",S.on?`${(ptT134(S.Pc)-S.Tlc).toFixed(1)}°F`:"—"],["Building",`${S.Troom.toFixed(0)}°F`]]},
  stText(S){return S.trip?"tripped: "+S.trip:!S.run?"stopped":S.recyc?"cycled off (light load)":S.on?(S.surging?"surging":S.lim?"current limit":"running"):"waiting for flow"},
  step(dt){let r=dt;while(r>1e-9){const h=Math.min(0.5,r);this.sub(h);r-=h}},
  sub(dt){const sim=this,S=this.S,F=this.F,V=this.V;S.t+=dt;
@@ -175,8 +177,8 @@ const CHILL={id:"chill",p:"c_",name:"Chiller and cooling tower",svg:cSvg("c_"),l
   const Qrej=Qch+kW*3412/12000;
   const Tlc=S.Tb+(S.gcdw>1?Qrej*24/S.gcdw:0);
   const appC=S.on?1.6*(Qrej/345)*(1+3*S.scale)*(F.condFoul?3.6:1):0;
-  const Tc=Tlc+appC;const Pc=ptP(Tc)+(F.noncond&&S.on?14:0);const TcE=ptT(Pc);
-  S.Qch=Qch;S.kW=kW;S.Qrej=Qrej;S.Tsup=Tsup;S.Te=S.on?Te:Tsup;S.Tc=S.on?Tc:S.Tb;S.Pc=S.on?Pc:ptP(Math.max(S.Tb,Tsup));S.Pe=S.on?ptP(Te):ptP(Tsup);S.Tlc=Tlc;
+  const Tc=Tlc+appC;const Pc=ptP134(Tc)+(F.noncond&&S.on?14:0);const TcE=ptT134(Pc);
+  S.Qch=Qch;S.kW=kW;S.Qrej=Qrej;S.Tsup=Tsup;S.Te=S.on?Te:Tsup;S.Tc=S.on?Tc:S.Tb;S.Pc=S.on?Pc:ptP134(Math.max(S.Tb,Tsup));S.Pe=S.on?ptP134(Te):ptP134(Tsup);S.Tlc=Tlc;
   S.lift=S.on?TcE-Te:S.lift+(42-S.lift)*Math.min(1,dt/60);S.appE=appE;S.kwt=kwt;
   S.Tret+=(Tsup+(S.gchw>0?S.Qb*24/S.gchw:0)-S.Tret)*Math.min(1,dt/(S.gchw>0?180:900));
   if(S.gchw<=0)S.Tret+=(70-S.Tret)*dt/3600;
@@ -214,7 +216,7 @@ const CHILL={id:"chill",p:"c_",name:"Chiller and cooling tower",svg:cSvg("c_"),l
  draw(dt){const S=this.S,F=this.F,V=this.V,p="c_";
   const tR=v=>v.toFixed(1)+"°F";
   txt(p+"tLC",tR(S.Tlc));txt(p+"tEC",tR(S.Tb));txt(p+"tLCH",tR(S.Tsup+(F.sensor?5:0)));txt(p+"tECH",tR(S.Tret));txt(p+"tSup","sup "+tR(S.Tsup));txt(p+"tRet","ret "+tR(S.Tret));
-  txt(p+"cPress",`${f0(S.Pc)} psig`);txt(p+"ePress",`${S.Pe.toFixed(1)} psig`);at(p+"cPress","fill",S.Pc>160?"var(--bad)":"var(--ink)");
+  txt(p+"cPress",`${f0(S.Pc)} psig`);at(p+"cNeedle","transform",`rotate(${(-135+270*clamp(S.Pc/300,0,1)).toFixed(1)} 535 296)`);at(p+"eNeedle","transform",`rotate(${(-135+270*clamp(S.Pe/100,0,1)).toFixed(1)} 300 450)`);txt(p+"ePress",`${S.Pe.toFixed(1)} psig`);at(p+"cPress","fill",S.Pc>160?"var(--bad)":"var(--ink)");
   txt(p+"fanTxt",F.towerFan?"fan TRIPPED":`fan ${f0(S.fan*100)}%`);at(p+"fanTxt","fill",F.towerFan?"var(--bad)":"var(--ink)");
   txt(p+"basinTxt",tR(S.Tb));txt(p+"wbTxt",`Outdoor wet bulb ${V.wb}°F   approach ${S.appT.toFixed(1)}°F   range ${S.range.toFixed(1)}°F`);
   txt(p+"condTxt",`${f0(S.cnd)} µS`);at(p+"bdLed","fill",S.bd?(F.blowdown?"var(--bad)":"var(--ok)"):"var(--lamp-off)");
@@ -232,12 +234,12 @@ const CHILL={id:"chill",p:"c_",name:"Chiller and cooling tower",svg:cSvg("c_"),l
   const rn=$(p+"rain");if(rn){rn.style.strokeDashoffset=-S.offC*1.5;rn.style.opacity=S.gcdw>1?0.8:0}
   const st=this.stText(S);
   const L=[`LCHW ${tR(S.Tsup+(F.sensor?5:0))}  ECHW ${tR(S.Tret)}  SP ${V.sp}`,`LCW  ${tR(S.Tlc)}  ECW  ${tR(S.Tb)}`,
-   `Evap ${S.Pe.toFixed(1)} psig = ${ptT(S.Pe).toFixed(1)}°F sat`,`Cond ${f0(S.Pc)} psig = ${ptT(S.Pc).toFixed(1)}°F sat`,
-   S.on?`Evap appr ${(S.Tsup+(F.sensor?5:0)-ptT(S.Pe)).toFixed(1)}°F  Cond appr ${(ptT(S.Pc)-S.Tlc).toFixed(1)}°F`:"Approaches: —",
+   `Evap ${S.Pe.toFixed(1)} psig = ${ptT134(S.Pe).toFixed(1)}°F sat`,`Cond ${f0(S.Pc)} psig = ${ptT134(S.Pc).toFixed(1)}°F sat`,
+   S.on?`Evap appr ${(S.Tsup+(F.sensor?5:0)-ptT134(S.Pe)).toFixed(1)}°F  Cond appr ${(ptT134(S.Pc)-S.Tlc).toFixed(1)}°F`:"Approaches: —",
    `Load ${f0(S.Qch)} t  Vanes ${f0(S.cap*100)}%  Lift ${S.on?S.lift.toFixed(0):"—"}°F`,
    S.on?`kW ${f0(S.kW)}  ${(S.Qch>5?S.kW/S.Qch:0).toFixed(2)} kW/t  FLA ${f0(S.kW/175*100)}%`:"kW 0",`Surges (10 min) ${S.surgeN.length}`,`Status: ${st.toUpperCase()}`];
   L.forEach((t,i)=>txt(p+"d"+i,t));at(p+"d8","fill",S.trip?"#ff7b6b":S.surging||S.lim?"#ffd34d":"#9fe0a8");
   document.querySelectorAll("#svg .lbl,#svg .lblS").forEach(e=>e.style.opacity=S.labels===false?0:1)},
  boom(){return{t:"",b:"",wreck:0}}};
 CHILL.lampOn=S=>({run:S.on,lim:S.lim,surge:S.surging,trip:!!S.trip,warm:S.Troom>77,low:S.level<30,cyc:S.cnd/CMAKE>6});
-CHILL.ptT=ptT;CHILL.ptP=ptP;
+CHILL.ptT=ptT134;CHILL.ptP=ptP134;
