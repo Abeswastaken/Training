@@ -2223,6 +2223,19 @@ const COMPLAINTS={
   bearing:["Operator: \"There's a grinding whine from the motor that's getting louder.\""],
   jam:["Operator: \"The drive trips on overload and the fan is hard to turn by hand.\""],
   swap:["Operator: \"An electrician replaced the motor and now the airflow is weak.\""]},
+ air:{
+  filterDirty:["Customer: \"Airflow from the vents is weak and the system runs a lot longer than it used to.\""],
+  coilDirty:["Customer: \"It doesn't cool like it used to. We never had the inside coil cleaned.\""],
+  wheelDirty:["Customer: \"Weak air out of every vent. The blower sounds normal. We did a remodel last year.\""],
+  capWeak:["Customer: \"The blower seems slower than it used to be and the air is weak.\"",{s:{motor:"psc"}}],
+  wrongTap:["Customer: \"Ever since the new furnace went in, the air conditioning blows gently and the coil sweats a lot.\"",{s:{motor:"psc"}}],
+  ecmSet:["Customer: \"The new variable-speed furnace is quiet, but the AC never keeps up.\"",{s:{motor:"ecm"}}],
+  returnBlock:["Customer: \"We rearranged the living room and now the system whistles and the air is weak.\""],
+  crushed:["Customer: \"The back bedroom is always hot. A cable guy was in the attic last month.\""],
+  disc:["Customer: \"Bed 1 gets no air at all, and the whole house is warmer than it should be.\""],
+  closedRegs:["Customer: \"We closed the vents in the spare bedrooms to save money, but the bill didn't go down.\""],
+  supplyLeak:["Customer: \"The AC runs all afternoon, every room is a bit warm, and it's dusty.\""],
+  returnLeak:["Customer: \"It runs and runs and the house feels sticky, even though the air coming out is cool.\"",{v:{dew:68}}]},
  hyd:{
   pumpFail:["Customer: \"The boiler keeps firing and shutting off, but the radiators are cold.\""],
   waterlog:["Customer: \"The relief valve drips every time the boiler heats up, and the gauge swings a lot.\""],
@@ -2369,7 +2382,7 @@ function frame(now){const real=Math.min(0.1,(now-last)/1000);last=now;
   cur.draw(running?real:0);syncStrip();if(tab==="controls"){syncSwitches();syncChargeSlider()}
   requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
-window.__rt={SIMS,svc:{start:svcStart,guess:svcGuess,hint:svcHint,quit:svcGiveUp,C:COMPLAINTS},cur:()=>cur,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
+window.__rt={SIMS,reset,svc:{start:svcStart,guess:svcGuess,hint:svcHint,quit:svcGiveUp,C:COMPLAINTS},cur:()=>cur,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
 
 // Feedback goes to the same Google Form as the boiler trainer (one question; context says which trainer).
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
