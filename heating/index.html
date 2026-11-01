@@ -1052,6 +1052,7 @@ SRC.r7184=["Honeywell R7184 oil primary guide 69-1384: 15 s valve-on delay, 15/3
 SRC.oilsys=["HVAC Excellence study guide: oil burners, pumps, nozzles, electrodes, cad cells and combustion benchmarks","https://open-exam-prep.com/study-guides/hvac-excellence/electric-oil-hydronics/oil-heating-systems"];
 SRC.suntec=["Suntec A2VA-7116 pump bulletin: 100–200 psi, factory 100 psi, 6 in. Hg max vacuum single pipe, 12 in. Hg two pipe","https://image.stockpileexpress.com/ProductInfo/A2-VA-7116-B20_Ed4-jan2020.pdf"];
 SRC.nora=["NORA combustion analysis chart: smoke 0, CO2 12–13%, O2 3–5%, overfire -0.01 to -0.02, breech -0.02 to -0.04 in. w.c., net stack 350–500°F","https://learning.noraweb.org/wp-content/uploads/2026/06/NORA-Combustion-Analysis-chart-2.pdf"];
+SRC.testoOil=["Testo 300 manual: flue gas loss qA = (flue − air temp) × (A2 ÷ (21 − O2) + B); light fuel oil A2 0.68, B 0.007, CO2max 15.4%","https://www.manualslib.com/manual/1286672/Testo-300-Xxl.html?page=77"];
 SRC.puff=["InspectAPedia: oil burner puffbacks (unburned oil in the chamber, repeated resets, dripping nozzle, failing pump cutoff, draft)","https://inspectapedia.com/heat/Oil_Burner_Puffbacks.htm"];
 SRC.l4064=["Resideo L4064B fan and limit control: fan on 125°F, fan off 100°F, limit 200°F","https://www.supplyhouse.com/Resideo-L4064B2236-Fan-and-Limit-Controller-w-125-F-Fan-on-100-F-Fan-off-200-F-High-Limit-8-Insertion-L4064B2236"];
 SRC.baro=["InspectAPedia: draft regulators (barometric dampers) on oil-fired equipment","https://inspectapedia.com/heat/Draft_Regulators.php"];
@@ -1307,8 +1308,8 @@ const OIL={id:"oil",p:"o_",name:"Oil furnace",svg:oSvg("o_"),lamps:OLAMP,txvOnly
   bcap:{n:"Blower run capacitor",s:"Helps the PSC blower motor run.",w:"",y:"",f:"Weak: the blower runs slow and the limit trips.",src:[],faults:[]},
   afilter:{n:"Air filter",s:"Cleans the return air.",w:"",y:"",f:"Dirty: low airflow, high temperature rise, limit trips.",src:[],faults:["afilter"]},
   analyzer:{n:"Combustion analyzer",s:"What a combustion test reads in the flue pipe.",w:"Smoke from a smoke pump and paper (Bacharach scale 0–9), CO2 or O2, CO, net stack temperature, and the calculated efficiency.",
-   y:"Targets for a modern flame-retention burner (NORA): smoke 0, CO2 about 11.5–13%, O2 about 3–5%, CO under 100 ppm (ideally under 50), net stack 350–500°F, efficiency mid-80s. Check smoke first, then set air for the CO2.",
-   f:"High smoke: not enough air, poor atomization (low pressure, bad nozzle) or poor draft. High CO with low smoke: too little air or flame impingement.",src:["nora","oilsys"],faults:[]},
+   y:"Targets for a modern flame-retention burner (NORA): smoke 0, CO2 about 11.5–13%, O2 about 3–5%, CO under 100 ppm (ideally under 50), net stack 350–500°F, efficiency about 82–86% (US analyzers report it on the oil's higher heating value). Check smoke first, then set air for the CO2.",
+   f:"High smoke: not enough air, poor atomization (low pressure, bad nozzle) or poor draft. High CO with low smoke: too little air or flame impingement.",src:["nora","oilsys","testoOil"],faults:[]},
   tstat:{n:"Thermostat",s:"Calls for heat when the house is cool.",w:"",y:"",f:"",src:[],faults:[]},
   coalarm:{n:"CO alarm",s:"Warns the people in the house about carbon monoxide.",w:"A UL 2034 listed alarm.",y:"",f:"A dead battery means no warning.",src:[],faults:["coDead"]},
   house:{n:"House",s:"Where the heat goes.",w:"",y:"Colder outdoors means longer burner run times.",f:"",src:[],faults:[]}},
@@ -1379,7 +1380,7 @@ const OIL={id:"oil",p:"o_",name:"Oil furnace",svg:oSvg("o_"),lamps:OLAMP,txvOnly
    let sm=Math.max(0,(1.27-lam)*22)+(P<120?(120-P)/9:0)+(F.nozzle?2.4:0)+Math.max(0,S.over)*60+(F.water?1:0);S.smoke=clamp(sm,0,9);
    S.co=6+Math.max(0,1.22-lam)*3800+S.smoke*18+(S.over>0?260:0)+(lam>1.9?(lam-1.9)*120:0);
    S.net=440+(gph/GPH0-1)*260+S.soot*260+Math.max(0,lam-1.32)*300;
-   S.eff=clamp(100-(S.net/1.8)*(0.56/Math.max(4,S.co2)+0.007)-(S.co>200?1.5:0),40,92);
+   S.eff=clamp((100-(S.net/1.8)*(0.68/Math.max(1,21-S.o2)+0.007))*0.938-(S.co>200?1.5:0),40,92);   // Testo light-oil flue loss (A2 0.68, B 0.007), × LHV/HHV for a US-style reading
    if(S.smoke>2)S.soot=Math.min(1,S.soot+(S.smoke-2)*dt/9000);
   }else{S.o2=20.9;S.co2=0;S.co=0;S.smoke=0;S.net=Math.max(0,S.net-dt*3);S.eff=0}
   if(F.soot&&S.soot<0.75)S.soot=0.75;
