@@ -416,8 +416,8 @@ const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" 
   <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
   <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/><path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1" fill="none"/>
+const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
+  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
 // wall thermostat with an LCD
 const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
@@ -632,7 +632,7 @@ SRC.bapi=["BAPI: thermistor sensors (10K at 77°F / 25°C; resistance falls as t
 SRC.fstat=["High Performance HVAC: air handler freeze stat (stop fan, close outside air, open coil valves, alarm; test it yearly)","https://highperformancehvac.com/air-handler-water-coil-freeze-stat/"];
 
 PHOTOS.pneu={aircomp:[gimg("tank mounted control air compressor pneumatic")],receiver:[gimg("air receiver tank relief valve auto drain")],pswitch:[gimg("air compressor pressure switch 70 90 psi")],
- dryer:[gimg("refrigerated air dryer control air")],afilter:[gimg("coalescing compressed air filter bowl")],prv:[gimg("pneumatic control air pressure reducing station gauges")],
+ dryer:[gimg("refrigerated air dryer control air")],afilter:[gimg("compressed air particulate filter bowl")],ofilter:[gimg("coalescing compressed air oil filter bowl")],prv:[gimg("pneumatic control air pressure reducing station gauges")],
  restrictor:[gimg("pneumatic restrictor tee 0.005")],tstatp:[gimg("Honeywell pneumatic room thermostat cover off")],hvalve:[gimg("pneumatic 3 way valve actuator diaphragm")],
  cvalve:[gimg("3 way diverting valve chilled water coil")],hcoil:[gimg("hot water heating coil air handler")],ccoil:[gimg("chilled water coil air handler")],sfan:[gimg("air handler supply fan")],zone:[]};
 PHOTOS.ddc={ctrl:[gimg("DDC controller terminal blocks AHU panel")],xfmr:[gimg("24 VAC control transformer panel")],bas:[gimg("BAS trend graph room temperature valve")],rsens:[gimg("10K thermistor room temperature sensor wall")],
@@ -782,16 +782,21 @@ ${mechSvg(p,false)}
  <circle id="${p}pswLed" cx="134" cy="89" r="2.2" fill="#3a3f43"/>
 </g>
 <!-- dryer, filter, PRV -->
-<rect x="170" y="126" width="36" height="5" fill="#8f979d"/><rect x="258" y="126" width="16" height="5" fill="#8f979d"/><rect x="286" y="126" width="20" height="5" fill="#8f979d"/>
+<rect x="170" y="126" width="36" height="5" fill="#8f979d"/><rect x="258" y="126" width="48" height="5" fill="#8f979d"/>
 <g class="part" data-p="dryer" tabindex="0">
  <rect class="hl" x="206" y="98" width="52" height="56" rx="3" fill="url(#zCab)" stroke="#5f686d" filter="url(#zShadow)"/><rect x="211" y="124" width="42" height="24" fill="url(#zLouver)"/>
  <rect x="212" y="103" width="40" height="15" rx="1" fill="url(#zLcd)" stroke="#5f686d" stroke-width=".5"/><text class="valD" id="${p}dpTxt" x="232" y="113.5" text-anchor="middle" fill="#1d2327" style="font-size:8px"></text>
  <text class="zt lbx" x="232" y="168" text-anchor="middle">REFRIG. DRYER</text>
 </g>
 <g class="part" data-p="afilter" tabindex="0">
- <rect x="271" y="114" width="18" height="8" fill="url(#zAlu)" stroke="#5f686d" stroke-width=".6"/><rect class="hl" x="274" y="122" width="12" height="26" rx="4" fill="#dfe8ee" stroke="#6f787e"/><rect x="277" y="125" width="6" height="18" fill="#e9e1c9"/>
- <rect id="${p}fwater" x="275" y="146" width="10" height="0" fill="#3d7fc0" opacity=".7"/>
- <text class="zt lbx" x="280" y="160" text-anchor="middle">FILTER</text>
+ <rect x="261" y="114" width="16" height="8" fill="url(#zAlu)" stroke="#5f686d" stroke-width=".6"/><rect class="hl" x="263" y="122" width="12" height="26" rx="4" fill="#dfe8ee" stroke="#6f787e"/><rect x="266" y="125" width="6" height="18" fill="#c9b48a"/>
+ <rect x="267" y="148" width="4" height="4" fill="url(#zBrass)"/>
+ <text class="zt lbx" x="269" y="162" text-anchor="middle">DIRT</text>
+</g>
+<g class="part" data-p="ofilter" tabindex="0">
+ <rect x="283" y="114" width="16" height="8" fill="url(#zAlu)" stroke="#5f686d" stroke-width=".6"/><rect class="hl" x="285" y="122" width="12" height="26" rx="4" fill="#dfe8ee" stroke="#6f787e"/><rect x="288" y="125" width="6" height="18" fill="#f1ecdc"/>
+ <rect id="${p}fwater" x="286" y="146" width="10" height="0" fill="#3d7fc0" opacity=".7"/><rect x="289" y="148" width="4" height="4" fill="url(#zBrass)"/>
+ <text class="zt lbx" x="291" y="172" text-anchor="middle">OIL</text>
 </g>
 <g class="part" data-p="prv" tabindex="0">
  <rect class="hl" x="306" y="118" width="28" height="18" rx="3" fill="url(#zBrass)" stroke="#5e400e"/><path d="M311 118 Q311 100 320 100 Q329 100 329 118 Z" fill="url(#zBrass)" stroke="#5e400e"/><rect x="318" y="92" width="4" height="9" fill="url(#zSteel)"/>
@@ -960,7 +965,8 @@ const PNEU={id:"pneu",p:"pn_",lag:45,name:"Pneumatic",svg:pnSvg("pn_"),lamps:PLA
   receiver:{n:"Receiver tank, relief valve, drain",s:"Stores the air, protects the tank, dumps the water.",w:"An ASME steel tank rated for at least 125 psi, with a safety relief valve and an automatic drain on the bottom.",y:"The stored air lets the compressor rest. The relief valve is set 10 to 25 psi above the 90 psi cut-out. Compressing air squeezes water out of it, and the drain gets rid of it.",f:"A stuck drain lets water fill the tank: less stored air, short cycling, and water carried downstream. A welded pressure switch plus a stuck relief valve is how tanks rupture.",src:["ufgsAir"],faults:["drain","relief"]},
   pswitch:{n:"Pressure switch",s:"Cycles the compressor.",w:"A diaphragm switch on the tank that opens and closes the motor circuit.",y:"Closes at 70 psi (cut-in), opens at 90 psi (cut-out).",f:"Welded contacts keep the compressor running past cut-out. Only the relief valve stops the pressure then.",src:["ufgsAir"],faults:["psw"]},
   dryer:{n:"Refrigerated air dryer",s:"Takes the water out of the air.",w:"A small refrigeration unit that chills the compressed air to about 35 to 40°F so water condenses and drains out, then rewarms it.",y:"Control air has to be clean, dry and oil-free. Water and oil plug restrictors, thermostat nozzles and actuator diaphragms.",f:"A failed dryer passes wet air. After a while restrictors and thermostats plug and the branch goes sluggish and low.",src:["tp970"],faults:["dryer"]},
-  afilter:{n:"Air filter",s:"Catches oil, rust and dirt.",w:"A coalescing filter with a clear bowl and a drain.",y:"Last line of defense before the PRV and the tiny passages in the controls.",f:"Water or oil in the bowl means the dryer or the drain has failed.",src:["tp970"],faults:["dryer"]},
+  afilter:{n:"Dirt (particulate) filter",s:"Catches rust, scale and dirt first.",w:"A particulate filter with a clear bowl and a drain, right after the dryer. Its element stops solid particles (typically down to about 5 microns).",y:"First of two filters before the PRV. It takes the solids out so they don't load up the finer oil filter after it.",f:"A loaded element drops the pressure going to the PRV. Change it on schedule; drain the bowl.",src:["tp970"],faults:[]},
+  ofilter:{n:"Oil (coalescing) filter",s:"Takes oil mist and the last water droplets out.",w:"A coalescing filter after the dirt filter: fine fibers gather oil and water aerosols into drops that run down into the bowl and out the drain.",y:"Second filter, last line of defense before the PRV and the tiny passages in the thermostats and actuators. Control air has to be clean, dry and oil-free.",f:"Water or oil in the bowl means the dryer, the compressor or the drain has a problem. Oil getting past it gums up restrictors and diaphragms.",src:["tp970"],faults:["dryer"]},
   prv:{n:"Pressure reducing valve (PRV)",s:"Drops tank pressure to main air pressure.",w:"A regulator with a gauge on each side.",y:"Single-pressure systems usually run main air around 20 psi. Two-pressure (day/night) systems switch between two main pressures, for example 13 and 18 psi on Honeywell's TP970.",f:"A PRV that fails open puts full tank pressure on thermostats and actuators built for low pressure: diaphragms rupture. Set too low, the branch can't reach the cooling valve's range.",src:["tp970"],faults:["prv"]},
   restrictor:{n:"Restrictor (one-pipe)",s:"Feeds main air into the branch of a one-pipe thermostat.",w:"A tiny orifice (about 0.005 inch) teed into the branch right at a one-pipe (bleed) thermostat. Switch Thermostat piping to one-pipe to see it. A two-pipe thermostat has its restrictor built in.",y:"The thermostat bleeds air out of the branch through a nozzle. The restrictor limits how fast main air refills it, so the branch settles anywhere between 0 and main pressure. One-pipe stats bleed all the time, so they use more air and respond slower than two-pipe (relay) stats.",f:"Plugged: the branch drops to 0 and every actuator goes to its normal position. A branch leak does the same thing more slowly and keeps the compressor busier.",src:["tp970"],faults:["restr","brLeak"]},
   tstatp:{n:"Pneumatic room thermostat",s:"Turns room temperature into branch pressure.",w:"A bimetal element moves a flapper over a nozzle. Two-pipe (most commercial work): main air runs to the M port and the branch leaves the B port; an internal relay and restrictor build the branch. One-pipe: only the branch connects, fed through an external restrictor, and the stat bleeds it. Direct acting (DA): branch rises as the room warms. Reverse acting (RA): branch falls.",y:"DA here, about 8 psi at setpoint, changing 2.5 psi per °F (its sensitivity). Below setpoint the branch drops toward 3 psi and opens the heating valve. Above it, it climbs toward 13 psi and opens the cooling valve. It only ever settles near setpoint (proportional control), never exactly on it.",f:"Out of calibration it controls a few degrees off. Wrong action drives the room away from setpoint. Too much main pressure ruptures its diaphragm.",src:["tp970","ufcSeq"],faults:["cal"]},
@@ -1248,7 +1254,7 @@ function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=c
 function closeSheet(){$("sheet").hidden=true;openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
 function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts="__"}
-function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));
+function switchSim(id){cur=SIMS[id];$("svg").innerHTML=`<g id="draw-${id}">${cur.svg}</g>`;rzTubes($("svg"));if(typeof placeMan==="function"){const m=MANP[cur.p]||[0,0];placeMan(cur.p,m[0],m[1])}
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===id));
   computeBoxes();renderLamps();renderAll();closeSheet();
   const d=cur.S.dead;$("boom").hidden=!d;if(d){const r=cur.boom(d);$("boomT").textContent=r.t;$("boomB").innerHTML=r.b;if(r.wreck)at(cur.p+"burn","opacity",1)}

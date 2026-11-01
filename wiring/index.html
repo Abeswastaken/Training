@@ -159,7 +159,7 @@ details .group{gap:10px}
 .term circle{fill:#c9a24a;stroke:#5a4210;stroke-width:1.5;cursor:crosshair}
 .term:hover circle,.term.pend circle{fill:#ffd84a;r:8}
 .term text{font:600 9px var(--display);fill:var(--ink);pointer-events:none}
-.wire{fill:none;stroke-width:3.5;stroke-linejoin:round;cursor:pointer;filter:drop-shadow(0 0 1px rgba(0,0,0,.5))}
+.wire{fill:none;stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round;cursor:pointer;filter:drop-shadow(0 0 1px rgba(0,0,0,.5))}
 .wire.sel{stroke-width:6}
 .wire.hot{stroke:#ff3b30!important;stroke-width:6;animation:hot .5s infinite alternate}
 .wire.clamp{stroke-dasharray:8 4}
@@ -358,8 +358,8 @@ const zDisc=(x,y,w,h,hId)=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" 
   <rect id="${hId}" x="${x+7}" y="${y+9}" width="${w-14}" height="${h-17}" rx="2" fill="var(--plate)" stroke="#000" stroke-width=".6"/><rect x="${x+w/2-4}" y="${y+h*.45}" width="8" height="4" rx="1" fill="#cfd5d9"/>
   <rect x="${x+w/2-3}" y="${y+h}" width="6" height="6" fill="#6c747a"/>`;
 // liquid line filter drier
-const zDrier=(x,y,w,h,frostId)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
-  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/><path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1" fill="none"/>
+const zDrier=(x,y,w,h,frostId,dir=1)=>`<g filter="url(#zShadow)">${zCuStubH(x-6,x+2,y+h/2,5)}${zCuStubH(x+w-2,x+w+6,y+h/2,5)}<rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="url(#zBlue)" stroke="#14202c"/></g>
+  <path d="M${x+4} ${y+3} H${x+w-4}" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round"/>${dir===0?`<path d="M${x+w/2-7} ${y+h/2} h14 m-3 -3 l3 3 -3 3 M${x+w/2-4} ${y+h/2-3} l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:dir<0?`<path d="M${x+w*.4} ${y+h/2} l-6 0 m3 -3 l-3 3 3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`:`<path d="M${x+w*.6} ${y+h/2} l6 0 m-3 -3 l3 3 -3 3" stroke="#fff" stroke-width="1.1" fill="none"/>`}
   <rect id="${frostId}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" fill="var(--ice)" opacity="0"/>`;
 // wall thermostat with an LCD
 const zTstat=(x,y,w,h,txtId,lampId,init="74")=>`<g filter="url(#zShadow)"><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#zPlastic)" stroke="#8f887a"/></g>
@@ -922,7 +922,7 @@ const svg=$("board");
 function render(){
  const sp=svg.querySelector("#parts"),sw=svg.querySelector("#wires"),st=svg.querySelector("#terms");
  sp.innerHTML=parts.map(p=>`<g class="wp${sel===p.id?" sel":""}" data-id="${p.id}" transform="translate(${p.x} ${p.y})">${T[p.type].draw(p)}<text x="0" y="${T[p.type].terms.some(t=>t[2]===0)?-20:-6}" font-size="10" font-family="var(--display)" font-weight="700" fill="var(--muted)">${esc(p.label.toUpperCase())}</text></g>`).join("");
- sw.innerHTML=wires.map(w=>{const r=routePts(w);if(!r)return "";const d="M"+r.map(q=>q.x+" "+q.y).join(" L");
+ sw.innerHTML=wires.map(w=>{const r=routePts(w);if(!r)return "";const d=wireD(r);
   const hot=incident&&incident.includes(w.id);return `<path d="${d}" class="wire${sel===w.id?" sel":""}${hot?" hot":""}${meter.clampId===w.id?" clamp":""}" data-w="${w.id}" stroke="${w.c}"/>`}).join("");
  st.innerHTML=parts.map(p=>T[p.type].terms.map(t=>{const x=p.x+t[1],y=p.y+t[2];const pend=pending&&pending.p===p.id&&pending.t===t[0];return `<g class="term${pend?" pend":""}" data-p="${p.id}" data-t="${t[0]}"><circle cx="${x}" cy="${y}" r="6"/>${t[3]?`<text x="${x}" y="${y+(t[2]===0?-9:t[2]>=T[p.type].h?17:-9)}" text-anchor="middle">${t[3]}</text>`:""}</g>`}).join("")).join("");
  renderHandles();renderMeter()}
@@ -930,7 +930,15 @@ function render(){
 function routeEnds(w){const pa=partById(w.a.p),pb=partById(w.b.p);if(!pa||!pb)return null;const a=tpos(pa,w.a.t),b=tpos(pb,w.b.t);
  const stub=(p,q)=>{const t=T[p.type];const lx=q.x-p.x,ly=q.y-p.y;return ly<=2?{x:q.x,y:q.y-14}:ly>=t.h-2?{x:q.x,y:q.y+14}:lx<=2?{x:q.x-14,y:q.y}:lx>=t.w-2?{x:q.x+14,y:q.y}:{x:q.x,y:q.y+14}};
  return {a,b,sa:stub(pa,a),sb:stub(pb,b)}}
-function defPts(e){const mx=Math.round((e.sa.x+e.sb.x)/20)*10;return [{x:mx,y:e.sa.y},{x:mx,y:e.sb.y}]}
+function defPts(e){return []}
+/* smooth wire: straight out of each terminal, then a curve through the bend points (Catmull-Rom), with a little sag like real wire */
+function wireD(r){const n=r.length,f=v=>Math.round(v*10)/10,a=r[0],sa=r[1],sb=r[n-2],b=r[n-1];let d=`M${f(a.x)} ${f(a.y)} L${f(sa.x)} ${f(sa.y)}`;
+ if(n===4){const L=Math.hypot(sb.x-sa.x,sb.y-sa.y),k=Math.max(24,L*.38),sag=Math.min(60,L*.18);const ua={x:(sa.x-a.x)/14,y:(sa.y-a.y)/14},ub={x:(sb.x-b.x)/14,y:(sb.y-b.y)/14};
+  d+=` C${f(sa.x+ua.x*k)} ${f(sa.y+ua.y*k+sag)} ${f(sb.x+ub.x*k)} ${f(sb.y+ub.y*k+sag)} ${f(sb.x)} ${f(sb.y)}`}
+ else{const P=r.slice(1,n-1),t=.5;const ext=(p,q)=>({x:2*p.x-q.x,y:2*p.y-q.y});const Q=[{x:2*sa.x-a.x,y:2*sa.y-a.y},...P,{x:2*sb.x-b.x,y:2*sb.y-b.y}];
+  for(let i=1;i<Q.length-2;i++){const p0=Q[i-1],p1=Q[i],p2=Q[i+1],p3=Q[i+2];
+   d+=` C${f(p1.x+(p2.x-p0.x)*t/3)} ${f(p1.y+(p2.y-p0.y)*t/3)} ${f(p2.x-(p3.x-p1.x)*t/3)} ${f(p2.y-(p3.y-p1.y)*t/3)} ${f(p2.x)} ${f(p2.y)}`}}
+ return d+` L${f(b.x)} ${f(b.y)}`}
 function routePts(w){const e=routeEnds(w);if(!e)return null;return [e.a,e.sa,...(w.pts&&w.pts.length?w.pts:defPts(e)),e.sb,e.b]}
 function renderHandles(){const g=svg.querySelector("#wh");if(!g)return;const w=sel&&wires.find(x=>x.id===sel);$("resetRoute").hidden=!w;if(!w){g.innerHTML="";return}
  const r=routePts(w);if(!r){g.innerHTML="";return}let h="";
@@ -976,14 +984,14 @@ function openSheet(p){sel=p.id;const t=T[p.type];
 let drag=null;
 svg.addEventListener("pointerdown",ev=>{const pr=ev.target.closest(".probe");if(pr){drag={probe:pr.dataset.probe};svg.setPointerCapture(ev.pointerId);ev.preventDefault();return}
  const hd=ev.target.closest(".wh,.wadd");if(hd){const w=wires.find(x=>x.id===hd.dataset.w);if(w){snapshot();const e=routeEnds(w);if(!w.pts||!w.pts.length)w.pts=defPts(e);let i=+hd.dataset.i;
-  if(hd.classList.contains("wadd")){const r=routePts(w);const k=i+1;w.pts.splice(i,0,{x:Math.round((r[k].x+r[k+1].x)/20)*10,y:Math.round((r[k].y+r[k+1].y)/20)*10})}
+  if(hd.classList.contains("wadd")){const r=routePts(w);const k=i+1;w.pts.splice(i,0,{x:Math.round((r[k].x+r[k+1].x)/2),y:Math.round((r[k].y+r[k+1].y)/2)})}
   drag={wh:w,i};svg.setPointerCapture(ev.pointerId);ev.preventDefault();render()}return}
  const term=ev.target.closest(".term");if(term){termTap(term.dataset.p,term.dataset.t);ev.preventDefault();return}
  const wp=ev.target.closest(".wp");if(wp){const p=partById(wp.dataset.id);const pt=svgPt(ev);drag={part:p,dx:pt.x-p.x,dy:pt.y-p.y,moved:false,start:pt};svg.setPointerCapture(ev.pointerId);ev.preventDefault();return}
  const w=ev.target.closest(".wire");if(w){if(meter.on&&meter.mode==="A"){meter.clampId=w.dataset.w;renderMeter();render();return}sel=w.dataset.w;$("delSel").hidden=false;render();return}
  sel=null;pending=null;$("delSel").hidden=true;render()});
 svg.addEventListener("pointermove",ev=>{if(!drag)return;const pt=svgPt(ev);
- if(drag.wh){drag.wh.pts[drag.i]={x:clamp(Math.round(pt.x/10)*10,0,1500),y:clamp(Math.round(pt.y/10)*10,0,1000)};render();return}
+ if(drag.wh){drag.wh.pts[drag.i]={x:clamp(Math.round(pt.x),0,1500),y:clamp(Math.round(pt.y),0,1000)};render();return}
  if(drag.probe){meter[drag.probe==="red"?"rp":"bp"]={x:pt.x,y:pt.y};meter[drag.probe]=null;renderMeter();return}
  if(Math.hypot(pt.x-drag.start.x,pt.y-drag.start.y)>4){if(!drag.moved)snapshot();drag.moved=true}
  if(drag.moved){drag.part.x=clamp(Math.round((pt.x-drag.dx)/10)*10,0,1500);drag.part.y=clamp(Math.round((pt.y-drag.dy)/10)*10,20,1000);render()}});
