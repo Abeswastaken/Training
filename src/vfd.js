@@ -183,6 +183,7 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
  scenarios:[{l:"Single-phased in bypass with the overload relay jumpered out",f:["fuse","olJump"],s:{bypass:true,cmd:true},speed:5},
   {l:"Conveyor at 15 Hz, full load, drive overload set to 25 A",f:[],v:{fref:15,load:110,ol:25},s:{ltype:"conv",cmd:true},speed:60}],
  startMsg(){return "Drive powered up on a 480 V supply, driving a 10 hp fan motor. Turn the Run command on to start it."},
+ svcS:{cmd:true},
  init(){const V=this.V;return {t:0,dead:null,disc:true,invDuty:false,cmd:false,dir:1,dirOut:1,bypass:false,ltype:"fan",stopMode:"ramp",stall:true,labels:true,
   f:0,out:false,n:0,bus:V.line*1.414,charged:true,vl:0,ripple:0,I:0,Ia:[0,0,0],T:0,Tl:0,Vout:0,th:0.3,hs:30,mt:30,fault:null,faultTxt:"",ilim:false,ovc:false,
   olr:false,olrTh:0.3,fuses:false,ang:0,hsAng:0,aoff:0,boxX:0,scph:0,tLead:0,logs2:{pc:1}}},
@@ -235,8 +236,9 @@ const VFD={id:"vfd",p:"v_",name:"VFD + motor",svg:vSvg("v_"),lamps:VLAMP,txvOnly
     if(S.dir!==S.dirOut&&S.f<=0.5){S.dirOut=S.dir;log(sim,`Reversing: now ${S.dir>0?"forward":"reverse"}.`)}
     if(!S.cmd&&S.stopMode==="coast"){S.out=false;S.f=0}
     else if(!S.cmd&&S.f<=0.5){S.out=false;S.f=0;log(sim,"Ramp to stop complete. Output off.")}
-    if(S.cmd&&S.out&&Math.abs(S.f-tgt)<0.05&&!S.logs2.at&&tgt>0){S.logs2.at=1;log(sim,`At speed: ${tgt} Hz, ${S.I.toFixed(1)} A.`)}
-    if(Math.abs(S.f-tgt)>0.5)S.logs2.at=0}
+    // log the current once the motor has caught up with the frequency (a few seconds after the ramp ends)
+    if(S.cmd&&S.out&&Math.abs(S.f-tgt)<0.05&&!S.logs2.at&&tgt>0){S.atT=(S.atT||0)+h;if(S.atT>=5){S.logs2.at=1;log(sim,`At speed: ${tgt} Hz, ${S.I.toFixed(1)} A.`)}}
+    if(Math.abs(S.f-tgt)>0.5){S.logs2.at=0;S.atT=0}}
   }else if(!S.bypass){S.out=false;S.f=0}
   if(S.bypass){S.out=false;S.f=0}
   // ---- what the motor sees ----

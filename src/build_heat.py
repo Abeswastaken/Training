@@ -15,7 +15,6 @@ fw=rep(fw,"cur=SIMS[startSim]||SPLIT","cur=SIMS[startSim]||FURNACE")
 fw=fw.replace('"rt-','"ht-')
 fw=rep(fw,"function fbContext(){return `Refrigeration trainer (${cur.name}, ${cur.S.meter}), t=${Math.round(cur.S.t)}s, charge ${Math.round(cur.V.charge)}%,","function fbContext(){return `Heating trainer (${cur.name}${cur.S.type?\", \"+cur.S.type+\"%\":\"\"}), t=${Math.round(cur.S.t)}s,")
 fw=rep(fw,'"[Refrigeration] "+text','"[Heating] "+text')
-fw=rep(fw,"Read the gauges, superheat, subcooling and air split, then reveal it.","Read the readings and the log, then reveal it.")
 fw=rep(fw,'<output id="o_${s.k}">${Math.round(v)}${s.u}</output>','<output id="o_${s.k}">${s.step<1?(+v).toFixed(1):Math.round(v)}${s.u}</output>')
 js=head+glob+fur+"\n"+fw
 css=open('base.css').read()+open('extra.css').read()

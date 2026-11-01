@@ -137,6 +137,9 @@ details .group{gap:10px}
 .modalCard textarea{min-height:110px;resize:vertical}
 .modalRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .modalCard .note{font-size:12px;color:var(--muted)}
+.ticket{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--paper)}
+.ticket p{margin:6px 0}.ticket select{width:100%;margin:4px 0 8px}.ticket .hint{color:var(--warn);font-weight:600}
+.ticket .good{color:var(--ok);font-weight:700}.svcmeta{font-size:12px;color:var(--muted)}
 /* Refrigeration additions */
 :root{--r-dis:#d23a26;--r-liq:#e8892b;--r-mix:#2f6fd6;--r-suc:#6fb3e8;--air-warm:#e0662a;--air-cool:#3d8fe0;--ice:#eef6fb}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:4px 10px 2px;font-size:12px;color:var(--muted)}
@@ -1194,7 +1197,7 @@ function ctlMeter(sim){const sel=$("mpt");if(!sel)return;const M=CMET[sim.id];if
 const SIMS={pneu:PNEU,ddc:DDC};
 for(const sim of Object.values(SIMS)){sim.V={};sim.sliders.forEach(s=>sim.V[s.k]=s.v);sim.logs=[];reset(sim,true)}
 [].forEach(id=>{try{const r=localStorage.getItem("ct-ref-"+id);if(r&&REF_ORDER.includes(r)&&SIMS[id])refSet(SIMS[id],r)}catch(e){}});
-function reset(sim,quiet){sim.F={};sim.faults.forEach(f=>sim.F[f[0]]=false);sim.mystery=null;const meter=sim.S?sim.S.meter:null,labels=sim.S?sim.S.labels:true;sim.S=sim.init();if(meter&&sim.id==="split")sim.S.meter=meter;sim.S.labels=labels;sim.logs=[];
+function reset(sim,quiet){sim.F={};sim.faults.forEach(f=>sim.F[f[0]]=false);sim.mystery=null;sim.call=null;const meter=sim.S?sim.S.meter:null,labels=sim.S?sim.S.labels:true;sim.S=sim.init();if(meter&&sim.id==="split")sim.S.meter=meter;sim.S.labels=labels;sim.logs=[];
   log(sim,sim.startMsg?sim.startMsg():`${sim.name} system started. Room ${sim.S.Troom}°F, outdoors ${sim.V.out}°F, thermostat in ${sim.S.mode}.`);
   if(sim===cur&&!quiet){$("log").innerHTML="";sim.logs.forEach(([t,m,c])=>{const d=document.createElement("div");d.innerHTML=`<time>${t}</time><span class="${c}">${m}</span>`;$("log").append(d)});$("boom").hidden=true;$("drawing").classList.remove("shake");at(sim.p+"burn","opacity",0);renderAll()}}
 function setFault(sim,k,on,quiet){if(sim.F[k]===on)return;sim.F[k]=on;sim.onFault&&sim.onFault(k,on);
@@ -1221,18 +1224,231 @@ function renderControls(){const sim=cur;
 function markRow(sim,s){const r=$("row_"+s.k);if(r)r.classList.toggle("out",outside(sim,s))}
 function syncSwitches(){const S=cur.S;document.querySelectorAll("[data-sw]").forEach(b=>{const w=cur.switches[+b.dataset.sw];const l=w.l(S);if(b.textContent!==l)b.textContent=l;b.setAttribute("aria-pressed",w.on(S))})}
 function syncChargeSlider(){const sl=$("sl_charge");if(!sl)return;const v=Math.round(cur.V.charge);if(+sl.value!==v&&document.activeElement!==sl){sl.value=v;$("o_charge").textContent=v+"%";markRow(cur,cur.sliders.find(s=>s.k==="charge"))}}
+// ---- Service call mode: a customer complaint hides one fault; the trainee diagnoses it ----
+// Each entry: [what the customer says, optional setup {v:sliders, s:state}]
+const COMPLAINTS={
+ split:{
+  leak:["Customer: \"It runs all day and never gets cold. Somebody topped it off last summer.\"",{v:{charge:72}}],
+  filter:["Customer: \"Barely any air out of the vents, and I think I saw ice on the copper line.\""],
+  blower:["Customer: \"Outside unit is running but nothing comes out of the vents.\""],
+  dirtyCond:["Customer: \"It's 100 out and the house won't cool. The outside unit is next to the dryer vent.\"",{v:{out:100}}],
+  condFan:["Customer: \"The outside unit hums and the top isn't spinning. Then it shuts off for a while.\""],
+  drier:["Customer: \"Cooling has been getting weaker. A tech replaced the compressor last year.\""],
+  txvShut:["Customer: \"Air coming out is just warm. The big copper line outside isn't cold at all.\"",{s:{meter:"txv"}}],
+  txvBulb:["Customer: \"It cools, but the big line is sweating all the way back to the outside unit.\"",{s:{meter:"txv"}}],
+  comp:["Customer: \"It's 12 years old. It runs constantly and the house creeps up every afternoon.\""],
+  noncond:["Customer: \"A handyman put in a new line set himself. Since then it barely cools.\""],
+  cap:["Customer: \"The outside unit makes a loud hum and clicks off. The fan spins but the house is warm.\""],
+  contactor:["Customer: \"The outside unit never shuts off, even with the thermostat turned off.\""]},
+ hp:{
+  leak:["Customer: \"The heat pump runs nonstop and the strips are kicking on even when it's mild.\"",{v:{charge:72}}],
+  filter:["Customer: \"Very little air from the registers. I can't remember when I changed the filter.\""],
+  blower:["Customer: \"The outside unit runs but no air comes out inside.\""],
+  dirtyCond:["Customer: \"The outdoor coil is caked with cottonwood fluff and the heat is weak.\""],
+  condFan:["Customer: \"The outside fan isn't turning. The unit runs a bit and shuts off.\""],
+  rvStuck:["Customer: \"It's set to heat but cold air is blowing out of the vents.\""],
+  rvLeak:["Customer: \"It runs and runs and the house barely warms up. It was bad last summer too.\""],
+  dfFail:["Customer: \"The outside unit is a solid block of ice.\"",{v:{out:28}}],
+  auxFail:["Customer: \"On the coldest nights the house drops below the setpoint and won't catch up.\"",{v:{out:10}}],
+  comp:["Customer: \"It's old, runs all the time, and the electric bill doubled.\""],
+  cap:["Customer: \"The outside unit buzzes, then clicks off. The fan spins.\""],
+  contactor:["Customer: \"The outdoor unit keeps running even with the thermostat off.\""]},
+ cooler:{
+  leak:["Manager: \"The box keeps creeping up and the unit outside runs nonstop. Someone found oil on a fitting.\"",{v:{charge:72}}],
+  dirtyCond:["Manager: \"Box is warm on hot afternoons. The condenser is on the roof by the kitchen exhaust.\"",{v:{out:100}}],
+  condFan:["Manager: \"The condensing unit trips off and comes back. One fan isn't turning.\""],
+  efan:["Manager: \"Box is warm and the fans inside are silent. Coil looks frosted.\""],
+  door:["Manager: \"The door doesn't close tight anymore and the coil is a block of frost.\""],
+  llsStuck:["Manager: \"The box is warming up and the condensing unit never starts.\""],
+  llsLeak:["Manager: \"The compressor short-cycles all night. It starts every few minutes.\""],
+  drier:["Manager: \"Box temperature slowly crept up over the week. A tech worked on it last month.\""],
+  moist:["Manager: \"It cools for a while, then stops cooling, then works again later.\""],
+  txvShut:["Manager: \"Unit runs but the coil inside is warm and the box is climbing.\"",{s:{meter:"txv"}}],
+  txvBulb:["Manager: \"There's frost on the suction line going back to the compressor.\"",{s:{meter:"txv"}}],
+  defTimer:["Manager: \"The coil keeps icing up solid. Nobody has touched the clock in years.\""],
+  cch:["Manager: \"On cold mornings the compressor knocks loudly when it starts.\"",{v:{out:30}}],
+  comp:["Manager: \"Unit runs all the time and still can't hold temperature.\""],
+  noncond:["Manager: \"Ever since the condenser was replaced, the box runs warm.\""],
+  contactor:["Manager: \"The condensing unit never stops. The product near the coil is freezing.\""]},
+ freezer:{
+  leak:["Manager: \"The freezer keeps warming up and the ice cream is getting soft.\"",{v:{charge:72}}],
+  dirtyCond:["Manager: \"Freezer warms up every afternoon. The condenser is next to the fryer exhaust.\"",{v:{out:100}}],
+  condFan:["Manager: \"The outside unit shuts off and restarts. One of the fans is stopped.\""],
+  efan:["Manager: \"No air moving inside the freezer and the box is warming up.\""],
+  door:["Manager: \"The door gasket is torn and there's frost all over the coil.\""],
+  llsStuck:["Manager: \"The freezer is warming up and the condensing unit never starts.\""],
+  llsLeak:["Manager: \"The compressor short-cycles even when the box is cold.\""],
+  drier:["Manager: \"Box slowly getting warmer since the last service.\""],
+  moist:["Manager: \"It works fine, then stops cooling for a while, then works again.\""],
+  txvShut:["Manager: \"Unit runs, but the coil isn't cold.\"",{s:{meter:"txv"}}],
+  txvBulb:["Manager: \"Suction line frosted all the way to the compressor.\"",{s:{meter:"txv"}}],
+  defTimer:["Manager: \"Coil is a solid block of ice. It used to defrost on its own.\""],
+  heater:["Manager: \"Coil ices up even though I hear the timer click into defrost.\""],
+  term:["Manager: \"Coil frosts up badly, and defrosts take forever.\""],
+  drainH:["Manager: \"Water is dripping out the bottom of the coil and icing on the floor.\""],
+  cch:["Manager: \"Loud knocking from the compressor on cold-morning starts.\"",{v:{out:30}}],
+  comp:["Manager: \"Runs nonstop and can't pull the box down.\""],
+  noncond:["Manager: \"Since the outdoor unit was replaced the freezer never gets cold enough.\""],
+  contactor:["Manager: \"The condensing unit never shuts off. Product near the coil is rock hard.\""]},
+ furnace:{
+  filter:["Customer: \"The furnace runs a while, shuts off and comes back. Airflow is weak.\""],
+  blower:["Customer: \"I hear the burners light, then everything shuts down. No air comes out.\""],
+  bcap:["Customer: \"Air from the vents seems weak and the furnace cuts out sometimes.\""],
+  ign:["Customer: \"The furnace hums, clicks a few times and then gives up. No heat.\""],
+  fsDirty:["Customer: \"The burners light for a few seconds, go out, and it tries again.\""],
+  ground:["Customer: \"It lights then drops out. The furnace was just reinstalled.\""],
+  gv:["Customer: \"I can see the igniter glow, but the burners never light.\""],
+  gasLow:["Customer: \"Heat is weak, and the gas company was digging out front.\""],
+  inducer:["Customer: \"The furnace never lights. I don't even hear the little fan on top start up.\""],
+  psStuck:["Customer: \"Nothing at all happens when it calls for heat. The furnace just sits there.\""],
+  psHose:["Customer: \"The small fan runs, but the furnace never tries to light.\""],
+  vent:["Customer: \"Sometimes it works, sometimes the burners shut off early. Snow drifted over the pipes.\""],
+  ventFull:["Customer: \"A bird was on the roof pipe last week. Now the furnace won't light.\""],
+  trap:["Customer: \"Water on the floor by the furnace and now it won't light.\""],
+  hxBlock:["Customer: \"Furnace runs hot and shuts off on its own. It hasn't been serviced in 10 years.\""],
+  crack:["Customer: \"My CO alarm went off twice this week when the furnace runs.\""]},
+ oil:{
+  empty:["Customer: \"No heat this morning. I forgot to call for an oil delivery.\""],
+  ofilter:["Customer: \"Burner starts, sputters and goes out. The filter canister looks old.\""],
+  leak:["Customer: \"It lights, runs rough and sometimes locks out. The oil line runs under the floor.\""],
+  nozzle:["Customer: \"House is slow to heat and there's a bit of smoke out the chimney.\""],
+  drip:["Customer: \"Every time the burner shuts off I hear a rumble and smell oil.\""],
+  coupling:["Customer: \"The burner motor whirs but there's no flame, then it locks out.\""],
+  motorOL:["Customer: \"Burner is totally silent. The reset button didn't do anything.\""],
+  igniter:["Customer: \"The burner runs about 15 seconds and locks out. I smell oil.\""],
+  gap:["Customer: \"The burner is slow to light and sometimes thumps on start-up.\""],
+  cad:["Customer: \"Burner runs a short time and locks out, but I can see a flame through the peephole.\""],
+  cadLight:["Customer: \"Burner motor won't even start. The control just sits there.\""],
+  water:["Customer: \"The tank is outside and it's been sputtering since the rain.\""],
+  chimney:["Customer: \"There's smoke in the basement and the CO alarm chirped.\""],
+  baro:["Customer: \"The flue damper on the pipe flaps open all the time and the furnace is slow to heat.\""],
+  soot:["Customer: \"Furnace hasn't been cleaned in years. Heat is weak and the stack gets really hot.\""],
+  blower:["Customer: \"The burner runs then shuts off. No air ever comes out of the registers.\""],
+  afilter:["Customer: \"Very weak airflow from the vents, and the burner shuts off on its own.\""]},
+ ahu:{
+  zvMotor:["Customer: \"The air handler fan never comes on and the house is cold.\""],
+  endSw:["Customer: \"The thermostat calls, I hear the valve move, but the boiler never fires.\""],
+  circ:["Customer: \"Boiler fires and gets hot, but no heat in the house. The pump is warm and silent.\""],
+  air:["Customer: \"A plumber drained the system to fix a leak. Now I hear gurgling and get no heat.\""],
+  lowP:["Customer: \"The boiler gauge is reading near zero and the pipes keep gurgling.\""],
+  strainer:["Customer: \"Heat has been getting weaker every year. The water looks black when we drain it.\""],
+  boiler:["Customer: \"No heat. The boiler has a red light on.\""],
+  coilDirty:["Customer: \"The house is slow to heat. We have two dogs and never clean the coil.\""],
+  afilter:["Customer: \"Weak airflow and the air coming out is really hot.\""],
+  blower:["Customer: \"The pipes get hot but nothing blows out of the vents.\""],
+  fdelay:["Customer: \"The boiler runs and the coil gets hot, but the fan never starts.\""]},
+ pneu:{
+  comp:["Building engineer: \"The tank pressure keeps dropping and the zones are drifting.\""],
+  psw:["Building engineer: \"The compressor never stops. The relief valve keeps popping.\""],
+  leakMain:["Building engineer: \"The compressor runs way more than it used to. I can hear hissing above the ceiling.\""],
+  drain:["Building engineer: \"There's water spitting out of the thermostats.\""],
+  dryer:["Building engineer: \"Water and oil are showing up at the far devices. The dryer light is off.\""],
+  prv:["Building engineer: \"The main gauge reads way high and the thermostats are acting strange.\""],
+  restr:["Building engineer: \"One zone won't respond to its thermostat at all.\""],
+  brLeak:["Building engineer: \"Room is cold. The branch gauge never gets above a few psi.\""],
+  cal:["Tenant: \"It's always cold in here, even with the thermostat set to 72.\""],
+  hDia:["Tenant: \"It's roasting in here even with the thermostat turned down. The heating valve never closes.\""],
+  cStuck:["Tenant: \"It's stuffy and warm in the afternoon. The cooling valve doesn't seem to move.\"",{v:{load:70}}],
+  mixRev:["Building engineer: \"The heating valve bangs and chatters when it gets close to shut. A contractor just replaced it.\""],
+  hwOff:["Tenant: \"No heat on our floor this morning. The valve is wide open.\""],
+  chwOff:["Tenant: \"It's warm in here. The cooling valve is open but nothing changes.\"",{v:{load:70}}]},
+ ddc:{
+  rsOpen:["Building engineer: \"The BAS shows a crazy room temperature and the heating is wide open.\""],
+  rsShort:["Building engineer: \"The BAS reads a crazy hot room and the cooling is wide open.\""],
+  rsDrift:["Tenant: \"It's freezing in here every afternoon. The sensor is on the window wall.\""],
+  ao010:["Building engineer: \"The valve should be shut but it's cracked open. We just replaced the actuator.\""],
+  hHand:["Tenant: \"It's hot in here no matter what. A tech was in the panel yesterday.\""],
+  hStuck:["Building engineer: \"The controller commands the heating valve but the temperature never moves.\""],
+  pwr24:["Building engineer: \"All the actuators went limp at once. The dampers fell shut.\""],
+  belt:["Building engineer: \"The fan shows commanded on, but there's no airflow. The motor amps are low.\""],
+  fanStat:["Building engineer: \"The BAS keeps throwing fan failure alarms but I can hear the fan.\""],
+  filter:["Building engineer: \"Airflow is down and the fan amps dropped. When did we change the filters?\""],
+  oaStuck:["Building engineer: \"On cold mornings the freezestat trips the unit.\"",{v:{out:-5}}],
+  comm:["Building engineer: \"The BAS shows the controller grayed out and the values aren't updating.\""],
+  hwOff:["Tenant: \"No heat. The BAS shows the heating valve at 100%.\""],
+  chwOff:["Tenant: \"Warm in here. The BAS shows the cooling valve wide open.\"",{v:{load:70}}]},
+ vfd:{
+  fuse:["Operator: \"The drive keeps tripping and the motor sounds rough under load.\""],
+  brown:["Operator: \"The lights flicker in the mechanical room and the drive shows a lower DC bus than it used to.\""],
+  caps:["Operator: \"This drive is 12 years old. The DC bus reading is jumpy and it hums louder than the others.\""],
+  hsfan:["Operator: \"The drive trips on overheat on hot afternoons. It sounds quieter than it used to.\"",{v:{amb:104,load:100}}],
+  igbt:["Operator: \"There was a pop and the drive trips on overcurrent the instant it starts.\""],
+  lead:["Operator: \"The motor growls and trips. Someone was in the motor box last week.\""],
+  gnd:["Operator: \"The drive trips on ground fault right when it starts. The motor sat in water.\""],
+  turn:["Operator: \"This motor runs hotter than its twin next to it, and the amps aren't even across the legs.\""],
+  bearing:["Operator: \"There's a grinding whine from the motor that's getting louder.\""],
+  jam:["Operator: \"The drive trips on overload and the fan is hard to turn by hand.\""],
+  swap:["Operator: \"An electrician replaced the motor and now the airflow is weak.\""]},
+ hyd:{
+  pumpFail:["Customer: \"The boiler keeps firing and shutting off, but the radiators are cold.\""],
+  waterlog:["Customer: \"The relief valve drips every time the boiler heats up, and the gauge swings a lot.\""],
+  air:["Customer: \"I hear gurgling in the pipes and the upstairs radiators stay cold.\""],
+  fillStuck:["Customer: \"The pressure gauge keeps climbing and the relief valve dribbles water.\""],
+  leak:["Customer: \"There's a wet spot on the ceiling under a pipe and the boiler gauge keeps dropping.\""],
+  aqStuck:["Customer: \"Whenever the heat is on, the pipes get scalding hot and the gauge climbs.\""],
+  gasStuck:["Customer: \"The boiler is roaring, the gauge is way up and the thermostat is turned down.\""],
+  flameRod:["Customer: \"The burner lights for a few seconds, goes out and tries again.\""],
+  weep:["Customer: \"There's a puddle under the pipe coming off the side of the boiler.\""]},
+ steam:{
+  feedStuck:["Customer: \"The radiators spit water and the pipes bang. The water glass is almost full.\""],
+  returnLeak:["Customer: \"There's water on the basement floor and the auto feeder runs a lot.\""],
+  pigtail:["Customer: \"The steam gauge never moves off zero, but the burner runs long and the pipes knock.\""],
+  ptStuck:["Customer: \"The boiler never cycles off on pressure. Only the high limit stops it.\""],
+  mainVent:["Customer: \"Steam takes forever to reach the radiators and the boiler short-cycles.\"",{s:{two:false}}],
+  radVent:["Customer: \"The radiators are only hot at the inlet end, and they never hiss anymore.\"",{s:{two:false}}],
+  gasStuck:["Customer: \"The boiler won't stop firing and the gauge is climbing fast.\""],
+  flameRod:["Customer: \"The burner lights, drops out and relights over and over.\""],
+  trapOpen:["Customer: \"The return pipes bang, and the vent on the return pipe spits steam.\"",{s:{two:true}}],
+  trapShut:["Customer: \"One radiator is cold at the bottom and hot only at the top.\"",{s:{two:true}}],
+  ftFail:["Customer: \"Banging in the main, and steam takes a long time to get to the far rooms.\"",{s:{two:true}}]}
+};
+function svcPool(sim){return sim.faults.filter(f=>!(sim.hidden||[]).includes(f[0]))}
+function svcOpts(sim){return svcPool(sim).filter(f=>!(sim.na&&sim.na(f[0])))}
+function svcBest(sim){try{return +localStorage.getItem("ct-svc-"+sim.id)||0}catch(e){return 0}}
+function svcStart(sim,force){
+  const pool=svcPool(sim);const f=pool.find(x=>x[0]===force)||pool[Math.floor(Math.random()*pool.length)];
+  const c=(COMPLAINTS[sim.id]||{})[f[0]]||["The customer says it isn't working right."];
+  const set=c[1]||{};
+  sim.sliders.forEach(s=>sim.V[s.k]=s.v);Object.assign(sim.V,set.v||{});
+  reset(sim);if(sim.svcS)Object.assign(sim.S,sim.svcS);if(set.s)Object.assign(sim.S,set.s);if(sim.txvOnly&&sim.txvOnly.includes(f[0]))sim.S.meter="txv";
+  setFault(sim,f[0],true,true);sim.mystery=f;sim.revealed=null;
+  sim.call={f,text:c[0],t0:sim.S.t,wrong:0,hints:0,guesses:[],done:null};
+  log(sim,"Service call: "+c[0],"b");running=true;$("run").textContent="Pause";renderAll();showTab("failures")}
+function svcHint(sim){const c=sim.call;if(!c||c.done)return;
+  const parts=Object.values(sim.parts).filter(p=>(p.faults||[]).includes(c.f[0]));
+  if(c.hints>=2)return;c.hints++;const p=parts[0];
+  const h=!p?"Check every reading against its normal range.":c.hints===1?`Look at the ${p.n.toLowerCase()}.`:p.f;
+  c.hint=h;log(sim,"Hint: "+h,"w");syncFaults()}
+function svcScore(c){return Math.max(0,100-25*c.wrong-15*c.hints)}
+function svcGuess(sim,k){const c=sim.call;if(!c||c.done||!k)return;
+  const g=sim.faults.find(f=>f[0]===k);
+  if(k===c.f[0]){c.done="won";const sc=svcScore(c);const best=svcBest(sim);if(sc>best)try{localStorage.setItem("ct-svc-"+sim.id,sc)}catch(e){}
+    c.score=sc;c.time=sim.S.t-c.t0;sim.mystery=null;sim.revealed=c.f[1];setFault(sim,k,false,true);
+    log(sim,`Correct: ${c.f[1]}. Repaired. Score ${sc}.`,"b")}
+  else{c.wrong++;c.guesses.push(k);log(sim,`Not it: ${g?g[1]:k}. Keep checking.`,"w")}
+  syncFaults()}
+function svcGiveUp(sim){const c=sim.call;if(!c||c.done)return;c.done="lost";c.score=0;c.time=sim.S.t-c.t0;sim.mystery=null;sim.revealed=c.f[1];log(sim,`The fault was: ${c.f[1]}.`,"w");syncFaults()}
+function svcHTML(sim){const c=sim.call;if(!c)return "";
+  const opts=svcOpts(sim).slice().sort((a,b)=>a[1].localeCompare(b[1]));
+  const t=clock(Math.max(0,(c.done?c.time:sim.S.t-c.t0)));
+  if(c.done)return `<div class="ticket"><b>Ticket</b><p>${c.text}</p><p class="${c.done==="won"?"good":"mystery"}">${c.done==="won"?"Solved":"Gave up"}: ${c.f[1]}.</p><p>Score ${c.score} · ${c.wrong} wrong · ${c.hints} hint${c.hints===1?"":"s"} · sim time ${t} · best ${svcBest(sim)}</p></div>`;
+  return `<div class="ticket"><b>Ticket</b><p>${c.text}</p>${c.hint?`<p class="hint">Hint: ${c.hint}</p>`:""}
+   <label for="svcPick">Your diagnosis</label><select id="svcPick"><option value="">Choose the fault…</option>${opts.map(f=>`<option value="${f[0]}"${c.guesses.includes(f[0])?" disabled":""}>${f[1]}</option>`).join("")}</select>
+   <div class="btns"><button class="btn" id="svcGo">Submit</button>${c.hints<2?'<button class="btn" id="svcHint">Hint (−15)</button>':""}<button class="btn" id="svcQuit">Give up</button></div>
+   <p class="svcmeta">Score now ${svcScore(c)} · wrong guesses −25 · sim time ${t}</p></div>`}
+// ---- end service call ----
 function renderFailures(){const sim=cur;
   $("p-failures").innerHTML=`
+   <div class="group"><h3>Service call</h3><p>A customer calls with a complaint and one hidden fault. Read the gauges and readings, open the parts, then pick your diagnosis. Wrong guesses cost 25 points and hints cost 15.</p>
+     <div class="btns"><button class="btn" id="svcNew">${sim.call&&!sim.call.done?"New call (abandons this one)":"Start service call"}</button></div>
+     <div id="svcBox">${svcHTML(sim)}</div><p class="svcmeta">Best score on this tab: ${svcBest(sim)}</p></div>
    <div class="group"><h3>Failure scenarios</h3><p>Each one stacks failures that a single working safety would have caught. Runs sped up.</p>
      <div class="btns">${sim.scenarios.map((s,i)=>`<button class="btn danger" data-sc="${i}">${s.l}</button>`).join("")}</div></div>
-   <div class="group"><h3>Mystery fault</h3><p>Starts one hidden fault. Read the gauges, the meter, the points and the trend, then reveal it.</p>
-     <div class="btns"><button class="btn" id="mystery">Start mystery fault</button><button class="btn" id="reveal" hidden>Reveal</button></div>
-     <div class="mystery" id="mysteryTxt" hidden></div></div>
    <div class="group"><h3>Failures</h3><div class="checks">${sim.faults.map(f=>`<label><input type="checkbox" data-f="${f[0]}"> ${f[1]}${sim.txvOnly.includes(f[0])?' <span style="color:var(--muted);font-size:12px">(TXV only)</span>':""}</label>`).join("")}</div>
      <div class="btns"><button class="btn" id="clearF">Clear all failures</button></div></div>`;
   syncFaults()}
 function syncFaults(){const sim=cur;document.querySelectorAll("input[data-f]").forEach(i=>{i.checked=!!sim.F[i.dataset.f]&&!(sim.mystery&&sim.mystery[0]===i.dataset.f);i.disabled=!!sim.mystery});
-  const mt=$("mysteryTxt"),rv=$("reveal");if(mt){mt.hidden=!sim.mystery&&!sim.revealed;mt.textContent=sim.mystery?"A hidden fault is running. Watch the gauges.":sim.revealed?`The fault was: ${sim.revealed}.`:"";rv.hidden=!sim.mystery}}
+  const sb=$("svcBox");if(sb)sb.innerHTML=svcHTML(sim);const sn=$("svcNew");if(sn)sn.textContent=sim.call&&!sim.call.done?"New call (abandons this one)":"Start service call"}
 let boxes={};
 function computeBoxes(){boxes={};const svg=$("svg");
   for(const k of Object.keys(cur.parts)){const gs=svg.querySelectorAll(`.part[data-p="${k}"]`);if(!gs.length)continue;
@@ -1282,9 +1498,11 @@ document.addEventListener("click",e=>{const t=e.target.closest("button,.part");i
   if(t.dataset.part){openPart(t.dataset.part);return}
   if(t.dataset.tab){showTab(t.dataset.tab);return}
   switch(t.id){
-    case "mystery":{cur.faults.forEach(f=>setFault(cur,f[0],false,true));const pool=cur.faults.filter(f=>!cur.hidden.includes(f[0])&&(cur.S.meter==="txv"||!cur.txvOnly.includes(f[0])));cur.mystery=pool[Math.floor(Math.random()*pool.length)];cur.revealed=null;setFault(cur,cur.mystery[0],true,true);log(cur,"Mystery fault started.","w");syncFaults();break}
-    case "reveal":if(cur.mystery){log(cur,`The fault was: ${cur.mystery[1]}.`,"w");cur.revealed=cur.mystery[1];cur.mystery=null;syncFaults()}break;
-    case "clearF":cur.mystery=null;cur.revealed=null;cur.faults.forEach(f=>setFault(cur,f[0],false));syncFaults();break;
+    case "svcNew":svcStart(cur);break;
+    case "svcGo":svcGuess(cur,$("svcPick").value);break;
+    case "svcHint":svcHint(cur);break;
+    case "svcQuit":svcGiveUp(cur);break;
+    case "clearF":if(cur.call&&!cur.call.done)svcGiveUp(cur);cur.mystery=null;cur.revealed=null;cur.faults.forEach(f=>setFault(cur,f[0],false));syncFaults();break;
     case "run":if(cur.S.dead)break;running=!running;t.textContent=running?"Pause":"Run";break;
     case "restart":case "boomReset":reset(cur);running=true;$("run").textContent="Pause";break;
     case "theme":{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("ct-theme",r.dataset.theme)}catch(e){}break}
@@ -1307,7 +1525,7 @@ function frame(now){const real=Math.min(0.1,(now-last)/1000);last=now;
   cur.draw(running?real:0);syncStrip();if(tab==="controls"){syncSwitches();syncChargeSlider()}
   requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
-window.__rt={SIMS,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
+window.__rt={SIMS,svc:{start:svcStart,guess:svcGuess,hint:svcHint,quit:svcGiveUp,C:COMPLAINTS},cur:()=>cur,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
 
 // Feedback goes to the same Google Form as the boiler trainer (one question; context says which trainer).
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
