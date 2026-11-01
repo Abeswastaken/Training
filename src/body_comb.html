@@ -1,0 +1,79 @@
+<div class="wrap">
+<header>
+  <h1>Combustion and Gas Trainer <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
+  <div class="seg" role="group" aria-label="Simulator">
+    <button data-sim="gas" aria-pressed="true">Gas piping and meter</button>
+    <button data-sim="burn" aria-pressed="false">Burner and combustion</button>
+  </div>
+  <div class="tools">
+    <button class="btn" id="run" aria-pressed="false">Pause</button>
+    <select class="btn" id="speed" aria-label="Simulation speed"><option value="1">1x</option><option value="10" selected>10x</option><option value="60">60x</option><option value="100">100x</option><option value="500">500x</option><option value="1000">1000x</option></select>
+    <button class="btn" id="restart">Reset</button>
+    <button class="btn" id="theme">Theme</button>
+    <button class="btn" id="about">About</button>
+    <button class="btn" id="feedback">Feedback</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="stage">
+    <div class="drawing" id="drawing">
+      <div class="scroller"><svg id="svg" viewBox="0 0 800 470" role="img" aria-label="Gas system drawing"></svg></div>
+      <div class="legend" aria-label="Color key">
+        <span><i style="background:#e8c547"></i>Gas</span>
+        <span><i style="background:#ff8a3d"></i>Flue gas</span>
+        <span><i style="background:#ffd34d"></i>Test port</span>
+      </div>
+      <div class="hint" id="hint">Tap any part to see what it does. On a phone, swipe the drawing sideways.</div>
+      <div class="boom" id="boom" hidden><div class="boomCard" role="alertdialog" aria-labelledby="boomT"><h2 id="boomT"></h2><div id="boomB"></div><button class="btn" id="boomReset">Reset the simulator</button></div></div>
+    </div>
+    <div class="strip">
+      <div class="reads" id="reads"></div>
+      <div class="lamps" id="lamps"></div>
+      <div class="alerts" id="alerts"></div>
+    </div>
+  </div>
+  <div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="controls" aria-selected="true">Controls</button>
+      <button role="tab" data-tab="failures" aria-selected="false">Failures</button>
+      <button role="tab" data-tab="parts" aria-selected="false">Parts</button>
+      <button role="tab" data-tab="log" aria-selected="false">Log</button>
+    </div>
+    <div class="tabpanel" id="p-controls" role="tabpanel"></div>
+    <div class="tabpanel" id="p-failures" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="p-parts" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="p-log" role="tabpanel" hidden><div class="log" id="log" aria-live="polite"></div></div>
+  </div>
+</div>
+</div>
+
+<div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
+  <h2 id="discT">Training aid only</h2>
+  <p>Combustion and Gas Trainer is a simplified simulation for learning how gas piping, regulators, orifices, combustion air and venting work together, and how to read a combustion analyzer. It is not a substitute for gas-fitter licensing, the fuel gas code (IFGC/NFPA 54), or the appliance manufacturer's instructions.</p>
+  <ul>
+    <li>Pipe sizing uses the IFGC low-pressure formula for schedule 40 steel; always size from the code tables your jurisdiction adopts.</li>
+    <li>Real gas work needs a licensed fitter, a leak check with an approved solution or detector, and a calibrated analyzer. Never use a flame to find a leak.</li>
+    <li>Carbon monoxide kills. If a CO alarm sounds, get everyone out, then call the gas utility or 911 from outside.</li>
+    <li>The failure scenarios are sped up to show how combustion and venting problems stack.</li>
+  </ul>
+  <p class="note">Spot something wrong? Use Feedback (top bar) to report it.</p>
+  <div class="modalRow"><button class="btn" id="discOk">I understand</button></div>
+</div></div>
+<div class="modal" id="fb" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="fbT">
+  <h2 id="fbT">Feedback</h2>
+  <p>Report a bug, suggest an idea, or flag something that isn't accurate. <span id="fbTo">No sign-in needed.</span></p>
+  <label for="fbType">Type</label>
+  <select id="fbType"><option>Bug</option><option>Suggestion</option><option>Accuracy problem</option><option>Other</option></select>
+  <label for="fbMsg">What happened or what would you like?</label>
+  <textarea id="fbMsg" maxlength="3000" placeholder="For bugs: what you did, what you expected, what you saw. For accuracy: your source if you have one."></textarea>
+  <label for="fbName">Name (optional)</label>
+  <input id="fbName" maxlength="80" autocomplete="name">
+  <p class="note" id="fbStatus"></p>
+  <div class="modalRow"><button class="btn" id="fbCancel">Cancel</button><button class="btn" id="fbSend">Send</button></div>
+</div></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-labelledby="sheetT">
+  <button class="btn x" id="sheetX">Close</button>
+  <h2 id="sheetT"></h2>
+  <div id="sheetB"></div>
+</div>

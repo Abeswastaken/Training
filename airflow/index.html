@@ -1190,6 +1190,24 @@ const COMPLAINTS={
   closedRegs:["Customer: \"We closed the vents in the spare bedrooms to save money, but the bill didn't go down.\""],
   supplyLeak:["Customer: \"The AC runs all afternoon, every room is a bit warm, and it's dusty.\""],
   returnLeak:["Customer: \"It runs and runs and the house feels sticky, even though the air coming out is cool.\"",{v:{dew:68}}]},
+ gas:{
+  svcDroop:["Customer: \"Everything runs fine by itself, but when the furnace, water heater, dryer and range all go at once, the burners shrink.\"",{s:{on:{furn:true,wh:true,dryer:true,range:true}}}],
+  lockup:["Customer: \"When the house has been quiet a while, the stove burners roar and flare when we first light them.\"",{s:{on:{furn:false,wh:false,dryer:false,range:false}}}],
+  leak:["Customer: \"Our gas bill went up, and now and then I catch a faint gas smell in the basement.\"",{s:{on:{furn:false,wh:false,dryer:false,range:false}}}],
+  csst:["Customer: \"Ever since we pushed the new range back against the wall, its burners are weak with the oven on.\"",{s:{on:{furn:false,wh:false,dryer:false,range:true}}}],
+  cock:["Customer: \"The furnace lights, but it hasn't heated well since the last tune-up.\"",{s:{on:{furn:true,wh:false,dryer:false,range:false}}}],
+  screen:["Customer: \"The furnace runs weak. The gas company says the pressure at the meter is fine.\"",{s:{on:{furn:true,wh:false,dryer:false,range:false}}}],
+  lpLow:["Customer: \"It's below zero and the propane gauge reads about 10%. The furnace flames look small and the dryer takes forever.\"",{s:{fuel:"lp",on:{furn:true,wh:true,dryer:true,range:true}}}]},
+ burn:{
+  ventPartial:["Customer: \"On mild days the furnace shuts itself off a few minutes after it lights. Birds were all over the chimney in the spring.\"",{v:{out:60}}],
+  ventBlock:["Customer: \"The furnace shuts off a couple of minutes after it lights, every single time. The chimney is old.\""],
+  connLoose:["Customer: \"The basement smells like exhaust when the furnace runs, but it never shuts off.\""],
+  soot:["Customer: \"The furnace shut off by itself and won't come back on. There's black soot around the burner door.\""],
+  lint:["Customer: \"The flames look yellow and floppy lately. The furnace is right next to the dryer.\""],
+  regHigh:["Customer: \"The furnace roars, the vent pipe is too hot to touch, and the house heats up fast.\""],
+  bigOrif:["Customer: \"One flame is taller than the others and licks the metal. The last guy cleaned the orifices.\""],
+  bvssJump:["Customer: \"A tech said a switch on the furnace kept tripping, so he fixed it. Now it smells like exhaust when the kitchen fan runs.\"",{v:{out:70,tight:1400},s:{fans:{k:true,b:true,d:true}}}],
+  coldChim:["Customer: \"Every time the furnace starts, exhaust puffs out around it for a few minutes, worst in the fall. The chimney is on an outside wall.\"",{v:{out:50}}]},
  hyd:{
   pumpFail:["Customer: \"The boiler keeps firing and shutting off, but the radiators are cold.\""],
   waterlog:["Customer: \"The relief valve drips every time the boiler heats up, and the gauge swings a lot.\""],
@@ -1221,7 +1239,7 @@ function svcStart(sim,force){
   const c=(COMPLAINTS[sim.id]||{})[f[0]]||["The customer says it isn't working right."];
   const set=c[1]||{};
   sim.sliders.forEach(s=>sim.V[s.k]=s.v);Object.assign(sim.V,set.v||{});
-  reset(sim);if(sim.svcS)Object.assign(sim.S,sim.svcS);if(set.s)Object.assign(sim.S,set.s);if(sim.txvOnly&&sim.txvOnly.includes(f[0]))sim.S.meter="txv";
+  reset(sim);if(sim.svcS)Object.assign(sim.S,sim.svcS);if(set.s)Object.assign(sim.S,JSON.parse(JSON.stringify(set.s)));if(sim.txvOnly&&sim.txvOnly.includes(f[0]))sim.S.meter="txv";
   setFault(sim,f[0],true,true);sim.mystery=f;sim.revealed=null;
   sim.call={f,text:c[0],t0:sim.S.t,wrong:0,hints:0,guesses:[],done:null};
   log(sim,"Service call: "+c[0],"b");running=true;$("run").textContent="Pause";renderAll();showTab("failures")}
@@ -1304,7 +1322,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("button,.part");i
   if(t.dataset.sw){cur.switches[+t.dataset.sw].act(cur);syncSwitches();return}
   if(t.dataset.act){cur.actions.find(a=>a.id===t.dataset.act).act(cur);return}
   if(t.dataset.reset){const r=cur.resets(cur.S)[+t.dataset.reset];r&&r[1]();lastAlerts="x";return}
-  if(t.dataset.sc){const sc=cur.scenarios[+t.dataset.sc];cur.sliders.forEach(s=>cur.V[s.k]=s.v);Object.assign(cur.V,sc.v||{});if(sc.meter)cur.S.meter=sc.meter;reset(cur);if(sc.s)Object.assign(cur.S,sc.s);sc.f.forEach(k=>setFault(cur,k,true));log(cur,`Scenario: ${sc.l}.`,"b");setSpeed(sc.speed||60);running=true;$("run").textContent="Pause";return}
+  if(t.dataset.sc){const sc=cur.scenarios[+t.dataset.sc];cur.sliders.forEach(s=>cur.V[s.k]=s.v);Object.assign(cur.V,sc.v||{});if(sc.meter)cur.S.meter=sc.meter;reset(cur);if(sc.s)Object.assign(cur.S,JSON.parse(JSON.stringify(sc.s)));sc.f.forEach(k=>setFault(cur,k,true));log(cur,`Scenario: ${sc.l}.`,"b");setSpeed(sc.speed||60);running=true;$("run").textContent="Pause";return}
   if(t.dataset.sim){switchSim(t.dataset.sim);return}
   if(t.dataset.part){openPart(t.dataset.part);return}
   if(t.dataset.tab){showTab(t.dataset.tab);return}
