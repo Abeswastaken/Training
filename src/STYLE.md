@@ -34,3 +34,7 @@ Flow is shown with a white dashed line on top of the pipe (`stroke-dasharray="4 
 - Every number shown in a drawing has a unit. Pressures: psig, in. w.c., Pa, in. Hg. Temperatures: °F.
 - Panel screens (chiller, analyzer, DDC) use dark backgrounds with green mono text; alarms switch to amber or red.
 - Plain language in part cards: what it is, what it does, normal values, and how it fails.
+
+## Gotchas
+- A gradient stroke on a perfectly straight horizontal or vertical line does not render (its box has zero width or height). `flatStrokes()` in app.js swaps in a solid color for zSteel, zSteelH, zCuH, zCuV and zBrass. For any other gradient, use a solid color on straight lines.
+- `.cht` labels on light metal need `class="cht onm"` so they stay dark in dark mode. A `fill` attribute on a `.cht` label wins over the default muted color.

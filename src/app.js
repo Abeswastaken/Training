@@ -1400,8 +1400,8 @@ ${lt?`<g class="part" data-p="heaters" tabindex="0">
  <circle id="${p}llsLamp" cx="363" cy="135" r="4" fill="var(--lamp-off)"/>
  <text class="tag" x="374" y="186" text-anchor="middle" fill="var(--muted)">SOLENOID</text>
 </g>
-<text class="val" id="${p}coilTxt" x="166" y="146" font-size="11">Coil 25°F</text>
-<text class="val" id="${p}stTxt" x="166" y="162" font-size="11" font-weight="700">COOLING</text>
+<text class="val" id="${p}coilTxt" x="150" y="146" font-size="11">Coil 25°F</text>
+<text class="val" id="${p}stTxt" x="150" y="162" font-size="10" font-weight="700">COOLING</text>
 
 <!-- outdoor condensing unit -->
 <text class="zl" x="454" y="196">Condensing unit</text>
@@ -1469,7 +1469,7 @@ ${zCompressor(560,286,80,104)}<rect x="566" y="308" width="68" height="76" rx="4
  <text class="tag" x="484" y="346" text-anchor="middle" fill="var(--muted)">LP</text><text class="tag" x="508" y="346" text-anchor="middle" fill="var(--muted)">HP</text>
  <text class="zt" x="496" y="312" text-anchor="middle">PRESSURE CONTROL</text>
 </g>
-<text class="valD" fill="#1d2327" id="${p}slTxt" x="456" y="392">Suction line 30°F</text>
+<text class="valD" fill="#1d2327" id="${p}slTxt" x="466" y="392">Suction line 30°F</text>
 
 <!-- drier and sight glass -->
 <g class="part" data-p="drier" tabindex="0">
@@ -1482,7 +1482,7 @@ ${zDrier(548,438,36,16,p+"drierFrost",-1)}
  <g id="${p}bub" opacity="0" fill="none" stroke="#2f6fd6" stroke-width="1.2"><circle cx="495" cy="442" r="2"/><circle cx="504" cy="441" r="1.6"/><circle cx="503" cy="450" r="2"/><circle cx="495" cy="450" r="1.4"/></g>
  <text class="zt" x="500" y="430" text-anchor="middle">SIGHT GLASS</text>
 </g>
-<text class="valD" fill="#1d2327" id="${p}llTxt" x="456" y="414">Liquid line 100°F</text>
+<text class="valD" fill="#1d2327" id="${p}llTxt" x="466" y="414">Liquid line 100°F</text>
 
 <!-- gauges -->
 <g class="part" data-p="gauges" tabindex="0">
@@ -1511,7 +1511,7 @@ ${zDrier(548,438,36,16,p+"drierFrost",-1)}
 <g id="${p}labels">
  <text class="st" x="608" y="232" fill="var(--r-dis)">HOT GAS</text>
  <text class="st" x="610" y="466" fill="var(--r-liq)">WARM LIQUID, HIGH PRESSURE</text>
- <text class="st" x="166" y="182" fill="var(--r-mix)">COLD LIQUID + FLASH GAS TO COIL</text>
+ <text class="st" x="150" y="182" fill="var(--r-mix)">COLD LIQUID + FLASH GAS TO COIL</text>
  <text class="st" x="466" y="359" fill="var(--r-suc)">COOL VAPOR</text>
 </g>`}
 
