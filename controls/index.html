@@ -317,7 +317,7 @@ const ILL={
  tstat:`${box(36,20,88,80,"#efece4",10)}${box(48,32,64,34,"#2f3337",4)}${label(80,55,"74°",WH,16)}${label(80,82,"COOL  AUTO",K,7)}`,
  room:`<path d="M20 60 L80 16 L140 60 V110 H20 Z" fill="#e9e6dd" stroke="${K}" stroke-width="1.2"/>${box(66,74,28,36,"#8a6a4a",2)}${box(34,70,20,18,"#cfe6f5",1)}${box(106,70,20,18,"#cfe6f5",1)}${label(80,52,"74°F",K,10)}`
 };
-const ZMAP={meter:"txv",motor:"motor3"};function ill(simId,k){const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
+const ZMAP={meter:"txv",motor:"motor3"};/* part keys that mean something else on these tabs: skip the shared drawing */const ZSKIP={gas:["meter"],chill:["evap"]};function ill(simId,k){const own=cur&&cur.id===simId&&cur.ill&&cur.ill[k];if(own)return `<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${own}</svg>`;if((ZSKIP[simId]||[]).includes(k))return "";const z=zillSvg(ZMAP[k]||k);if(z)return z;const s=ILL[k];return s?`<svg class="ill" viewBox="0 0 160 120" aria-hidden="true">${s}</svg>`:""}
 
 /*RZ-BEGIN*/
 /* ============ REALISTIC PARTS LIBRARY (shared by every trainer) ============ */
