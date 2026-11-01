@@ -1175,6 +1175,35 @@ Object.assign(RILL,{
  ${rL(275,74,230,20,226,16,"Starter (DO)")}${rL(290,170,300,220,336,236,"Current switch (DI)","end")}${rL(100,90,60,24,6,20,"Fan")}`)()}
 });
 RILL["pneu:sfan"]=RILL.blower;["pneu","ddc"].forEach(s=>{RILL[s+":hcoil"]=RILL["ctl:hcoil"];RILL[s+":ccoil"]=RILL["ctl:ccoil"];RILL[s+":zone"]=RILL.room});
+/* ---------- airflow ---------- */
+const rDuctH=(x1,x2,y,h,ins)=>`${ins?`<rect x="${x1}" y="${y-6}" width="${x2-x1}" height="${h+12}" rx="6" fill="#e3d6a8"/>${Array.from({length:Math.floor((x2-x1)/14)},(_,k)=>`<path d="M${x1+7+k*14} ${y-6} v4 M${x1+7+k*14} ${y+h+2} v4" stroke="#b9a874"/>`).join("")}`:""}<rect x="${x1}" y="${y}" width="${x2-x1}" height="${h}" fill="url(#r_galvH)" filter="url(#rGrain)"/>${Array.from({length:Math.floor((x2-x1)/60)},(_,k)=>`<rect x="${x1+58+k*60}" y="${y}" width="5" height="${h}" fill="url(#r_galvV)"/>`).join("")}`;
+Object.assign(RILL,{
+"air:furn":{s:(()=>`${rSh(170,240,110,6)}${rBox(100,30,140,200,24,"cab",{r:2})}<rect x="112" y="44" width="116" height="80" fill="#1e2226"/>${[0,1,2,3].map(k=>rFlameC(130+k*27,116,22,8)).join("")}<rect x="112" y="132" width="116" height="90" fill="#2c3237"/><circle cx="170" cy="177" r="36" fill="url(#r_galvV)"/><circle cx="170" cy="177" r="28" fill="#1d2124"/>${Array.from({length:20},(_,k)=>{const a=k/20*2*Math.PI;return `<path d="M${170+18*Math.cos(a)} ${177+18*Math.sin(a)} L${170+27*Math.cos(a+.25)} ${177+27*Math.sin(a+.25)}" stroke="#aeb6bb" stroke-width="2.5"/>`}).join("")}
+ ${rArr("M60 200 H104","#3d7de0")}${rArr("M170 30 V6","#e0662a")}
+ ${rL(150,90,60,40,6,36,"Heat exchanger + burners")}${rL(200,177,280,190,336,200,"Blower below, pushes up","end")}${RT(6,220,"Return in")}`)()},
+"air:ecoil":{s:(()=>{const A="M90 196 L166 54 H174 L250 196 H226 L170 92 L114 196 Z";return `${rSh(170,236,130,6)}${rBox(50,30,240,190,16,"white",{r:2})}<rect x="64" y="44" width="212" height="162" fill="#2c3237"/>${rClip("ac2",A,`<rect x="80" y="50" width="180" height="150" fill="#9aa3a9"/>${rFins(80,50,180,150,3)}${[70,100,130,160,190].map(y=>`<path d="M80 ${y} H260" stroke="#b87346" stroke-width="2"/>`).join("")}`)}<path d="${A}" fill="none" stroke="#555"/><rect x="72" y="194" width="196" height="12" fill="url(#r_blackV)"/>
+ ${rArr("M170 236 V150","#3d7de0")}${rL(120,140,60,20,6,16,"A-coil: copper + aluminum fins")}${rL(240,200,280,226,336,240,"Drain pan","end")}${RT(6,226,"Dry: about 0.20 in.")}${RT(6,240,"Wet: about 20% more")}`})()},
+"air:plen":{s:(()=>`${rSh(150,236,110,6)}${rBox(60,40,160,190,14,"galv",{r:1,grain:true})}${rDuctH(220,340,60,50,false)}<circle cx="100" cy="80" r="6" fill="#e8c33a"/><circle cx="100" cy="190" r="6" fill="#e8c33a"/>${rArr("M140 220 V90 H330","#3d7de0")}
+ ${rL(100,80,40,50,6,46,"P4: above the coil")}${rL(100,190,40,230,6,240,"P3: below the coil")}${RT(336,140,"P3 − P4 = coil drop","end")}`)()},
+"air:trunk":{s:(()=>`${rSh(170,232,160,6)}${rDuctH(10,330,80,70,true)}${rCylV(120,156,214,18,"galv",{top:false})}${rCylV(240,156,214,18,"galv",{top:false})}${rArr("M20 115 H320","#3d7de0")}${rArr("M120 170 V220","#3d7de0")}
+ ${rL(60,74,60,30,6,26,"Insulated sheet metal")}${rL(240,200,280,226,336,240,"Takeoffs to each room","end")}${RT(336,26,"900 fpm max","end")}`)()},
+"air:damp":{s:(()=>`${rSh(170,232,120,6)}${rCylH(20,320,130,52,"galv",{rx:16,end:true})}${rClip("dm","M20 78 H320 V182 H20 Z",`<ellipse cx="170" cy="130" rx="16" ry="50" fill="url(#r_galvV)" transform="rotate(-30 170 130)"/>`)}<path d="M170 78 V60" stroke="#666" stroke-width="3"/><path d="M150 54 A30 30 0 0 1 190 54" stroke="#444" stroke-width="5" fill="none"/><path d="M170 62 L196 40" stroke="#c0281c" stroke-width="7" stroke-linecap="round"/>
+ ${rL(196,40,250,30,336,26,"Locking quadrant","end")}${rL(160,130,90,210,6,220,"Blade across the branch")}${RT(336,226,"Closing adds static","end")}`)()},
+"air:flex":{s:(()=>`${rSh(170,232,160,6)}<path d="M10 150 C80 60 160 220 240 120 S320 90 330 90" stroke="#9aa3a9" stroke-width="56" fill="none" stroke-linecap="round"/><path d="M10 150 C80 60 160 220 240 120 S320 90 330 90" stroke="#c4cacf" stroke-width="46" fill="none"/><path d="M10 150 C80 60 160 220 240 120 S320 90 330 90" stroke="#9aa3a9" stroke-width="46" fill="none" stroke-dasharray="2 6"/><path d="M10 140 C80 50 160 210 240 110 S320 80 330 80" stroke="#fff" stroke-opacity=".35" stroke-width="8" fill="none"/>
+ ${rL(130,130,100,40,6,30,"Insulated flex: more friction than metal")}${RT(336,226,"Pull it tight; kinks can halve the airflow","end")}`)()},
+"air:reg":{s:(()=>`${rSh(170,232,110,6)}<rect x="0" y="0" width="340" height="60" fill="#efece4"/>${rBox(80,60,180,140,10,"white",{r:4})}<rect x="96" y="76" width="148" height="108" fill="#d8dcdc"/>${Array.from({length:9},(_,k)=>`<rect x="100" y="${80+k*11.5}" width="140" height="6" fill="url(#r_whiteV)"/>`).join("")}<rect x="250" y="120" width="20" height="10" rx="2" fill="#888"/>
+ ${rArr("M170 200 V244","#3d7de0")}${rL(260,125,300,90,336,86,"Lever damper","end")}${rL(120,120,60,30,6,26,"Ceiling diffuser")}${RT(336,226,"Read it with a flow hood","end")}`)()},
+"air:rgrille":{s:(()=>`${rSh(170,236,130,6)}${rBox(40,30,250,190,12,"white",{r:4})}<rect x="56" y="46" width="218" height="158" fill="#2a2f33"/>${Array.from({length:14},(_,k)=>`<rect x="${60+k*15.4}" y="46" width="7" height="158" fill="url(#r_whiteH)"/>`).join("")}
+ ${rArr("M170 246 V210","#e0662a")}${rL(120,120,60,20,6,16,"Big grille, low velocity")}${RT(336,240,"Keep it clear","end")}`)()},
+"air:rduct":{s:(()=>`${rSh(170,236,150,6)}${rDuctH(10,240,60,70,false)}${rBox(240,40,70,190,10,"galv",{r:1,grain:true})}${rArr("M20 95 H270 V220","#e0662a")}
+ ${rL(120,95,90,190,6,190,"Return duct and chase")}${RT(6,206,"700 fpm max")}${RT(6,240,"Undersized return = high static")}`)()},
+"air:ports":{s:(()=>`${rSh(170,232,160,6)}${rDuctH(10,330,140,70,false)}<path d="M200 60 C200 100 160 120 160 150 V180 H130" stroke="#222" stroke-width="4" fill="none"/><path d="M200 60 C200 100 160 120 160 150 V180 H130" stroke="#c9ced1" stroke-width="2" fill="none"/>${rBox(190,10,100,60,10,"yel",{r:8})}${rLcd(202,20,76,32,["0.55"],18)}<circle cx="160" cy="140" r="6" fill="#d0312d"/>
+ ${rArr("M30 196 H320","#3d7de0")}${rL(132,180,60,120,6,110,"Static tip faces upstream")}${rL(160,140,80,40,6,36,"Port with rubber cap")}${RT(336,90,"in. w.c.","end")}`)()},
+"air:attic":{s:(()=>`${rSh(170,232,160,6)}<path d="M10 200 L170 40 L330 200 Z" fill="#8a6a4a"/><path d="M30 200 L170 60 L310 200 Z" fill="#2a1e14"/><rect x="10" y="200" width="320" height="16" fill="#e2d6a8"/>${rDuctH(80,260,160,30,true)}
+ <text x="170" y="120" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="20" font-weight="700" fill="#f08a3a">120°F</text>${rArr("M170 130 V150","#f08a3a")}
+ ${rL(240,175,280,226,336,240,"Ducts gain heat here","end")}${RT(6,240,"Outdoors + about 25°F")}`)()}
+});
+RILL["air:filt"]=RILL.filter;RILL["air:blow"]=RILL.blower;
 
 /*RZ-END*/
 let speed=10, running=true, cur=null, openKey=null, tab="controls";
