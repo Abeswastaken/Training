@@ -74,18 +74,23 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <div class="site">training.colvinj.com</div>
     <h1>HVAC Trainers</h1>
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
-    <div class="specs"><span><b>7</b> trainers</span><span>Mystery fault mode in every sim</span><span>Tap any part for how it works and fails</span></div>
+    <div class="specs"><span><b>8</b> trainers</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
   </header>
 
   <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
   <section class="news" aria-labelledby="new">
     <h2 id="new">What's new</h2>
     <ul>
+      <li><time datetime="2026-11-01">Nov 1</time><span>New: Airflow trainer. Static pressure at four test ports, blower and duct curves, room balancing with a flow hood, and a live psychrometric chart.</span></li>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Service calls: a customer complaint hides one fault. Diagnose it from the readings and get a score. In every trainer with faults.</span></li>
+      <li><time datetime="2026-11-01">Nov 1</time><span>Heating: new oil burner and hydronic air handler tabs. Motors: corrected nameplate, overload and megger numbers, plus an inverter-duty motor switch.</span></li>
+    </ul>
+    <details><summary>Earlier</summary><ul>
       <li><time datetime="2026-11-01">Nov 1</time><span>Feedback now asks which part or tab it's about, so reports land in the right place.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Boiler: steam opens as a two-pipe system with radiator traps, an F&amp;T trap and condensate return (one-pipe is on a switch).</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Refrigeration: drag the gauge set out of the way, bi-flow drier on the heat pump, freezer defrost heaters you can see.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>Ladder Builder: correct temperature switch symbols, PSC motor with run and start windings, fan On/Auto. Wiring: curved wires. Controls: dirt and oil filters before the PRV.</span></li>
-    </ul>
+    </ul></details>
   </section>
 
   <section aria-labelledby="sys">
@@ -107,8 +112,8 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <path d="M135 78 q6 -22 12 0 M155 78 q6 -26 12 0 M175 78 q6 -22 12 0" fill="#3d7de0" stroke="#9fd0ff" stroke-width="1.5"/><rect x="128" y="80" width="64" height="5" fill="#8f979d"/>
           <circle cx="160" cy="125" r="24" fill="#3b4449"/><circle cx="160" cy="125" r="17" fill="#2a2f33"/><path d="M160 125 l12 -8 M160 125 l-10 10 M160 125 l2 -15" stroke="#aeb6bb" stroke-width="3"/>
         </svg>
-        <div class="body"><h3>Heating</h3><p>Gas furnace, 80% and 96%: the full ignition sequence, limits, rollout, pressure switch, flame sensing and CO.</p>
-          <div class="tags"><span>Ignition</span><span>Flame µA</span><span>Draft</span></div>
+        <div class="body"><h3>Heating</h3><p>Gas furnace (80% and 96%), oil burner with combustion readings, and a hydronic air handler fed by a boiler.</p>
+          <div class="tags"><span>Ignition</span><span>Oil burner</span><span>Hydronic</span></div>
           <div class="path"><span>/heating</span><em>Open →</em></div></div>
       </a>
       <a class="card" href="/boiler-trainer/">
@@ -120,6 +125,17 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
         <div class="body"><h3>Boiler</h3><p>Hot water and steam boilers with a water-level cutaway, low-water cutoffs, relief valves and the Hartford loop.</p>
           <div class="tags"><span>Hydronic</span><span>Steam</span><span>Safety</span></div>
           <div class="path"><span>/boiler-trainer</span><em>Open →</em></div></div>
+      </a>
+      <a class="card" href="/airflow/">
+        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
+          <path d="M20 70 L160 18 L300 70 Z" fill="#cfc4b2" stroke="#6b5a4a" stroke-width="3"/><rect x="26" y="70" width="268" height="70" fill="#e3e8eb" stroke="#a89a85" stroke-width="3"/>
+          <path d="M60 58 H270" stroke="#9aa3aa" stroke-width="10"/><path d="M80 58 V72 M150 58 V72 M220 58 V72" stroke="#9aa3aa" stroke-width="6"/><path d="M60 58 H270" stroke="#2f6fd6" stroke-width="3" stroke-dasharray="6 7"/>
+          <rect x="196" y="100" width="88" height="62" rx="4" fill="#fbfbf8" stroke="#5f686d"/><path d="M204 154 Q240 150 278 108" stroke="#2a2f33" stroke-width="2" fill="none"/><path d="M250 132 L226 140" stroke="#2f6fd6" stroke-width="2.5" stroke-dasharray="4 2"/><circle cx="250" cy="132" r="4" fill="#d23a26"/><circle cx="226" cy="140" r="4" fill="#2f6fd6"/>
+          <rect x="40" y="102" width="56" height="40" rx="6" fill="#f2b632" stroke="#7a5600"/><rect x="46" y="108" width="44" height="16" rx="2" fill="#b9c7a8"/><text x="68" y="121" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#111">0.56</text>
+        </svg>
+        <div class="body"><h3>Airflow</h3><p>A 3-ton system with attic ducts and four rooms: static pressure, fan curves, balancing, and what the coil does to the air.</p>
+          <div class="tags"><span>Static pressure</span><span>CFM</span><span>Psychrometrics</span></div>
+          <div class="path"><span>/airflow</span><em>Open →</em></div></div>
       </a>
     </div>
   </section>
@@ -177,7 +193,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
 
   <section class="how" aria-label="How the trainers work">
     <div><b>Run it</b><p>Each trainer starts running. Change setpoints and switches and watch pressures, temperatures and flows respond.</p></div>
-    <div><b>Break it</b><p>Pick a failure, or start a mystery fault and diagnose it with the gauges, the meter and the log before you reveal it.</p></div>
+    <div><b>Break it</b><p>Pick a failure, or take a service call: a customer complaint hides one fault, and you diagnose it from the gauges, the meter and the log.</p></div>
     <div><b>Learn the part</b><p>Tap any part for what it is, how it works in the system, how it fails, and sources.</p></div>
   </section>
 
