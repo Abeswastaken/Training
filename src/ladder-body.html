@@ -2,7 +2,9 @@
 <header>
   <h1>Ladder Builder <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
   <div class="tools">
-    <button class="btn" id="pwr" aria-pressed="true">Power: on</button>
+    <button class="btn" id="pwr" aria-pressed="true">Disconnect: ON</button>
+    <button class="btn" id="meterBtn" aria-pressed="false">Meter</button>
+    <button class="btn" id="svcBtn">Service call</button>
     <button class="btn" id="undo">Undo</button>
     <button class="btn" id="clearL">Clear</button>
     <button class="btn" id="theme">Theme</button>
@@ -12,13 +14,18 @@
 </header>
 <div class="wl">
   <aside class="side">
-    <div class="group"><h3>How to</h3><p class="note">Drag a part onto a rung, or tap a part and then tap a spot. Contacts and switches go on the left, one load (coil, motor, light) on the right. Drop a part in a dashed "branch" box under a rung to put it in parallel. Tap a placed part to see what it looks like, how to check it, and to press, set or remove it.</p></div>
+    <div class="group"><h3>How to</h3><p class="note">Tap an empty slot on a rung to pick a part (with search), or drag one from this list. Contacts and switches go on the left, one load (coil, motor, light) on the right. Tick "parallel branch" in the slot menu, or drop a part in a dashed "branch" box, to put it in parallel. Drag a placed part to move it (long-press on a phone). + and − beside a rung add or remove slots. Tap a placed part to see it, check it, or remove it.</p></div>
     <div class="group" id="palette"></div>
   </aside>
   <div class="mainCol">
+    <div class="group svcBox" id="svcBox" hidden><h3>Service call</h3><p class="svcMsg" id="svcMsg"></p><p class="note" id="svcHelp"></p><div class="btns"><button class="btn blue" id="svcDiag">I found it</button><button class="btn" id="svcQuit">Give up</button></div></div>
+    <div class="group meterBox" id="meterBox" hidden>
+      <div class="mRow"><div class="mBody"><div class="mLcd" id="mLcd"><b>----</b></div><div class="seg" role="group" aria-label="Meter mode"><button data-mmode="v">V AC</button><button data-mmode="o">Ω</button><button data-mmode="c">Continuity</button></div></div>
+      <div class="mInfo"><p class="note" id="mLeads"></p><p class="mNote" id="mNote"></p><button class="btn" id="mClear">Clear leads</button></div></div>
+    </div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ladWrap" id="wrapL"><svg id="ladder" role="img" aria-label="Ladder diagram"></svg></div>
-    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button></div>
+    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button><button class="btn" id="addLo" hidden>Add 24 V rung</button><button class="btn" id="delLo" hidden>Remove last 24 V rung</button></div>
     <div class="group"><h3>Log</h3><div class="log" id="log" aria-live="polite"></div></div>
   </div>
   <aside class="side2">
@@ -26,7 +33,8 @@
     <div class="group">
       <h3>Supply and examples</h3>
       <div class="btns">
-        <label class="inl">Control voltage <select id="volt"><option value="120">120 V (L1 / N)</option><option value="24">24 V (R / C)</option></select></label>
+        <label class="inl">Control voltage <select id="volt"><option value="120">120 V (L1 / N)</option><option value="240">240 V (L1 / L2)</option><option value="24">24 V (R / C)</option></select></label>
+        <p class="note" id="voltNote" hidden>With a transformer placed, the top ladder is line voltage (120 V) and the bottom ladder is the 24 V control side.</p>
         <label class="inl">Load example <select id="ex"><option value="">Choose...</option><option value="seal">Start/stop with seal-in</option><option value="tstat24">24 V thermostat (R, G, Y, W, C)</option><option value="ac">Air conditioner controls</option><option value="td">On-delay timer</option><option value="short">Mistake: rung with no load</option></select></label>
       </div>
     </div>
@@ -41,6 +49,11 @@
   </aside>
 </div>
 </div>
+<div class="modal slotMenu" id="slotMenu" hidden><div class="modalCard smCard" role="dialog" aria-modal="true" aria-labelledby="smT">
+  <div class="smHead"><h2 id="smT">Add a part</h2><button class="btn" id="smClose">Close</button></div>
+  <input id="smSearch" type="search" placeholder="Search parts: contactor, limit, CC, rollout..." autocomplete="off">
+  <label class="inl" id="smBrRow"><input type="checkbox" id="smBr"> Parallel branch under this slot</label>
+  <div class="smCats" id="smCats"></div><div class="smList" id="smList"></div></div></div>
 <div class="modal" id="modal" hidden><div class="modalCard" role="alertdialog" aria-labelledby="mT"><h2 id="mT"></h2><div id="mB"></div><div class="modalRow"><button class="btn" id="mOk">Got it</button></div></div></div>
 <div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
   <h2 id="discT">Training aid only</h2>

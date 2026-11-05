@@ -16,9 +16,9 @@ await p.click('[data-sys="auto"]');await ev(()=>{window.__ld.LTS.room=80});await
 console.log(await ev(()=>[...document.querySelectorAll('#log div')].slice(0,6).map(d=>d.textContent)));
 // tap parts for cards
 for(const k of ["tfa","mcoil","hps","tterm","motor","heat"]){
- const ok=await ev(k=>{const L=window.__ld;let id=null;L.rungs.forEach(r=>{[...r.cells,...(r.branch?r.branch.cells:[])].forEach(c=>{if(c&&c.k===k&&!id)id=c.id})});if(!id)return false;document.querySelector(`.el[data-id="${id}"]`).dispatchEvent(new MouseEvent("click",{bubbles:true}));return true},k);
+ const ok=await ev(k=>{const L=window.__ld;let id=null;L.rungs.forEach(r=>{[...r.cells,...r.br.flatMap(b=>b.cells)].forEach(c=>{if(c&&c.k===k&&!id)id=c.id})});if(!id)return false;document.querySelector(`.el[data-id="${id}"]`).dispatchEvent(new MouseEvent("click",{bubbles:true}));return true},k);
  if(!ok){await ev(k=>window.__ld.loadEx(k==="hps"?"ac":"seal"),k);continue}
  await p.waitForTimeout(250);const el=await p.$('#elSheet');await el.screenshot({path:'lc_'+k+'.png'});}
 await ev(()=>window.__ld.loadEx('ac'));await p.waitForTimeout(300);
-await ev(()=>{const L=window.__ld;const c=L.rungs[0].cells[1];document.querySelector(`.el[data-id="${c.id}"]`).dispatchEvent(new MouseEvent("click",{bubbles:true}))});await p.waitForTimeout(250);await (await p.$('#elSheet')).screenshot({path:'lc_hps.png'});
+await ev(()=>{const L=window.__ld;let c=null;L.each(x=>{if(!c&&x.k==='hps')c=x});document.querySelector(`.el[data-id="${c.id}"]`).dispatchEvent(new MouseEvent("click",{bubbles:true}))});await p.waitForTimeout(250);await (await p.$('#elSheet')).screenshot({path:'lc_hps.png'});
 console.log('ERR',errs);await b.close()})();
