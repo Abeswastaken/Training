@@ -35,7 +35,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'combustion':['Combustion analyzer, draft and CAZ testing','CO safety'],
  'chiller':['Approaches, lift and surge','Tower water treatment and safeties'],
  'hx':['Live temperature graph along the exchanger','Approach, LMTD, effectiveness and the temperature cross','Steam converter, DHW tank coil, coaxial and finned coils','Faults: scale, air binding, gasket leaks, frost, stuck wheel'],
- 'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends'],
+ 'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends','PID tuning: 5 guided lessons on a zone reheat valve, then free play','Calibration benches: Honeywell TP970/TP971, JCI T-4002, Siemens TH 192, TK-1001/1101','Fail-safe check: DA/RA thermostats with NO/NC valves and dampers'],
  'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
  'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
  'threephase':['Colored L1/L2/L3 power circuit: 208/240 V or 480 V','Control transformer, X1 fused, X2 grounded, 120 or 24 V','Start/stop, forward/reverse, jog, timed sequence, wye-delta','Swap two leads, single phasing, overloads, meter'],

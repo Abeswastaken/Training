@@ -1,0 +1,17 @@
+
+/* PID tuning + Calibration tabs */
+.pidSec,.calSec{display:flex;flex-direction:column;gap:10px}
+.pidGrid{display:grid;gap:12px;align-items:start}.pidGrid>*{min-width:0}@media (min-width:1000px){.pidGrid{grid-template-columns:minmax(0,1.5fr) minmax(330px,1fr)}}
+.pidMain{display:flex;flex-direction:column;gap:8px;min-width:0}.pidSide{display:flex;flex-direction:column;gap:10px;min-width:0}
+#pidSch,#pidG,#calSvg{display:block;width:100%;min-width:600px;height:auto}
+.pidL,.calL{font:600 10px var(--display);letter-spacing:.06em;fill:var(--ink)}.calL{text-anchor:middle}.calL.m{fill:var(--muted)}.calL.bad{fill:var(--bad)}
+.pidV{font:700 16px var(--display);fill:var(--ink)}.pidLcd,.calLcd{font:500 13px var(--mono);fill:#9fe0a8}.calLcd{text-anchor:middle;font-size:14px}
+.pidG{font:500 11px var(--body);fill:var(--muted)}.calGn{font:600 9px var(--body);fill:#2a2f33;text-anchor:middle}.calBrand{font:700 13px var(--display);letter-spacing:.06em;text-anchor:middle;fill:var(--ink)}
+.pidReads{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+.pidMode,.calRow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:4px 0 8px}.pidMode>span,.calRow>span{font:600 13px var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pidLock{opacity:.55}.pidChk{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0}
+.pidOk{color:var(--ok);font-size:13px}.pidRes{padding:8px 10px;border-radius:6px;font-size:14px;margin:6px 0}.pidRes.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);border:1px solid var(--ok)}.pidRes.no{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid var(--warn)}
+#pidLesson p,#calSide p,#calSide li{font-size:14px;line-height:1.45}#calSide h3 small{font:500 12px var(--body);text-transform:none;letter-spacing:0;color:var(--muted)}
+.calChk{list-style:none;padding:0;margin:6px 0}.calChk li{padding:3px 0}.calChk li.ok{color:var(--ok)}.calChk li.no{color:var(--bad)}
+.calSteps,.calNotes{padding-left:20px;margin:4px 0 8px}
+.seg button[disabled]{opacity:.5;cursor:not-allowed}
