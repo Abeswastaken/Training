@@ -23,12 +23,17 @@ fw=fw.replace('Sliders go well past normal so you can see what a wrong setting o
 js=head+glob+ctl+"\n"+fw
 css=open('base.css').read()+open('extra.css').read()+'.vmeter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:13px}.vmeter select{flex:1;min-width:0;max-width:100%;font:13px var(--body);padding:6px;border-radius:5px;border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);min-height:36px}.vmeter output{font-family:var(--mono);font-size:17px;background:#b9c7a8;color:#111;padding:4px 10px;border-radius:4px;min-width:120px;text-align:right;text-transform:none;letter-spacing:0}'
 body=open('body_ctl.html').read()
+body=rep(body,'<button data-sim="ddc" aria-pressed="false">DDC</button>','<button data-sim="ddc" aria-pressed="false">DDC</button><button id="simPid" aria-pressed="false">PID tuning</button><button id="simCal" aria-pressed="false">Calibration</button>')
+_lay='\n</div>\n</div>\n\n<div class="modal" id="disc"'
+body=rep(body,_lay,'\n</div>\n'+open('ctl_pidcal.html').read()+'</div>\n\n<div class="modal" id="disc"')
+css+=open('ctl_pidcal.css').read()
+tail='<script>\n'+open('ctl_pid.js').read()+'</script>\n<script>\n'+open('ctl_cal.js').read()+'</script>\n'
 hd='''<title>Controls Trainer FB-Enable</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 '''
-page=hd+'<style>\n'+css+'</style>\n'+body+'<script>\n'+js+'</script>\n'
+page=hd+'<style>\n'+css+'</style>\n'+body+'<script>\n'+js+'</script>\n'+tail
 open('dist/controls-trainer.html','w').write(page)
-open('dist/fullctl.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+hd+'<style>\n'+css+'</style>\n</head>\n<body>\n'+body+'<script>\n'+js+'</script>\n</body>\n</html>\n')
+open('dist/fullctl.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+hd+'<style>\n'+css+'</style>\n</head>\n<body>\n'+body+'<script>\n'+js+'</script>\n'+tail+'</body>\n</html>\n')
 print(len(page))

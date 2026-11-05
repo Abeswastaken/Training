@@ -1,0 +1,25 @@
+<section class="pidSec" id="pidSec" hidden aria-label="PID tuning">
+  <div class="seg pidLes" role="group" aria-label="Lesson"><button data-pl="0">1. On/off</button><button data-pl="1">2. P only</button><button data-pl="2">3. Add I</button><button data-pl="3">4. Add D</button><button data-pl="4">5. Tune it</button><button data-pl="5">Free play</button></div>
+  <div class="pidGrid">
+    <div class="pidMain">
+      <div class="drawing"><div class="scroller"><svg id="pidSch" viewBox="0 0 760 150" role="img" aria-label="Zone with hot water reheat valve"></svg></div></div>
+      <div class="reads pidReads" id="pidReads"></div>
+      <div class="drawing"><div class="scroller"><svg id="pidG" viewBox="0 0 760 300" role="img" aria-label="Room temperature, setpoint and valve over time"></svg></div></div>
+    </div>
+    <div class="pidSide">
+      <div class="group" id="pidLesson"></div>
+      <div class="group"><div class="btns"><button class="btn blue" id="pidRun">Run test</button><button class="btn" id="pidNow">Skip to the result</button><button class="btn blue" id="pidLive" hidden>Run</button><button class="btn" id="pidDoor" hidden>Open the door</button><button class="btn" id="pidReset">Reset</button>
+        <select class="btn" id="pidSpeed" aria-label="Free play speed"><option value="60">60x</option><option value="300" selected>300x</option><option value="900">900x</option></select></div>
+        <div id="pidCtl"></div></div>
+      <div class="group"><h3>Pneumatic vs DDC</h3><p class="note">A pneumatic room thermostat is proportional only: its throttling range (for example 4°F for 10 psi of branch change, 2.5 psi per °F) is the proportional band, so it always droops a little. Some pneumatic receiver-controllers add a reset (integral) adjustment. DDC controllers run PI almost everywhere and leave derivative at zero.</p></div>
+    </div>
+  </div>
+</section>
+<section class="calSec" id="calSec" hidden aria-label="Calibration">
+  <div class="stBar"><div class="seg" role="group" aria-label="Calibration section"><button data-csub="bench">Thermostat benches</button><button data-csub="pair">Fail-safe check</button></div>
+   <div class="seg" role="group" aria-label="Thermostat" id="calBenches"><button data-cb="tp970">Honeywell TP970</button><button data-cb="tp971">Honeywell TP971</button><button data-cb="t4002">JCI T-4002</button><button data-cb="th192">Siemens TH 192</button><button data-cb="tk">TK-1001/1101</button></div></div>
+  <div class="pidGrid">
+    <div class="drawing"><div class="scroller"><svg id="calSvg" viewBox="0 0 760 410" role="img" aria-label="Calibration bench"></svg></div></div>
+    <div class="pidSide"><div class="group" id="calSide"></div></div>
+  </div>
+</section>
