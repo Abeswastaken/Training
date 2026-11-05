@@ -30,7 +30,7 @@ assert 'claude.ai' not in h
 # Tabs are read from the built page, so new tabs show up here without editing this list.
 EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls and hidden faults'],
  'heating':['Combustion readings, flame and ignition sequence','Service calls and hidden faults'],
- 'boiler-trainer':['Water-level cutaway, LWCOs, relief valve, Hartford loop','One-pipe and two-pipe steam','Failures and explosion scenarios'],
+ 'boiler-trainer':['Water-level cutaway, LWCOs, relief valve, Hartford loop','One-pipe (parallel flow or counterflow) and two-pipe steam','Steam stations: PRV, trap and drip, in 2D and isometric','Failures and explosion scenarios'],
  'airflow':['Static pressure, fan curves and balancing','Psychrometrics: what the coil does to the air'],
  'combustion':['Combustion analyzer, draft and CAZ testing','CO safety'],
  'chiller':['Approaches, lift and surge','Tower water treatment and safeties'],
