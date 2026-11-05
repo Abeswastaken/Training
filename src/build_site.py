@@ -9,7 +9,7 @@ def wrap(frag):
     head=frag[:j];body=frag[j:]
     return head,body
 SITES=[('refrigeration','refrigeration-trainer.html','Refrigeration'),('heating','heating-trainer.html','Heating'),('controls','controls-trainer.html','Controls'),
- ('wiring','wiring-trainer.html','Wiring Board'),('ladder','ladder-trainer.html','Ladder Builder'),('motors','motors-trainer.html','Motors + VFD'),('boiler-trainer','boiler-trainer.html','Boiler'),('airflow','airflow-trainer.html','Airflow'),('combustion','combustion-trainer.html','Combustion and Gas'),('chiller','chiller-trainer.html','Chiller and Cooling Tower')]
+ ('wiring','wiring-trainer.html','Wiring Board'),('ladder','ladder-trainer.html','Ladder Builder'),('threephase','threephase-trainer.html','3-Phase Motor Control'),('motors','motors-trainer.html','Motors + VFD'),('boiler-trainer','boiler-trainer.html','Boiler'),('airflow','airflow-trainer.html','Airflow'),('combustion','combustion-trainer.html','Combustion and Gas'),('chiller','chiller-trainer.html','Chiller and Cooling Tower')]
 for d,f,name in SITES:
     s=open(T+f).read()
     s=s.replace('<small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small>','')
@@ -21,7 +21,7 @@ for d,f,name in SITES:
 # home
 h=open('home.html').read()
 h=re.sub(r'\s*<div class="mock">.*?</div>\n','\n',h,count=1,flags=re.S)
-for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('boiler-trainer','4wjw2HSYj2aUenYJB6tzc2'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4'),('chiller','FwymfU92pf9g7su4G34psU')]:
+for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('boiler-trainer','4wjw2HSYj2aUenYJB6tzc2'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('threephase','SCKwfycGjKMTrXEVSF9ovd'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4'),('chiller','FwymfU92pf9g7su4G34psU')]:
     a=f'href="https://claude.ai/artifact/{url}" target="_blank" rel="noopener"'
     assert a in h,d; h=h.replace(a,f'href="/{d}/"')
 assert 'claude.ai' not in h
@@ -37,6 +37,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends'],
  'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
  'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
+ 'threephase':['Colored L1/L2/L3 power circuit: 208/240 V or 480 V','Control transformer, X1 fused, X2 grounded, 120 or 24 V','Start/stop, forward/reverse, jog, timed sequence, wye-delta','Swap two leads, single phasing, overloads, meter'],
  'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)

@@ -1,0 +1,78 @@
+<div class="wrap">
+<header>
+  <h1>3-Phase Motor Control <small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small></h1>
+  <div class="tools">
+    <button class="btn" id="pwr" aria-pressed="true">Disconnect: ON</button>
+    <button class="btn" id="meterBtn" aria-pressed="false">Meter</button>
+    <button class="btn" id="svcBtn">Service call</button>
+    <button class="btn" id="undo">Undo</button>
+    <button class="btn" id="clearL">Clear</button>
+    <button class="btn" id="theme">Theme</button>
+    <button class="btn" id="about">About</button>
+    <button class="btn" id="feedback">Feedback</button>
+  </div>
+</header>
+<div class="wl">
+  <aside class="side">
+    <div class="group"><h3>How to</h3><p class="note">The power circuit (top) follows the example you load. Below it is the control ladder: X1 on the left, X2 on the right. Tap an empty slot on a rung to pick a part (with search), or drag one from this list. Contacts and switches go on the left, one load (coil, motor, light) on the right. Tick "parallel branch" in the slot menu, or drop a part in a dashed "branch" box, to put it in parallel. Drag a placed part to move it (long-press on a phone). + and − beside a rung add or remove slots. Tap a placed part to see it, check it, or remove it.</p></div>
+    <div class="group" id="palette"></div>
+  </aside>
+  <div class="mainCol">
+    <div class="group svcBox" id="svcBox" hidden><h3>Service call</h3><p class="svcMsg" id="svcMsg"></p><p class="note" id="svcHelp"></p><div class="btns"><button class="btn blue" id="svcDiag">I found it</button><button class="btn" id="svcQuit">Give up</button></div></div>
+    <div class="group meterBox" id="meterBox" hidden>
+      <div class="mRow"><div class="mBody"><div class="mLcd" id="mLcd"><b>----</b></div><div class="seg" role="group" aria-label="Meter mode"><button data-mmode="v">V AC</button><button data-mmode="o">Ω</button><button data-mmode="c">Continuity</button></div></div>
+      <div class="mInfo"><p class="note" id="mLeads"></p><p class="mNote" id="mNote"></p><button class="btn" id="mClear">Clear leads</button></div></div>
+    </div>
+    <div class="group p3pwr"><h3>Power circuit</h3><div class="ladWrap"><svg id="p3svg" role="img" aria-label="3-phase power circuit"></svg></div></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ladWrap" id="wrapL"><svg id="ladder" role="img" aria-label="Ladder diagram"></svg></div>
+    <div class="btns"><button class="btn" id="addRung">Add rung</button><button class="btn" id="delRung">Remove last rung</button><button class="btn" id="addLo" hidden>Add 24 V rung</button><button class="btn" id="delLo" hidden>Remove last 24 V rung</button></div>
+    <div class="group"><h3>Log</h3><div class="log" id="log" aria-live="polite"></div></div>
+  </div>
+  <aside class="side2">
+    <div class="group elSheet" id="elSheet" hidden></div>
+    <div class="group">
+      <h3>Supply and examples</h3>
+      <div class="tRow"><span>Supply</span><div class="seg" role="group" aria-label="Supply voltage"><button data-p3sup="208">208 V</button><button data-p3sup="240">240 V</button><button data-p3sup="480">480 V</button></div></div>
+      <div class="btns">
+        <label class="inl">Control voltage <select id="volt"><option value="120">120 V (X1 / X2)</option><option value="24">24 V (X1 / X2)</option></select></label>
+        <label class="inl">Load example <select id="ex"><option value="">Choose...</option><option value="p3seal">Start/stop with seal-in</option><option value="p3rev">Forward/reverse with interlocks</option><option value="p3jog">Jog (RUN/JOG selector)</option><option value="p3seq">Timed sequence: two motors</option><option value="p3yd">Wye-delta start</option></select></label>
+      </div>
+      <p class="note" id="p3info"></p>
+    </div>
+    <div class="group"><h3>Try it</h3>
+      <div class="btns"><button class="btn" id="p3swap" aria-pressed="false">Swap two motor leads (T1 ↔ T3)</button><button class="btn" id="p3lose">Lose a phase (blow F3)</button><button class="btn" id="p3fuses">Replace fuses</button><button class="btn" id="p3olr">Reset overloads</button></div>
+      <p class="note">Swap two leads and the motor runs backward. Lose a phase while it runs and it keeps turning on two lines, drawing about 1.73 times normal current until the overload trips; start it single phased and it just hums.</p>
+    </div>
+    <div class="group"><h3>Code and practice notes</h3>
+      <ul class="note p3notes">
+        <li>Full-load amps come from NEC Table 430.250 (10 hp: 30.8 A at 208 V, 28 A at 230 V, 14 A at 460 V). Size conductors and short-circuit protection from the table, overloads from the nameplate.</li>
+        <li>Overloads (430.32): 125% of nameplate FLA for motors with a service factor of 1.15 or more or a temperature rise of 40°C or less; 115% for others.</li>
+        <li>The fuses here are the branch-circuit short-circuit and ground-fault protection (430.52); they don't protect the motor from overload.</li>
+        <li>The control transformer is protected on its secondary (430.72). X2 is grounded. Coils go on the X2 side (overload contacts are the usual exception allowed between a coil and X2), and switches and contacts sit on X1, so a ground fault blows the fuse instead of starting the motor.</li>
+        <li>Disconnect in sight of the motor and controller (430.102).</li>
+        <li>Wire colors: black/red/blue on 208/240 V and brown/orange/yellow on 480 V are common practice, not code. The NEC only requires the high leg of a 4-wire delta to be orange (110.15), and sets white/gray for the grounded conductor and green for equipment grounds.</li>
+      </ul>
+    </div>
+  </aside>
+</div>
+</div>
+<div class="modal slotMenu" id="slotMenu" hidden><div class="modalCard smCard" role="dialog" aria-modal="true" aria-labelledby="smT">
+  <div class="smHead"><h2 id="smT">Add a part</h2><button class="btn" id="smClose">Close</button></div>
+  <input id="smSearch" type="search" placeholder="Search parts: contactor, limit, CC, rollout..." autocomplete="off">
+  <label class="inl" id="smBrRow"><input type="checkbox" id="smBr"> Parallel branch under this slot</label>
+  <div class="smCats" id="smCats"></div><div class="smList" id="smList"></div></div></div>
+<div class="modal" id="modal" hidden><div class="modalCard" role="alertdialog" aria-labelledby="mT"><h2 id="mT"></h2><div id="mB"></div><div class="modalRow"><button class="btn" id="mOk">Got it</button></div></div></div>
+<div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
+  <h2 id="discT">Training aid only</h2>
+  <p>3-Phase Motor Control is a simplified simulator for learning motor starter power and control circuits. It is not a design tool or a substitute for training, the equipment's wiring diagram, or the electrical code.</p>
+  <ul><li>Each rung is checked as logic: closed contacts pass power, and a rung with no load is treated as a dead short.</li>
+  <li>Real arc flash and shock can kill. De-energize, lock out, tag out, and verify dead with a tested meter before you touch wiring.</li></ul>
+  <p class="note">Spot something wrong? Use Feedback (top bar) to report it.</p>
+  <div class="modalRow"><button class="btn" id="discOk">I understand</button></div></div></div>
+<div class="modal" id="fb" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="fbT">
+  <h2 id="fbT">Feedback</h2><p>Report a bug, suggest an idea, or flag something that isn't accurate. <span id="fbTo">No sign-in needed.</span></p>
+  <label for="fbType">Type</label><select id="fbType"><option>Bug</option><option>Suggestion</option><option>Accuracy problem</option><option>Other</option></select>
+  <label for="fbMsg">What happened or what would you like?</label><textarea id="fbMsg" maxlength="3000"></textarea>
+  <label for="fbName">Name (optional)</label><input id="fbName" maxlength="80" autocomplete="name">
+  <p class="note" id="fbStatus"></p><div class="modalRow"><button class="btn" id="fbCancel">Cancel</button><button class="btn" id="fbSend">Send</button></div></div></div>
