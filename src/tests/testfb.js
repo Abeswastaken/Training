@@ -1,7 +1,7 @@
 // Feedback About picker: options follow the open tab and last part, and the sent text is tagged.
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const errs=[];
-for(const f of ['full.html','fullctl.html','fullheat.html','fullmotor.html','fullboiler.html','fullwire.html','fullladder.html']){
+for(const f of ['full.html','fullctl.html','fullheat.html','fullmotor.html','fullboiler.html','fullwire.html','fullladder.html','fullhx.html']){
  const p=await b.newPage();p.on('pageerror',e=>errs.push(f+': '+e.message));
  await p.addInitScript(()=>{window.__sent=[];const of=window.fetch;window.fetch=(u,o)=>{if(String(u).includes('formResponse')){window.__sent.push(o.body.toString());return Promise.resolve(new Response(''))}return of(u,o)}});
  await p.goto('file://'+process.cwd()+'/'+f);await p.waitForTimeout(400);
