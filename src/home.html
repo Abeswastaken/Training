@@ -41,6 +41,9 @@ h2 span{font:500 13px var(--body);letter-spacing:0;text-transform:none;color:var
 .body{padding:14px 16px 16px;display:grid;gap:8px;align-content:start;min-width:0}
 .card h3{font:700 22px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0}
 .card p{margin:0;color:var(--muted);font-size:14px}
+.card .inside{margin:2px 0 0;padding-left:18px;font-size:13.5px;line-height:1.4;color:var(--ink)}
+.card .inside li::marker{color:var(--brass)}
+.card .inside b{font-weight:600}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .tags span{font:600 12px var(--display);letter-spacing:.06em;text-transform:uppercase;background:var(--panel);border-radius:4px;padding:2px 7px}
 .path{font:12px var(--mono);color:var(--muted);display:flex;justify-content:space-between;gap:8px;margin-top:4px;flex-wrap:wrap}
@@ -99,6 +102,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="240" y="40" width="44" height="100" rx="4" fill="#e3e8eb" stroke="#5f686d"/><rect x="246" y="48" width="32" height="70" fill="#a9b2b8"/>
         </svg>
         <div class="body"><h3>Refrigeration</h3><p>Split AC, heat pump with a reversing valve, and walk-in cooler and freezer pump-down systems. Six refrigerants.</p>
+          <!--inside:refrigeration-->
           <div class="tags"><span>Superheat</span><span>Subcooling</span><span>Defrost</span></div>
           <div class="path"><span>/refrigeration</span><em>Open →</em></div></div>
       </a>
@@ -109,6 +113,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <circle cx="160" cy="125" r="24" fill="#3b4449"/><circle cx="160" cy="125" r="17" fill="#2a2f33"/><path d="M160 125 l12 -8 M160 125 l-10 10 M160 125 l2 -15" stroke="#aeb6bb" stroke-width="3"/>
         </svg>
         <div class="body"><h3>Heating</h3><p>Gas furnace (80% and 96%), oil burner with combustion readings, and a hydronic air handler fed by a boiler.</p>
+          <!--inside:heating-->
           <div class="tags"><span>Ignition</span><span>Oil burner</span><span>Hydronic</span></div>
           <div class="path"><span>/heating</span><em>Open →</em></div></div>
       </a>
@@ -119,6 +124,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <path d="M166 50 H230 V30 M166 140 H250" stroke="#d23a26" stroke-width="8" fill="none"/><circle cx="250" cy="70" r="20" fill="#fbfbf8" stroke="#2a2f33" stroke-width="5"/><path d="M250 70 L262 60" stroke="#c0281c" stroke-width="2"/>
         </svg>
         <div class="body"><h3>Boiler</h3><p>Hot water and steam boilers with a water-level cutaway, low-water cutoffs, relief valves and the Hartford loop.</p>
+          <!--inside:boiler-trainer-->
           <div class="tags"><span>Hydronic</span><span>Steam</span><span>Safety</span></div>
           <div class="path"><span>/boiler-trainer</span><em>Open →</em></div></div>
       </a>
@@ -130,6 +136,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="40" y="102" width="56" height="40" rx="6" fill="#f2b632" stroke="#7a5600"/><rect x="46" y="108" width="44" height="16" rx="2" fill="#b9c7a8"/><text x="68" y="121" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#111">0.56</text>
         </svg>
         <div class="body"><h3>Airflow</h3><p>A 3-ton system with attic ducts and four rooms: static pressure, fan curves, balancing, and what the coil does to the air.</p>
+          <!--inside:airflow-->
           <div class="tags"><span>Static pressure</span><span>CFM</span><span>Psychrometrics</span></div>
           <div class="path"><span>/airflow</span><em>Open →</em></div></div>
       </a>
@@ -143,6 +150,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="16" y="30" width="72" height="62" rx="8" fill="#2b5fa8" stroke="#163a6a"/><rect x="22" y="36" width="60" height="40" rx="3" fill="#b9c7a8"/><text x="52" y="52" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#111">O2 8.4</text><text x="52" y="68" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#111">CO 12</text>
         </svg>
         <div class="body"><h3>Combustion and gas</h3><p>Gas piping and the meter, orifices and flames, a combustion analyzer, chimney draft and worst-case CAZ testing.</p>
+          <!--inside:combustion-->
           <div class="tags"><span>Gas piping</span><span>Combustion</span><span>CO safety</span></div>
           <div class="path"><span>/combustion</span><em>Open →</em></div></div>
       </a>
@@ -157,6 +165,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="196" y="18" width="80" height="40" rx="4" fill="#1b1f22"/><text x="236" y="35" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">LCHW 44.0</text><text x="236" y="49" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">0.56 kW/t</text>
         </svg>
         <div class="body"><h3>Chiller and cooling tower</h3><p>A 300-ton centrifugal chiller with its cooling tower: approaches, lift and surge, tower water treatment and the chiller's safeties.</p>
+          <!--inside:chiller-->
           <div class="tags"><span>Chillers</span><span>Cooling towers</span><span>Commercial</span></div>
           <div class="path"><span>/chiller</span><em>Open →</em></div></div>
       </a>
@@ -174,6 +183,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="220" y="26" width="76" height="56" rx="4" fill="#2a2f33"/><rect x="226" y="32" width="64" height="44" fill="#f7f8f6"/><polyline points="230,62 240,50 250,64 260,48 270,62 280,52 286,58" fill="none" stroke="#e07a1f" stroke-width="2.5"/>
         </svg>
         <div class="body"><h3>Controls</h3><p>One air handler run two ways: pneumatic (compressor, PRV, two-pipe thermostat) and DDC (sensors, 2–10 V, PI loop, trend).</p>
+          <!--inside:controls-->
           <div class="tags"><span>3-way valves</span><span>Spring ranges</span><span>PID</span></div>
           <div class="path"><span>/controls</span><em>Open →</em></div></div>
       </a>
@@ -185,6 +195,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <rect x="40" y="118" width="36" height="28" rx="4" fill="#e3c34a" stroke="#6a5a00"/><circle cx="58" cy="132" r="7" fill="#2a2f33"/>
         </svg>
         <div class="body"><h3>Wiring Board</h3><p>Drag parts onto a board, wire them terminal to terminal and test with a live multimeter. Miswire it and see the arc flash.</p>
+          <!--inside:wiring-->
           <div class="tags"><span>Multimeter</span><span>24 V controls</span><span>Examples</span></div>
           <div class="path"><span>/wiring</span><em>Open →</em></div></div>
       </a>
@@ -197,6 +208,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <path d="M50 50 H110" stroke="#d23a26" stroke-width="3"/>
         </svg>
         <div class="body"><h3>Ladder Builder</h3><p>Build ladder diagrams from ready-made parts: contactors, relays, timers, switches and a 24 V thermostat. Then run them.</p>
+          <!--inside:ladder-->
           <div class="tags"><span>Seal-in</span><span>Timers</span><span>Thermostat</span></div>
           <div class="path"><span>/ladder</span><em>Open →</em></div></div>
       </a>
@@ -208,6 +220,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <g stroke="#1c3149" stroke-width="2"><path d="M186 66 V128 M200 66 V128 M214 66 V128 M228 66 V128 M242 66 V128"/></g><rect x="270" y="90" width="26" height="12" fill="#b9c1c6"/>
         </svg>
         <div class="body"><h3>Motors + VFD</h3><p>A 10 hp motor on a variable frequency drive with bypass: ramps, DC bus, overloads, single phasing and drive fault codes.</p>
+          <!--inside:motors-->
           <div class="tags"><span>VFD</span><span>Megger</span><span>Fault codes</span></div>
           <div class="path"><span>/motors</span><em>Open →</em></div></div>
       </a>

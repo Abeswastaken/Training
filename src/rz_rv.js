@@ -16,7 +16,16 @@ ZILL.rv=()=>{const c=rvCardMode==="cool",sx=c?96:146;
  ${zL(220,200,264,226,214,240,c?"C: hot gas to outdoor coil":"C: suction from outdoor coil","start")}
  <text x="6" y="88" font-family="IBM Plex Sans,sans-serif" font-size="12" font-weight="700" fill="${c?"#2f6fd6":"#c0281c"}">${c?"COOLING":"HEATING"}</text>
  <text x="6" y="74" font-family="IBM Plex Sans,sans-serif" font-size="9.5" fill="#3a4246">${c?"Coil energized (O) on most brands":"Coil off (O system)"}</text>`};
-const rvToggle=()=>`<div class="btns" role="group" aria-label="Reversing valve mode"><button class="btn" data-rvmode="cool" aria-pressed="${rvCardMode==="cool"}">Cooling</button><button class="btn" data-rvmode="heat" aria-pressed="${rvCardMode==="heat"}">Heating</button></div><p class="illNote">The slide moves toward one end when the pilot valve vents that end to suction. The cup always joins S to whichever coil is the evaporator.</p>`;
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-rvmode]");if(!b)return;rvCardMode=b.dataset.rvmode;
+const rvToggle=()=>{if(typeof cur!=="undefined"&&cur&&cur.id==="hp"&&(cur.S.mode==="heat"||cur.S.mode==="cool"))rvCardMode=cur.S.mode;
+ return `<div class="rvBar"><div class="btns" role="group" aria-label="Reversing valve mode"><button class="btn" data-rvmode="cool" aria-pressed="${rvCardMode==="cool"}">Cooling</button><button class="btn" data-rvmode="heat" aria-pressed="${rvCardMode==="heat"}">Heating</button><button class="btn rvMore" data-rvexpand="1">Show card</button></div></div><p class="illNote">These buttons also switch the heat pump on the main drawing, so you can watch the whole system reverse. The slide moves toward one end when the pilot valve vents that end to suction. The cup always joins S to whichever coil is the evaporator.</p>`};
+document.addEventListener("click",e=>{const ex=e.target.closest&&e.target.closest("[data-rvexpand]");if(ex){document.getElementById("sheet").classList.remove("mini");return}
+ const b=e.target.closest&&e.target.closest("[data-rvmode]");if(!b)return;rvCardMode=b.dataset.rvmode;
  const sh=document.getElementById("sheetB");if(!sh)return;const sv=sh.querySelector("svg.ill");if(sv)sv.innerHTML=ZILL.rv();
- sh.querySelectorAll("[data-rvmode]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.rvmode===rvCardMode))});
+ sh.querySelectorAll("[data-rvmode]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.rvmode===rvCardMode));
+ // drive the main heat pump too: set the thermostat mode and make sure it is calling
+ if(typeof cur!=="undefined"&&cur&&cur.id==="hp"){const S=cur.S,V=cur.V,m=rvCardMode;
+  if(S.mode!==m){S.mode=m;log(cur,`Thermostat set to ${m==="heat"?"heat":"cool"} from the reversing valve card.`)}
+  if(m==="heat"&&S.Troom>V.set-1){S.Troom=V.set-1.5;S.calling=true}
+  if(m==="cool"&&S.Troom<V.set+1){S.Troom=V.set+1.5;S.calling=true}
+  if(typeof renderControls==="function")try{renderControls()}catch(_){}
+  if(innerWidth<700)document.getElementById("sheet").classList.add("mini")}});

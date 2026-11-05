@@ -25,6 +25,30 @@ for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThL
     a=f'href="https://claude.ai/artifact/{url}" target="_blank" rel="noopener"'
     assert a in h,d; h=h.replace(a,f'href="/{d}/"')
 assert 'claude.ai' not in h
+
+# "What's inside" bullets on each home card: the trainer's own system tabs, then its main tools.
+# Tabs are read from the built page, so new tabs show up here without editing this list.
+EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls and hidden faults'],
+ 'heating':['Combustion readings, flame and ignition sequence','Service calls and hidden faults'],
+ 'boiler-trainer':['Water-level cutaway, LWCOs, relief valve, Hartford loop','One-pipe and two-pipe steam','Failures and explosion scenarios'],
+ 'airflow':['Static pressure, fan curves and balancing','Psychrometrics: what the coil does to the air'],
+ 'combustion':['Combustion analyzer, draft and CAZ testing','CO safety'],
+ 'chiller':['Approaches, lift and surge','Tower water treatment and safeties'],
+ 'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends'],
+ 'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
+ 'ladder':['Contacts, coils, timers, safeties and thermostat parts','Examples to load and run'],
+ 'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests']}
+def tabs_of(d):
+    f={'boiler-trainer':'boiler'}.get(d,d)
+    try:s=open(f'dist/{f}-trainer.html').read()
+    except FileNotFoundError:return []
+    t=re.findall(r'data-sim="[a-z0-9_]+"[^>]*>([^<]+)<',s) or re.findall(r'<button id="sim[A-Z][a-z]*"[^>]*>([^<]+)<',s)
+    return list(dict.fromkeys(t))
+for d in EXTRA:
+    t=tabs_of(d)
+    li=([f'<li><b>Tabs:</b> {", ".join(t)}</li>'] if len(t)>1 else [])+[f'<li>{x}</li>' for x in EXTRA[d]]
+    h=h.replace(f'<!--inside:{d}-->','<ul class="inside">'+''.join(li)+'</ul>')
+assert '<!--inside:' not in h
 h=h.replace('<title>HVAC Trainers Home</title>','<title>HVAC Trainers</title>')
 open(f'{OUT}/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+h.replace('</style>','</style>\n</head>\n<body>',1)+'\n</body>\n</html>\n')
 open(f'{OUT}/CNAME','w').write('training.colvinj.com\n')
