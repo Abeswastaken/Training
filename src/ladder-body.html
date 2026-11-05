@@ -35,17 +35,17 @@
       <div class="btns">
         <label class="inl">Control voltage <select id="volt"><option value="120">120 V (L1 / N)</option><option value="240">240 V (L1 / L2)</option><option value="24">24 V (R / C)</option></select></label>
         <p class="note" id="voltNote" hidden>With a transformer placed, the top ladder is line voltage (120 V) and the bottom ladder is the 24 V control side.</p>
-        <label class="inl">Load example <select id="ex"><option value="">Choose...</option><option value="seal">Start/stop with seal-in</option><option value="tstat24">24 V thermostat (R, G, Y, W, C)</option><option value="ac">Air conditioner controls</option><option value="td">On-delay timer</option><option value="short">Mistake: rung with no load</option></select></label>
+        <label class="inl">Load example <select id="ex"><option value="">Choose...</option><option value="seal">Start/stop with seal-in</option><option value="tstat24">24 V thermostat (R, G, Y, W, C)</option><option value="ac">Air conditioner controls</option><option value="furnace">Gas furnace sequence</option><option value="hp">Heat pump (O/B and heat strips)</option><option value="stage2">Two-stage heat and cool</option><option value="boiler">Boiler (T-T, aquastat, circulator)</option><option value="walkin">Walk-in cooler pump-down and defrost</option><option value="td">On-delay timer</option><option value="short">Mistake: rung with no load</option></select></label>
       </div>
     </div>
-    <div class="group"><h3>Thermostat</h3>
+    <div class="group"><h3>Thermostat</h3><p class="note" id="tHint" hidden>No thermostat parts on this ladder. Place a thermostat part (Y, W, G...) to use the room thermostat.</p>
       <div class="tface"><div class="tlcd"><small id="tMode"></small><b id="tRoom">76°</b><small>ROOM</small></div></div>
       <div class="tRow"><span>System</span><div class="seg" role="group" aria-label="System"><button data-sys="off">Off</button><button data-sys="heat">Heat</button><button data-sys="cool">Cool</button><button data-sys="auto">Auto</button></div></div>
       <div class="tRow"><span>Fan</span><div class="seg" role="group" aria-label="Fan"><button data-fan="auto">Auto</button><button data-fan="on">On</button></div></div>
       <div class="tRow"><span>Room</span><button class="btn" data-adj="room:-2" aria-label="Room cooler">−</button><button class="btn" data-adj="room:2" aria-label="Room warmer">+</button></div>
       <div class="tRow"><span>Heat to <b id="tHs"></b></span><button class="btn" data-adj="hs:-1" aria-label="Heat setpoint down">−</button><button class="btn" data-adj="hs:1" aria-label="Heat setpoint up">+</button></div>
       <div class="tRow"><span>Cool to <b id="tCs"></b></span><button class="btn" data-adj="cs:-1" aria-label="Cool setpoint down">−</button><button class="btn" data-adj="cs:1" aria-label="Cool setpoint up">+</button></div>
-      <p class="note" id="tCall"></p></div>
+      <p class="note" id="tCall"></p><p class="note simInfo" id="simInfo" hidden></p></div>
   </aside>
 </div>
 </div>

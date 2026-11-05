@@ -17,16 +17,28 @@ const E={
  lps:{n:"Low pressure switch (NC)",cat:"Safeties",load:0,manual:"trip",al:"lp lpc suction loss of charge control",info:"Closed while suction pressure is normal, opens on loss of charge. Tap to simulate."},
  lim:{n:"High limit (NC)",cat:"Safeties",load:0,manual:"trip",al:"limit snap disc overheat",info:"Furnace high limit. Opens on overheating. Tap to simulate."},
  rollout:{n:"Flame rollout switch (NC, manual reset)",cat:"Safeties",load:0,manual:"trip",al:"rollout limit manual reset fs",info:"Opens if flame rolls out of the burner area. Manual reset: it stays open until someone presses its button."},
+ lwco:{n:"Low water cutoff (NC)",cat:"Safeties",load:0,manual:"trip",al:"lwco low water cut off probe float boiler",info:"Boiler safety. Opens if the water level drops below the probe or float, so the burner can't fire a dry boiler. Tap to simulate low water."},
+ aps:{n:"Pressure switch (NO, proves the inducer)",cat:"Safeties",load:0,tagKind:"motor",al:"pressure switch draft inducer vent proving ps",info:"Closes only when its inducer (draft) motor is running and pulling enough draft. It proves venting before the furnace may ignite."},
  ol:{n:"Overload contact (NC)",cat:"Safeties",load:0,tagKind:"motor",al:"overload ol 95 96 heater",info:"Normally closed. Opens when its motor's overload trips. Wire it in series with that motor's starter coil."},
  ty:{n:"Thermostat Y (cool)",cat:"Thermostat",load:0,al:"y cooling call stat",info:"Closes when the thermostat calls for cooling."},
  tw:{n:"Thermostat W (heat)",cat:"Thermostat",load:0,al:"w heating call stat",info:"Closes when the thermostat calls for heat."},
  tg:{n:"Thermostat G (fan)",cat:"Thermostat",load:0,al:"g fan stat",info:"Closes for cooling or fan-on."},
+ ty2:{n:"Thermostat Y2 (2nd stage cool)",cat:"Thermostat",load:0,al:"y2 second stage high stage two-stage cool",info:"Closes when the room is 3°F or more above the cool setpoint (second stage). Y1 is already closed by then."},
+ tw2:{n:"Thermostat W2 (2nd stage / aux heat)",cat:"Thermostat",load:0,al:"w2 aux auxiliary second stage strips two-stage heat",info:"Closes when the room is 3°F or more below the heat setpoint. On a heat pump this is AUX heat (the strips)."},
+ tyhp:{n:"Thermostat Y (heat pump: heat or cool)",cat:"Thermostat",load:0,al:"y heat pump compressor",info:"On a heat pump thermostat, Y runs the compressor for both heating and cooling."},
+ to:{n:"Thermostat O (energized in cool)",cat:"Thermostat",load:0,al:"o reversing valve rv cool changeover",info:"Powers the reversing valve in cooling. Most brands (Carrier, Trane, Goodman, Lennox) use O: the unit heats if the valve coil loses power."},
+ tb:{n:"Thermostat B (energized in heat)",cat:"Thermostat",load:0,al:"b reversing valve rv heat changeover rheem ruud",info:"Powers the reversing valve in heating (Rheem/Ruud and some older units). The unit cools if the valve coil loses power."},
  tsc:{n:"System switch: COOL",cat:"Thermostat",load:0,al:"system cool",info:"Inside the thermostat. Closed when the system is set to Cool (or Auto)."},
  tsh:{n:"System switch: HEAT",cat:"Thermostat",load:0,al:"system heat",info:"Inside the thermostat. Closed when the system is set to Heat (or Auto)."},
  tcc:{n:"Cooling call (closes on rise)",cat:"Thermostat",load:0,al:"cool call",info:"Closes when the room rises above the cool setpoint."},
  thc:{n:"Heating call (closes on fall)",cat:"Thermostat",load:0,al:"heat call",info:"Closes when the room falls below the heat setpoint."},
  tfo:{n:"Fan switch: ON",cat:"Thermostat",load:0,al:"fan on",info:"Closed when the fan is set to On: R goes straight to G."},
  tfa:{n:"Fan switch: AUTO",cat:"Thermostat",load:0,al:"fan auto",info:"Closed when the fan is set to Auto. In series with the cooling call, it runs the fan only during a call."},
+ aq:{n:"Aquastat high limit (opens at 180°F)",cat:"Switches & controls",load:0,al:"aquastat limit boiler water temperature l8148 hi limit",info:"Boiler water temperature limit. Opens when the water reaches 180°F and closes again at 165°F (15° differential). It follows the boiler water temperature shown under the thermostat."},
+ bts:{n:"Box thermostat (closes on rise)",cat:"Switches & controls",load:0,al:"box thermostat walk-in cooler temperature control",info:"Walk-in box thermostat. Closes at 38°F (cut-in) and opens at 34°F (cut-out). It follows the box temperature shown under the thermostat."},
+ lpc:{n:"Low pressure control (pump-down)",cat:"Switches & controls",load:0,al:"low pressure control lpc pump down penn ranco cut in cut out",info:"Pump-down control on the suction line. Closes when suction rises to 35 psig (cut-in) and opens at 15 psig (cut-out). It starts and stops the compressor in a pump-down system."},
+ dtr:{n:"Defrost timer: cooling contact (N.C. in defrost: opens)",cat:"Switches & controls",load:0,manual:"defrost",al:"defrost timer paragon grasslin precision clock cool",info:"Time clock contact that is closed during refrigeration and opens during defrost. In this example the clock runs 4 defrosts a day, sped up: about 90 s between defrosts and 20 s of defrost. Tap to push the clock into defrost now."},
+ dtd:{n:"Defrost timer: defrost contact (closes in defrost)",cat:"Switches & controls",load:0,manual:"defrost",al:"defrost timer heater paragon grasslin",info:"Time clock contact that closes during defrost, usually to power defrost heaters. Tap to push the clock into defrost now."},
  tterm:{n:"Terminal (R, Y, G, W...)",cat:"Thermostat",load:0,al:"terminal r c y g w o b",info:"A labeled wiring terminal. It passes power straight through and shows where a wire leaves the thermostat or a board."},
  coil:{n:"Relay coil (CR)",cat:"Loads",load:1,coil:"CR",al:"relay cr control relay fan relay",info:"Control relay coil. Energized, it flips every contact tagged with its name."},
  mcoil:{n:"Contactor / starter coil (M)",cat:"Loads",load:1,coil:"M",al:"contactor starter cc coil",info:"Motor starter or contactor coil. Its contacts carry the motor's power."},
@@ -40,7 +52,7 @@ const E={
  fuse:{n:"Fuse",cat:"Power",load:0,al:"fuse protection 3a",info:"Passes power until too much current flows. A dead short on its rung blows it instead of arcing."}
 };
 const CATS=["Loads","Safeties","Switches & controls","Contacts","Thermostat","Power"];
-const LTS={sys:"off",fan:"auto",room:76,hs:68,cs:74,callC:false,callH:false};
+const LTS={sys:"off",fan:"auto",room:76,hs:68,cs:74,callC:false,callH:false,call2C:false,call2H:false};
 let rungs=[],power=true,placing=null,moving=null,sel=null,hist=[],idn=1,shortRung=null;
 const blankCells=()=>Array(MAXN).fill(null);
 const blank=sec=>{const r={n:DEFN,cells:blankCells(),br:[]};if(sec)r.sec=sec;return r};
@@ -77,17 +89,50 @@ function closed(c,ignoreFault){if(!ignoreFault&&c.f)return false;const k=c.k,s=c
   case "pbno":return !!s.down;case "pbnc":return !s.down;case "sw":case "tsw":return !!s.on;
   case "ty":return tY();case "tw":return tW();case "tg":return LTS.fan==="on"||tY();
   case "tsc":return sysC();case "tsh":return sysH();case "tcc":return LTS.callC;case "thc":return LTS.callH;case "tfo":return LTS.fan==="on";case "tfa":return LTS.fan==="auto";case "tterm":return true;
-  case "hps":case "lps":case "lim":case "rollout":return !s.trip;
+  case "ty2":return sysC()&&LTS.call2C;case "tw2":return sysH()&&LTS.call2H;case "tyhp":return tY()||tW();case "to":return modeC();case "tb":return modeH();
+  case "aps":return runMtr(c.tag);case "aq":return SIM.aq;case "bts":return SIM.bts;case "lpc":return SIM.lpc;case "dtr":return !(SIM.def>0);case "dtd":return SIM.def>0;
+  case "hps":case "lps":case "lim":case "rollout":case "lwco":return !s.trip;
   case "fuse":return !s.blown}
  return true}
 const sysC=()=>LTS.sys==="cool"||LTS.sys==="auto",sysH=()=>LTS.sys==="heat"||LTS.sys==="auto",tY=()=>sysC()&&LTS.callC,tW=()=>sysH()&&LTS.callH;
-const TSK=["ty","tw","tg","tsc","tsh","tcc","thc","tfo","tfa"];
+const modeC=()=>LTS.sys==="cool"||(LTS.sys==="auto"&&LTS.callC),modeH=()=>LTS.sys==="heat"||(LTS.sys==="auto"&&LTS.callH&&!LTS.callC);
+const runMtr=tag=>{let r=false;each(c=>{if(c.k==="motor"&&c.tag===tag&&energized.has(c.id)&&!motorOL[tag])r=true});return r};
+const TSK=["ty","tw","tg","tsc","tsh","tcc","thc","tfo","tfa","ty2","tw2","tyhp","to","tb"];
+/* plant model for the boiler and walk-in examples (sped-up time) */
+const SIM={wt:150,aq:true,box:36,bts:false,suct:20,lpc:false,def:0,clock:0};
 function updCalls(){const c=LTS.callC,h=LTS.callH;if(LTS.room>=LTS.cs+1)LTS.callC=true;else if(LTS.room<=LTS.cs-1)LTS.callC=false;if(LTS.room<=LTS.hs-1)LTS.callH=true;else if(LTS.room>=LTS.hs+1)LTS.callH=false;
+ const c2=LTS.call2C,h2=LTS.call2H;if(LTS.room>=LTS.cs+3)LTS.call2C=true;else if(LTS.room<=LTS.cs+1)LTS.call2C=false;if(LTS.room<=LTS.hs-3)LTS.call2H=true;else if(LTS.room>=LTS.hs-1)LTS.call2H=false;
+ let st2=false;each(x=>{if(x.k==="ty2"||x.k==="tw2")st2=true});
+ if(st2&&c2!==LTS.call2C&&sysC())say(LTS.call2C?`Room ${Math.round(LTS.room)}°F: second stage cooling (R to Y2).`:`Second stage cooling off.`);
+ if(st2&&h2!==LTS.call2H&&sysH())say(LTS.call2H?`Room ${Math.round(LTS.room)}°F: second stage heat (R to W2).`:`Second stage heat off.`);
  if(c!==LTS.callC&&sysC())say(LTS.callC?`Room ${Math.round(LTS.room)}°F: cooling call (R to Y).`:`Room ${Math.round(LTS.room)}°F: cooling satisfied.`);
  if(h!==LTS.callH&&sysH())say(LTS.callH?`Room ${Math.round(LTS.room)}°F: heating call (R to W).`:`Room ${Math.round(LTS.room)}°F: heating satisfied.`)}
-function drift(dt){let has=false,cool=false,heat=false;each(c=>{if(TSK.includes(c.k))has=true;if(energized.has(c.id)){if(c.k==="motor"&&/COMP/.test(c.tag)&&!motorOL[c.tag])cool=true;if(c.k==="heat")heat=true}});if(!has)return;
- const out=LTS.sys==="heat"?55:LTS.sys==="off"?LTS.room:88,d=out-LTS.room;const rate=cool||heat?(cool?-0.35:0)+(heat?0.35:0):Math.sign(d)*Math.min(Math.abs(d),0.08);
+function drift(dt){simTick(dt);let has=false,cool=0,heat=0,rv=null,hasB=false,blwr=false,gv=false,circ=false,y2=false,comp=0;
+ each(c=>{if(TSK.includes(c.k))has=true;if(c.k==="tb")hasB=true;if(c.k==="sol"&&c.tag==="RV")rv=c;const on=energized.has(c.id);if(!on)return;
+  if(c.k==="motor"&&!motorOL[c.tag]){if(/COMP/.test(c.tag))comp++;if(/BLWR/.test(c.tag))blwr=true;if(/CIRC/.test(c.tag))circ=true}
+  if(c.k==="heat"&&!/HSI|DEF/.test(c.tag||""))heat++;if(c.k==="sol"&&c.tag==="GV")gv=true;if(c.k==="sol"&&c.tag==="Y2")y2=true});
+ if(!has)return;
+ if(comp){const hpHeat=rv?(hasB?energized.has(rv.id):!energized.has(rv.id)):false;const n=comp+(y2?0.6:0);if(hpHeat)heat+=n;else cool+=n}
+ if(gv&&blwr)heat+=1.5;if(circ&&SIM.wt>130)heat+=1.2;
+ const out=LTS.sys==="heat"?55:LTS.sys==="off"?LTS.room:88,d=out-LTS.room;const rate=cool||heat?(heat-cool)*0.35:Math.sign(d)*Math.min(Math.abs(d),0.08);
  LTS.room+=rate*dt;LTS.room=Math.max(50,Math.min(95,LTS.room));}
+function simTick(dt){let gv=false,circ=false,comp=false,lls=false,efan=false,defh=false,any=false;
+ each(c=>{if(["aq","bts","lpc","dtr","dtd"].includes(c.k))any=true;const on=energized.has(c.id);if(!on)return;
+  if(c.k==="sol"&&c.tag==="GV")gv=true;if(c.k==="sol"&&c.tag==="LLS")lls=true;if(c.k==="heat"&&/DEF/.test(c.tag||""))defh=true;
+  if(c.k==="motor"&&!motorOL[c.tag]){if(/CIRC/.test(c.tag))circ=true;if(/COMP/.test(c.tag))comp=true;if(/EFAN/.test(c.tag))efan=true}});
+ if(!any)return;
+ // boiler water: burner adds heat, the circulator carries it to the house
+ SIM.wt+=((gv?3:0)-(circ&&SIM.wt>LTS.room?1.2:0)-(SIM.wt>70?0.1:0))*dt;SIM.wt=Math.max(60,Math.min(250,SIM.wt));
+ if(SIM.wt>=180&&SIM.aq){SIM.aq=false;say("Boiler water reached 180°F: the aquastat high limit opens and the burner stops.")}else if(SIM.wt<=165&&!SIM.aq){SIM.aq=true;say("Boiler water down to 165°F: the aquastat closes again.")}
+ // defrost clock: 4 a day, sped up
+ if(power){if(SIM.def>0){SIM.def-=dt;if(SIM.def<=0){SIM.def=0;SIM.clock=0;say("Defrost timer: defrost over (time termination). Back to cooling.")}}else{SIM.clock+=dt;if(SIM.clock>=90)startDefrost()}}
+ // walk-in box and suction pressure
+ const cooling=comp&&lls&&efan&&!(SIM.def>0);
+ SIM.box+=(cooling?-0.25:defh?0.3:0.08)*dt;SIM.box=Math.max(28,Math.min(60,SIM.box));
+ if(SIM.box>=38&&!SIM.bts){SIM.bts=true;say("Box at 38°F: the box thermostat closes (cut-in).")}else if(SIM.box<=34&&SIM.bts){SIM.bts=false;say("Box at 34°F: the box thermostat opens (cut-out).")}
+ const tgt=comp?(lls?45:0):(lls?70:18),k=comp&&!lls?5:lls?6:0.6;SIM.suct+=Math.sign(tgt-SIM.suct)*Math.min(Math.abs(tgt-SIM.suct),k*dt);
+ if(SIM.suct>=35&&!SIM.lpc){SIM.lpc=true;say(`Suction up to ${Math.round(SIM.suct)} psig: the low pressure control closes (cut-in).`)}else if(SIM.suct<=15&&SIM.lpc){SIM.lpc=false;say(`Suction down to ${Math.round(SIM.suct)} psig: the low pressure control opens (cut-out). Pumped down.`)}}
+function startDefrost(){SIM.def=20;SIM.clock=0;say("Defrost timer: defrost starts. The cooling contact opens (solenoid closes, unit pumps down) and the defrost contact powers the heaters.")}
 /* Build a rung's graph. Main nodes are 0..n (0 = left rail, n = right rail). Branch k gets its own inner nodes. */
 function rungEdges(r){const n=r.n,edges=[];let next=n+1;
  for(let i=0;i<n;i++)edges.push({a:i,b:i+1,c:r.cells[i],where:"m",i});
@@ -191,7 +236,9 @@ function renderTstat(){const el=$("tRoom");if(!el)return;el.textContent=Math.rou
  document.querySelectorAll("[data-sys]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sys===LTS.sys));document.querySelectorAll("[data-fan]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.fan===LTS.fan));
  $("tHs").textContent=LTS.hs+"°";$("tCs").textContent=LTS.cs+"°";
  $("tMode").textContent=LTS.sys.toUpperCase()+" · FAN "+LTS.fan.toUpperCase();
- const on=[["R-Y",tY()],["R-G",LTS.fan==="on"||tY()],["R-W",tW()]].filter(x=>x[1]).map(x=>x[0]);$("tCall").textContent=on.length?`Closed now: ${on.join(", ")}`:"No call: R is not connected to Y, G or W."}
+ const has={};each(c=>has[c.k]=1);const hp=has.tyhp;const tk=TSK.some(k=>has[k]);document.querySelectorAll(".tface,.tRow,#tCall").forEach(e=>e.style.display=tk?"":"none");const th=$("tHint");if(th)th.hidden=tk;
+ const on=[["R-Y",hp?tY()||tW():tY()],["R-Y2",has.ty2&&sysC()&&LTS.call2C],["R-G",LTS.fan==="on"||tY()],["R-W",!hp&&tW()],["R-W2",has.tw2&&sysH()&&LTS.call2H],["R-O",has.to&&modeC()],["R-B",has.tb&&modeH()]].filter(x=>x[1]).map(x=>x[0]);$("tCall").textContent=on.length?`Closed now: ${on.join(", ")}`:"No call: R is not connected to Y, G or W.";
+ const sb=$("simInfo");if(sb){const L=[];if(has.aq)L.push(`Boiler water <b>${Math.round(SIM.wt)}°F</b> · aquastat ${SIM.aq?"closed":"open"}`);if(has.bts)L.push(`Walk-in box <b>${SIM.box.toFixed(1)}°F</b> (in 38 / out 34)`);if(has.lpc)L.push(`Suction <b>${Math.round(SIM.suct)} psig</b> (in 35 / out 15)`);if(has.dtr||has.dtd)L.push(SIM.def>0?`<b>DEFROST</b> ${Math.ceil(SIM.def)} s left`:`Next defrost in ${Math.ceil(90-SIM.clock)} s`);sb.innerHTML=L.join("<br>");sb.hidden=!L.length}}
 /* ---------- drawing ---------- */
 const svg=$("ladder");
 const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mid=y;
@@ -204,14 +251,14 @@ const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mi
   (k==="pbno"?`<line x1="${x+40}" y1="${mid-(d?3:12)}" x2="${x+80}" y2="${mid-(d?3:12)}" stroke="${col}" stroke-width="3"/>`:`<line x1="${x+40}" y1="${mid+(d?-12:4)}" x2="${x+80}" y2="${mid+(d?-12:4)}" stroke="${col}" stroke-width="3"/>`)+`<line x1="${x+60}" y1="${mid-(d?3:12)}" x2="${x+60}" y2="${mid-26}" stroke="${col}" stroke-width="2"/><rect x="${x+50}" y="${mid-32}" width="20" height="6" fill="${k==="pbno"?"var(--ok)":"var(--bad)"}"/>`+`<text x="${x+CW/2}" y="${mid-38}" class="tg">${k==="pbno"?"START":"STOP"}</text>`}
  if(k==="tterm")return `<line x1="${x}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/><circle cx="${x+60}" cy="${mid}" r="12" fill="var(--paper)" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+5}" class="tg" style="font-size:13px">${esc(c.tag||"?")}</text>`;
  if(k==="fuse"){const bl=c.st.blown&&showOpen;return lineL.replace(`x2="${x+40}"`,`x2="${x+36}"`)+lineR.replace(`x1="${x+80}"`,`x1="${x+84}"`)+`<rect x="${x+36}" y="${mid-9}" width="48" height="18" rx="3" fill="var(--paper)" stroke="${col}" stroke-width="2.5"/>`+(bl?`<path d="M${x+40} ${mid} h14 l4 -6 M${x+80} ${mid} h-14 l-4 6" stroke="${col}" stroke-width="2" fill="none"/>`:`<path d="M${x+38} ${mid} q11 -10 22 0 t22 0" stroke="${col}" stroke-width="2" fill="none"/>`)+`<text x="${x+CW/2}" y="${mid+30}" class="tg"${bl?' fill="var(--bad)"':""}>FUSE${bl?" BLOWN":""}</text>`}
- if(k==="tsw"||k==="lim"||k==="tcc"||k==="thc"||k==="rollout"){const ncS=k==="lim"||k==="thc"||k==="rollout";const name={tsw:"TEMP SW",lim:"HIGH LIMIT",tcc:"COOL CALL",thc:"HEAT CALL",rollout:"ROLLOUT"}[k];
+ if(k==="tsw"||k==="lim"||k==="tcc"||k==="thc"||k==="rollout"||k==="aq"||k==="bts"||k==="lpc"){const ncS=k==="lim"||k==="thc"||k==="rollout"||k==="aq";const name={tsw:"TEMP SW",lim:"HIGH LIMIT",tcc:"COOL CALL",thc:"HEAT CALL",rollout:"ROLLOUT",aq:"AQUASTAT",bts:"BOX T'STAT",lpc:"LP CONTROL"}[k];
   const by=ncS?mid+(cl?2:16):mid-(cl?2:16),my=(mid+by)/2,sx=x+61;
   const zz=ncS?`M${sx} ${my-1} V${mid-18}`:`M${sx} ${my+1} V${mid+12}`,ey=ncS?mid-22:mid+16;const trip=(k==="lim"||k==="rollout")&&!cl;
   return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+80}" y2="${by}" stroke="${col}" stroke-width="3"/>`+
    `<path d="${zz}" stroke="${col}" stroke-width="1.6" stroke-dasharray="3 2" fill="none"/><path d="M${sx-10} ${ey} l3.3 -4 l3.3 8 l3.3 -8 l3.3 8 l3.3 -8 l3.4 4" stroke="${col}" stroke-width="2" fill="none" stroke-linejoin="round"/>`+
-   `<text x="${x+CW/2}" y="${mid+(ncS?34:38)}" class="tg"${trip?' fill="var(--bad)"':""}>${name}${trip?" OPEN":""}</text><text x="${x+CW/2}" y="${mid+(ncS?46:50)}" class="tg" style="font-size:9px;fill:var(--muted)">${k==="rollout"?"MANUAL RESET":ncS?"OPENS ON RISE":"CLOSES ON RISE"}</text>`}
- if(["sw","ty","tw","tg","hps","lps","tsc","tsh","tfo","tfa"].includes(k)){const name={sw:"SWITCH",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",tsc:"SYS COOL",tsh:"SYS HEAT",tfo:"FAN ON",tfa:"FAN AUTO"}[k];
-  return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+78}" y2="${mid-(cl?2:16)}" stroke="${col}" stroke-width="3"/>`+(k==="hps"||k==="lps"?`<path d="M${x+60} ${mid+6} v10 m-8 0 h16" stroke="${col}" fill="none" stroke-width="2"/>`:"")+`<text x="${x+CW/2}" y="${mid+34}" class="tg"${!cl&&(k==="hps"||k==="lps")?' fill="var(--bad)"':""}>${name}${!cl&&(k==="hps"||k==="lps")?" OPEN":""}</text>`}
+   `<text x="${x+CW/2}" y="${mid+(ncS?34:38)}" class="tg"${trip?' fill="var(--bad)"':""}>${name}${trip?" OPEN":""}</text><text x="${x+CW/2}" y="${mid+(ncS?46:50)}" class="tg" style="font-size:9px;fill:var(--muted)">${k==="rollout"?"MANUAL RESET":k==="aq"?"OPENS AT 180°F":k==="bts"?"IN 38°F / OUT 34°F":k==="lpc"?"IN 35 / OUT 15 PSIG":ncS?"OPENS ON RISE":"CLOSES ON RISE"}</text>`}
+ if(["sw","ty","tw","tg","hps","lps","tsc","tsh","tfo","tfa","ty2","tw2","tyhp","to","tb","lwco","aps","dtr","dtd"].includes(k)){const name={sw:"SWITCH",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",tsc:"SYS COOL",tsh:"SYS HEAT",tfo:"FAN ON",tfa:"FAN AUTO",ty2:"T'STAT Y2",tw2:"T'STAT W2",tyhp:"T'STAT Y",to:"T'STAT O",tb:"T'STAT B",lwco:"LWCO",aps:"PRESS SW "+(c.tag||""),dtr:"TIMER: COOL",dtd:"TIMER: DEFROST"}[k];
+  return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+78}" y2="${mid-(cl?2:16)}" stroke="${col}" stroke-width="3"/>`+(k==="hps"||k==="lps"||k==="aps"?`<path d="M${x+60} ${mid+6} v10 m-8 0 h16" stroke="${col}" fill="none" stroke-width="2"/>`:"")+`<text x="${x+CW/2}" y="${mid+34}" class="tg"${!cl&&(k==="hps"||k==="lps"||k==="lwco")?' fill="var(--bad)"':""}>${name}${!cl&&(k==="hps"||k==="lps"||k==="lwco")?" OPEN":""}</text>`}
  // loads
  const lw=`<line x1="${x}" y1="${mid}" x2="${x+38}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${x+82}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/>`;
  if(E[k].coil){const t=timers[c.tag];return lw+`<circle cx="${x+60}" cy="${mid}" r="22" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+5}" class="tg" style="font-size:13px">${esc(c.tag)}</text>`+(k==="td"?`<text x="${x+60}" y="${mid+36}" class="tg">${t?(t.done?"DONE":(c.secs-t.t).toFixed(1)+" s"):c.secs+" s"}</text>`:"")}
@@ -219,8 +266,8 @@ const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mi
   return lw+`<circle cx="${x+60}" cy="${mid}" r="22" fill="${run?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+6}" class="tg" style="font-size:17px">M</text>`+
    `<text x="${x+60}" y="${mid+38}" class="tg">${esc(c.tag)}${ol?" OL TRIPPED":run?" RUNNING":""}</text>`}
  if(k==="lamp")return lw+`<circle cx="${x+60}" cy="${mid}" r="20" fill="${on?c.color:"var(--paper)"}" stroke="${col}" stroke-width="3" ${on?'filter="url(#glow)"':""}/><path d="M${x+46} ${mid-14} l28 28 M${x+74} ${mid-14} l-28 28" stroke="${col}" stroke-width="2"/>`;
- if(k==="sol")return lw+`<rect x="${x+40}" y="${mid-16}" width="40" height="32" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><path d="M${x+44} ${mid} q4 -10 8 0 q4 10 8 0 q4 -10 8 0 q4 10 8 0" stroke="${col}" fill="none" stroke-width="2"/><text x="${x+60}" y="${mid+34}" class="tg">SOL</text>`;
- if(k==="heat")return lw+`<path d="M${x+38} ${mid} l4 -12 l8 24 l8 -24 l8 24 l8 -24 l8 24 l4 -12" stroke="${on?"#ff5a1f":col}" fill="none" stroke-width="3"/><text x="${x+60}" y="${mid+34}" class="tg">HTR</text>`;
+ if(k==="sol")return lw+`<rect x="${x+40}" y="${mid-16}" width="40" height="32" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><path d="M${x+44} ${mid} q4 -10 8 0 q4 10 8 0 q4 -10 8 0 q4 10 8 0" stroke="${col}" fill="none" stroke-width="2"/><text x="${x+60}" y="${mid+34}" class="tg">${esc(c.tag||"SOL")}</text>`;
+ if(k==="heat")return lw+`<path d="M${x+38} ${mid} l4 -12 l8 24 l8 -24 l8 24 l8 -24 l8 24 l4 -12" stroke="${on?"#ff5a1f":col}" fill="none" stroke-width="3"/><text x="${x+60}" y="${mid+34}" class="tg">${esc(c.tag||"HTR")}</text>`;
  if(k==="buzz")return lw+`<path d="M${x+40} ${mid+14} h40 a20 20 0 0 0 -40 0" fill="${on?"var(--hotf)":"var(--paper)"}" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+34}" class="tg">ALARM${on?" !!":""}</text>`;
  if(k==="xfmr"){const coilP=(yy)=>{let d=`M${x+40} ${yy}`;for(let i=0;i<4;i++)d+=` a5 5 0 0 1 10 0`;return d};const bl=c.st.fuse&&showOpen;
   return lw.replace(`x2="${x+38}"`,`x2="${x+40}"`).replace(`x1="${x+82}"`,`x1="${x+80}"`)+`<path d="${coilP(mid)}" stroke="${col}" stroke-width="2.5" fill="none"/><line x1="${x+40}" y1="${mid+9}" x2="${x+80}" y2="${mid+9}" stroke="${col}" stroke-width="2"/><line x1="${x+40}" y1="${mid+13}" x2="${x+80}" y2="${mid+13}" stroke="${col}" stroke-width="2"/>`+
@@ -294,7 +341,7 @@ function findEl(id){let f=null;rungs.forEach((r,ri)=>{r.cells.forEach((c,i)=>{if
 function renderSheet(){const f=sel&&findEl(sel);const box=$("elSheet");if(!f){box.hidden=true;box.dataset.sel="";return}box.hidden=false;const c=f.c,t=E[c.k];
  if(box.dataset.sel===sel&&box.contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName))return;box.dataset.sel=sel;
  let h=`<h3>${esc(t.n)} <span class="note">rung ${f.ri+1}${f.w!=="m"?", branch":""}</span></h3><div class="btns">`;
- if(t.manual)h+=`<button class="btn blue" data-op="act">${t.manual==="push"?"Press":t.manual==="trip"?(c.st.trip?"Reset":"Trip it"):(c.st.on?"Turn off":"Turn on")}</button>`;
+ if(t.manual)h+=`<button class="btn blue" data-op="act">${t.manual==="push"?"Press":t.manual==="defrost"?(SIM.def>0?"In defrost":"Start defrost now"):t.manual==="trip"?(c.st.trip?"Reset":"Trip it"):(c.st.on?"Turn off":"Turn on")}</button>`;
  if(c.k==="fuse")h+=`<button class="btn blue" data-op="fuse">${c.st.blown?"Replace fuse":"Blow it"}</button>`;
  if(c.k==="xfmr")h+=`<button class="btn blue" data-op="xfuse">${c.st.fuse?"Replace 24 V fuse":"Blow 24 V fuse"}</button>`;
  if(t.motor)h+=`<button class="btn" data-op="ol">${motorOL[c.tag]?"Reset overload":"Trip overload"}</button>`;
@@ -304,6 +351,7 @@ function renderSheet(){const f=sel&&findEl(sel);const box=$("elSheet");if(!f){bo
  if(c.k==="lamp")h+=`<label class="inl">Color <select data-op="color">${[["#3fdc6c","Green"],["#ff4a3a","Red"],["#ffd84a","Amber"],["#e9ecee","White"]].map(([v,n])=>`<option value="${v}"${v===c.color?" selected":""}>${n}</option>`).join("")}</select></label>`;
  if(c.k==="tterm")h+=`<label class="inl">Terminal <select data-op="term">${["R","C","Y","Y1","Y2","G","W","W1","W2","O","B","E","L"].map(o=>`<option${o===c.tag?" selected":""}>${o}</option>`).join("")}</select></label>`;
  if(TSK.includes(c.k))h+=`<span class="note">Set the system, fan and room temperature in the Thermostat panel.</span>`;
+ if(c.k==="aq")h+=`<span class="note">Boiler water now ${Math.round(SIM.wt)}°F.</span>`;if(c.k==="bts")h+=`<span class="note">Box now ${SIM.box.toFixed(1)}°F.</span>`;if(c.k==="lpc")h+=`<span class="note">Suction now ${Math.round(SIM.suct)} psig.</span>`;
  if(c.k==="no"||c.k==="nc")h+=`<button class="btn" data-op="flip">Make it ${c.k==="no"?"NC":"NO"}</button>`;
  h+=`<button class="btn" data-op="move">Move</button>`;
  if(f.w!=="m")h+=`<button class="btn" data-op="bl">Branch ◀ wider</button><button class="btn" data-op="br">Branch wider ▶</button><button class="btn" data-op="bs">Narrower</button>`;
@@ -353,7 +401,25 @@ const SVC={
  tstat24:[{t:"HR",k:"coil",msg:"No heat at all. Cooling works fine.",why:"Open heat relay coil: 24 V across it on a heat call, but no click."},
   {k:"heat",msg:"On a heat call the blower runs, but the air is cold.",why:"Open heat strip element: 120 V across it, OL with power off."},
   {t:"CC",k:"no",line:true,msg:"On a cooling call the blower runs but the outdoor unit doesn't.",why:"Contactor contacts burned open: the coil pulls in, but there's line voltage across the open contact and none at the compressor."}],
- td:[{t:"TD1",k:"td",msg:"The amber light never comes on, even after waiting.",why:"Open timer coil: voltage across it, nothing happens."}]};
+ td:[{t:"TD1",k:"td",msg:"The amber light never comes on, even after waiting.",why:"Open timer coil: voltage across it, nothing happens."}],
+ furnace:[{t:"IND",k:"motor",msg:"No heat. On a call, the inducer relay clicks but the inducer never starts.",why:"Open inducer motor: 120 V across it, OL with power off. Without draft the pressure switch never closes."},
+  {t:"IND",k:"aps",msg:"No heat. The inducer runs, but the igniter never glows.",why:"Pressure switch stuck open (or a blocked hose or flue): 24 V across it with the inducer running."},
+  {t:"HSI",k:"heat",msg:"No heat. The inducer runs, the gas valve opens after the warm-up, but nothing lights.",why:"Open hot surface igniter: 120 V across it during warm-up, OL with power off."},
+  {t:"GV",k:"sol",msg:"No heat. The igniter glows, then shuts off, and the burner never lights.",why:"Open gas valve coil: 24 V across the valve when it should open, coil reads OL."},
+  {k:"lim",msg:"No heat. Nothing happens on a heat call: no inducer.",why:"High limit open: 24 V across it with W calling. Find out why (dirty filter, blower) before replacing it."}],
+ hp:[{t:"RV",k:"sol",msg:"In cooling, the outdoor unit runs but warm air comes out of the vents.",why:"Open reversing valve coil: 24 V across it from O, but it never shifts, so the unit stays in heat."},
+  {t:"HR",k:"coil",msg:"Heat pump runs, but on cold days the house never catches up. The strips never come on.",why:"Open heat relay coil: 24 V across it on a W2 call, OL with power off."},
+  {t:"CC",k:"mcoil",msg:"The blower runs, but the outdoor unit never starts in heat or cool.",why:"Open contactor coil: 24 V across it with Y calling, coil reads OL."}],
+ stage2:[{t:"Y2",k:"sol",msg:"Cooling works but never catches up on hot days. The compressor never goes to high stage.",why:"Open stage solenoid: 24 V across it from Y2, coil reads OL."},
+  {t:"HR2",k:"coil",msg:"First stage heat works, but the second bank never adds in.",why:"Open HR2 relay coil: 24 V across it on a W2 call."},
+  {t:"HTR1",k:"heat",msg:"On a W1 call the blower runs, but the air is barely warm.",why:"Open first-stage heater element: 120 V across it, OL with power off."}],
+ boiler:[{t:"CR",k:"coil",msg:"No heat. The thermostat calls, but neither the circulator nor the burner starts.",why:"Open relay coil: 24 V across T-T side coil, coil reads OL."},
+  {t:"CIRC",k:"motor",msg:"The boiler fires and cycles on its aquastat, but the radiators stay cold.",why:"Open circulator motor: 120 V across it, OL with power off."},
+  {k:"lwco",msg:"The circulator runs, but the burner never fires. The sight glass shows water.",why:"Low water cutoff failed open (fouled probe): 24 V across it with water in the boiler."},
+  {t:"GV",k:"sol",msg:"The circulator runs and the aquastat is closed, but the burner never fires.",why:"Open gas valve coil: 24 V across it, coil reads OL."}],
+ walkin:[{t:"LLS",k:"sol",msg:"The box is warm. The evaporator fans run, but the compressor never starts.",why:"Open liquid line solenoid coil: 240 V across it with the box thermostat closed. The valve stays shut, so suction never reaches the LP cut-in."},
+  {t:"CC",k:"mcoil",msg:"The box is warm. Suction pressure rises past cut-in, but the compressor never starts.",why:"Open contactor coil: 240 V across it, coil reads OL."},
+  {t:"EFAN",k:"motor",msg:"The compressor runs and the box creeps up. The evaporator is icing.",why:"Open evaporator fan motor: 240 V across it, OL with power off."}]};
 function svcStart(){const keys=Object.keys(SVC);const key=keys[Math.floor(Math.random()*keys.length)];snap();loadEx(key);
  const list=SVC[key];const pick=list[Math.floor(Math.random()*list.length)];let el=null;
  each((c,ri)=>{if(el)return;if(c.k!==pick.k)return;if(pick.t&&c.tag!==pick.t)return;if(pick.color&&c.color!==pick.color)return;if(pick.line&&rungs[ri].sec==="lo")return;el=c});
@@ -413,7 +479,7 @@ document.addEventListener("click",ev=>{
  if(b.dataset.fan){LTS.fan=b.dataset.fan;say(`Thermostat fan: ${LTS.fan}${LTS.fan==="on"?" (R to G all the time)":" (G only with a call)"}.`);save();render();return}
  if(b.dataset.adj){const [k,d]=b.dataset.adj.split(":");LTS[k]=Math.round(LTS[k]+ +d);if(k==="hs")LTS.hs=Math.min(LTS.hs,LTS.cs-2);if(k==="cs")LTS.cs=Math.max(LTS.cs,LTS.hs+2);save();render();return}
  if(b.dataset.op){const f=findEl(sel);if(!f)return;const c=f.c,op=b.dataset.op,r=rungs[f.ri];const br=f.w!=="m"?r.br[brOf(r,f.w)]:null;
-  if(op==="act"){const t=E[c.k];if(t.manual==="push"){c.st.down=true;c.st.t=0}else if(t.manual==="trip"){c.st.trip=!c.st.trip;say(`${t.n} ${c.st.trip?"tripped open":"reset"}.`)}else{c.st.on=!c.st.on}}
+  if(op==="act"){const t=E[c.k];if(t.manual==="push"){c.st.down=true;c.st.t=0}else if(t.manual==="defrost"){if(!(SIM.def>0))startDefrost()}else if(t.manual==="trip"){c.st.trip=!c.st.trip;say(`${t.n} ${c.st.trip?"tripped open":"reset"}.`)}else{c.st.on=!c.st.on}}
   if(op==="fuse"){c.st.blown=!c.st.blown;if(!c.st.blown)shortRung=null;say(c.st.blown?"Fuse blown.":"Fuse replaced.")}
   if(op==="xfuse"){c.st.fuse=!c.st.fuse;if(!c.st.fuse)shortRung=null;say(c.st.fuse?"Transformer fuse blown: 24 V side dead.":"Transformer fuse replaced.")}
   if(op==="ol"){motorOL[c.tag]=!motorOL[c.tag];say(`${c.tag} overload ${motorOL[c.tag]?"tripped":"reset"}.`)}
@@ -473,20 +539,65 @@ function loadEx(n){idn=1;coilOn={};timers={};motorOL={};shortRung=null;power=tru
   put(c,0,"tsh");put(c,1,"thc");put(c,2,"tterm",{tag:"W"});put(c,7,"coil",{tag:"HR"});
   LTS.sys="cool";LTS.fan="auto";LTS.room=77;LTS.hs=68;LTS.cs=74;LTS.callC=false;LTS.callH=false;
   say("Example: 24 V thermostat. The 24 V ladder (R left, C right) is the thermostat: Y pulls in the compressor contactor CC, G the blower relay BR, W the heat relay HR. The fan switch is one selector (dashed line): ON connects R straight to G, AUTO connects G only during a cooling call. The line-voltage ladder on top shows what each relay's contacts run; with electric heat the HR contact also starts the blower, so the strips never run without air.")}
+ if(n==="furnace"){$("volt").value="120";rungs=[R(),R(),R(),R(),R("lo"),R("lo"),R("lo"),R("lo"),R("lo"),R("lo"),R("lo")];const[a,b,c,x,l1,l2,l3,l4,l5,l6,l7]=rungs;
+  put(a,0,"no",{tag:"IDR"});put(a,7,"motor",{tag:"IND"});put(b,0,"no",{tag:"IGR"});put(b,7,"heat",{tag:"HSI"});
+  put(c,0,"tdno",{tag:"TD2"});put(c,7,"motor",{tag:"BLWR"});br(c,0,0,[[0,"no",{tag:"BR"}]]);put(x,7,"xfmr");
+  put(l1,0,"tw");put(l1,1,"lim");put(l1,2,"rollout");put(l1,7,"coil",{tag:"IDR"});
+  put(l2,0,"no",{tag:"IDR"});put(l2,1,"aps",{tag:"IND"});put(l2,7,"td",{tag:"TD1",secs:15});
+  put(l3,0,"no",{tag:"IDR"});put(l3,1,"aps",{tag:"IND"});put(l3,2,"tdnc",{tag:"TD3"});put(l3,7,"coil",{tag:"IGR"});
+  put(l4,0,"no",{tag:"IDR"});put(l4,1,"aps",{tag:"IND"});put(l4,2,"tdno",{tag:"TD1"});put(l4,7,"sol",{tag:"GV"});
+  put(l5,0,"no",{tag:"IDR"});put(l5,1,"aps",{tag:"IND"});put(l5,2,"tdno",{tag:"TD1"});put(l5,7,"td",{tag:"TD3",secs:4});
+  put(l6,0,"no",{tag:"IDR"});put(l6,1,"aps",{tag:"IND"});put(l6,2,"tdno",{tag:"TD1"});put(l6,7,"td",{tag:"TD2",secs:30});
+  put(l7,0,"tg");put(l7,7,"coil",{tag:"BR"});
+  LTS.sys="heat";LTS.fan="auto";LTS.room=66;LTS.hs=68;LTS.cs=74;
+  say("Example: gas furnace sequence (hot surface ignition), drawn as relays and timers the way the control board works. W through the high limit and rollout pulls in the inducer relay IDR. The inducer runs, the pressure switch proves draft, and the igniter relay IGR heats the igniter (HSI) for a 15 s warm-up (TD1). Then the gas valve GV opens; 4 s later (TD3) the igniter shuts off; 30 s after that (TD2) the blower starts. A real board also proves flame with a flame sensor and keeps the blower on 60 to 120 s after the call ends; this ladder skips those.")}
+ if(n==="hp"){$("volt").value="120";rungs=[R(),R(),R(),R(),R("lo"),R("lo"),R("lo"),R("lo")];const[a,b,c,x,l1,l2,l3,l4]=rungs;
+  put(a,0,"no",{tag:"CC"});put(a,7,"motor",{tag:"COMP"});br(a,7,7,[[7,"motor",{tag:"OFAN"}]]);
+  put(b,0,"no",{tag:"BR"});put(b,7,"motor",{tag:"BLWR"});br(b,0,0,[[0,"no",{tag:"HR"}]]);put(c,0,"no",{tag:"HR"});put(c,7,"heat",{tag:"STRIPS"});put(x,7,"xfmr");
+  put(l1,0,"tyhp");put(l1,1,"hps");put(l1,2,"lps");put(l1,7,"mcoil",{tag:"CC"});
+  put(l2,0,"to");put(l2,7,"sol",{tag:"RV"});
+  put(l3,0,"tg");put(l3,7,"coil",{tag:"BR"});br(l3,0,0,[[0,"tyhp"]]);
+  put(l4,0,"tw2");put(l4,7,"coil",{tag:"HR"});
+  LTS.sys="heat";LTS.fan="auto";LTS.room=63;LTS.hs=68;LTS.cs=74;
+  say("Example: heat pump with O reversing valve and electric heat strips. Y runs the compressor in both heating and cooling. O powers the reversing valve RV only in cooling, so if the RV coil fails the unit heats. G (or any Y call) runs the blower. W2 (AUX) brings on the strips through HR when the room falls 3°F below setpoint, and HR also starts the blower. Try Cool, then Heat, and watch RV. Defrost (a defrost board) isn't shown.")}
+ if(n==="stage2"){$("volt").value="120";rungs=[R(),R(),R(),R(),R(),R("lo"),R("lo"),R("lo"),R("lo"),R("lo")];const[a,b,c,d,x,l1,l2,l3,l4,l5]=rungs;
+  put(a,0,"no",{tag:"CC"});put(a,7,"motor",{tag:"COMP"});br(a,7,7,[[7,"motor",{tag:"OFAN"}]]);
+  put(b,0,"no",{tag:"BR"});put(b,7,"motor",{tag:"BLWR"});br(b,0,0,[[0,"no",{tag:"HR1"}]]);
+  put(c,0,"no",{tag:"HR1"});put(c,7,"heat",{tag:"HTR1"});put(d,0,"no",{tag:"HR2"});put(d,7,"heat",{tag:"HTR2"});put(x,7,"xfmr");
+  put(l1,0,"ty");put(l1,1,"hps");put(l1,7,"mcoil",{tag:"CC"});
+  put(l2,0,"ty2");put(l2,7,"sol",{tag:"Y2"});
+  put(l3,0,"tg");put(l3,7,"coil",{tag:"BR"});
+  put(l4,0,"tw");put(l4,1,"lim");put(l4,7,"coil",{tag:"HR1"});
+  put(l5,0,"tw2");put(l5,1,"lim");put(l5,7,"coil",{tag:"HR2"});
+  LTS.sys="cool";LTS.fan="auto";LTS.room=79;LTS.hs=68;LTS.cs=74;
+  say("Example: two-stage heat and cool. Y1 starts the compressor on low stage; Y2 (3°F past setpoint) energizes the compressor's 24 V stage solenoid Y2 for full capacity. W1 brings on the first heater bank (and the blower); W2 adds the second bank. Each stage drops out as the room comes back toward setpoint.")}
+ if(n==="boiler"){$("volt").value="120";rungs=[R(),R(),R("lo"),R("lo")];const[a,x,l1,l2]=rungs;
+  put(a,0,"no",{tag:"CR"});put(a,7,"motor",{tag:"CIRC"});put(x,7,"xfmr");
+  put(l1,0,"tterm",{tag:"T"});put(l1,1,"tw");put(l1,2,"tterm",{tag:"T"});put(l1,7,"coil",{tag:"CR"});
+  put(l2,0,"no",{tag:"CR"});put(l2,1,"aq");put(l2,2,"lwco");put(l2,7,"sol",{tag:"GV"});
+  LTS.sys="heat";LTS.fan="auto";LTS.room=65;LTS.hs=68;LTS.cs=74;SIM.wt=150;SIM.aq=true;
+  say("Example: boiler with an aquastat relay (like a Honeywell L8148). The thermostat closes T to T, which pulls in relay CR. One CR contact starts the circulator; the other fires the burner (gas valve GV) through the aquastat high limit (opens at 180°F) and the low water cutoff. Watch the boiler water temperature under the thermostat. Trip the LWCO to see the burner stop while the circulator keeps running.")}
+ if(n==="walkin"){$("volt").value="240";rungs=[R(),R(),R(),R(),R()];const[a,b,c,d,e]=rungs;
+  put(a,0,"dtr");put(a,1,"bts");put(a,7,"sol",{tag:"LLS"});
+  put(b,0,"lpc");put(b,1,"hps");put(b,2,"ol",{tag:"COMP"});put(b,7,"mcoil",{tag:"CC"});
+  put(c,0,"no",{tag:"CC"});put(c,7,"motor",{tag:"COMP"});
+  put(d,0,"dtr");put(d,7,"motor",{tag:"EFAN"});put(e,0,"dtd");put(e,7,"heat",{tag:"DEF HTR"});
+  SIM.box=37.5;SIM.bts=false;SIM.suct=18;SIM.lpc=false;SIM.def=0;SIM.clock=0;
+  say("Example: walk-in cooler with pump-down and a defrost time clock (240 V controls, sped up). The box thermostat opens the liquid line solenoid LLS; suction rises to the LP control's cut-in and the compressor starts. When the box is cold the thermostat closes the solenoid, the compressor pumps the evaporator down, and the LP control stops it at cut-out. In defrost the clock opens the cooling contact (pump-down, evaporator fans off) and closes the defrost contact to the heaters. Real units also end defrost on a termination thermostat; this one ends on time.")}
  if(n==="short"){$("volt").value="24";rungs=[R(),R()];const[a,b]=rungs;put(a,0,"sw");put(a,2,"hps");put(b,0,"sw");put(b,7,"lamp");
   say("Example of a mistake: rung 1 has no load. Turn its switch on and see what happens.")}
  sortRungs()}
 
 /* ---------- loop ---------- */
 let last=performance.now(),acc=0,lastSig="";
-function frame(now){const dt=Math.min(0.2,(now-last)/1000);last=now;acc+=dt;if(acc>=0.1){evaluate(acc);acc=0;const X=xfmrEl();const sig=JSON.stringify([coilOn,Object.values(timers).map(t=>t.done?1:Math.round(t.t*10)),[...energized],[...hotEdges],power,loLive,motorOL,Math.round(LTS.room),LTS.sys,LTS.fan,LTS.hs,LTS.cs,X&&X.st,rungs.map(r=>[r.cells.map(c=>c&&c.st),r.br.map(b=>b.cells.map(c=>c&&c.st))])]);if(sig!==lastSig){lastSig=sig;render()}}requestAnimationFrame(frame)}
+function frame(now){const dt=Math.min(0.2,(now-last)/1000);last=now;acc+=dt;if(acc>=0.1){evaluate(acc);acc=0;const X=xfmrEl();const sig=JSON.stringify([coilOn,Object.values(timers).map(t=>t.done?1:Math.round(t.t*10)),[...energized],[...hotEdges],power,loLive,motorOL,Math.round(LTS.room),LTS.sys,Math.round(SIM.wt),SIM.box.toFixed(1),Math.round(SIM.suct),Math.ceil(SIM.def),Math.ceil(SIM.clock/5),LTS.fan,LTS.hs,LTS.cs,X&&X.st,rungs.map(r=>[r.cells.map(c=>c&&c.st),r.br.map(b=>b.cells.map(c=>c&&c.st))])]);if(sig!==lastSig){lastSig=sig;render()}}requestAnimationFrame(frame)}
 try{const t=localStorage.getItem("ld-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
 let ok=false;try{const s=JSON.parse(localStorage.getItem("ld-board")||"null");if(s&&s.rungs&&s.rungs.length){rungs=migrate(s.rungs);idn=s.idn;if(s.lts)Object.assign(LTS,s.lts);ok=true}}catch(e){}
 if(!ok)loadEx("seal");
 renderPalette();render();requestAnimationFrame(frame);
 window.__cardFor=k=>{const h=partCardHTML(k);const m=h.match(/<svg[\s\S]*?<\/svg>/);return m?m[0]:""};
 window.__ld={LTS,get rungs(){return rungs},evaluate,loadEx,get coilOn(){return coilOn},get energized(){return energized},findEl,setPower:v=>power=v,get power(){return power},motorOL,
- meter,meterReading,resistance,potentials,get loLive(){return loLive},svcStart,get svc(){return svc},svcGuess,place,moveTo,each,E};
+ meter,meterReading,resistance,potentials,get loLive(){return loLive},svcStart,get svc(){return svc},svcGuess,place,moveTo,each,E,SIM,startDefrost};
 
 /* ---------- disclaimer + feedback (FB-Enable) ---------- */
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
