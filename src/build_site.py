@@ -36,7 +36,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'chiller':['Approaches, lift and surge','Tower water treatment and safeties'],
  'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends'],
  'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
- 'ladder':['Contacts, coils, timers, safeties and thermostat parts','Examples to load and run'],
+ 'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
  'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)
