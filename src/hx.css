@@ -1,0 +1,22 @@
+
+/* Heat exchangers page */
+.hxSubs{margin:0 0 10px}.hxSubs[hidden]{display:none}
+.hxSide{display:flex;flex-direction:column;gap:10px;min-width:0}
+.hxGraph{padding:8px 8px 4px}.hxGraph h3{font:700 14px var(--display);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;color:var(--brass)}
+#hxSvg{display:block;width:100%;min-width:600px;height:auto}
+#graph{display:block;width:100%;min-width:560px;height:auto}
+.hxL{font:700 11px var(--display);letter-spacing:.05em;fill:var(--ink)}.hxL.m{fill:var(--muted);font-weight:600}.hxL.bad{fill:var(--bad)}
+.hxT{font:600 11px var(--mono);fill:var(--ink)}
+.hxG{font:500 11px var(--body);fill:var(--muted)}
+.hxNums{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-bottom:6px}
+.hxNums div{background:var(--paper);border:1px solid var(--panel-edge);border-radius:6px;padding:6px 8px;display:flex;flex-direction:column}
+.hxNums b{font:700 20px var(--display);line-height:1.1}.hxNums span{font-size:12px;color:var(--muted)}
+.note.bad{color:var(--bad)}
+.hxInfo h3{color:var(--brass)}.hxInfo p{font-size:14px;line-height:1.45}
+.hxFlow{animation:hxDash 1.4s linear infinite}.hxFlow.fast{animation-duration:.7s}
+@keyframes hxDash{to{stroke-dashoffset:-32}}
+.hxSpin{animation:hxRot 1.2s linear infinite}
+@keyframes hxRot{to{transform:translateY(24px)}}
+.hxDrip circle{animation:hxDrop 1.2s ease-in infinite}
+@keyframes hxDrop{from{transform:translateY(-8px);opacity:0}30%{opacity:1}to{transform:translateY(14px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.hxFlow,.hxSpin,.hxDrip circle{animation:none}}
