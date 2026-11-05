@@ -1,5 +1,6 @@
 (()=>{
 const $=id=>document.getElementById(id);
+const P3=!!window.LD3;// 3-Phase Motor Control page
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 /* Each rung has 8 slots by default; "+" adds slots up to 14. Up to 2 parallel branches per rung. */
 const DEFN=8,MAXN=14,MAXBR=2,CW=120,X0=50,Y0=50,TOP=64,BRH=58,SEC_GAP=150;
@@ -12,6 +13,7 @@ const E={
  pbno:{n:"Pushbutton NO (start)",cat:"Switches & controls",load:0,manual:"push",al:"start button momentary",info:"Momentary. Closes while pressed. Tap it to press."},
  pbnc:{n:"Pushbutton NC (stop)",cat:"Switches & controls",load:0,manual:"push",al:"stop button momentary",info:"Momentary. Opens while pressed. Tap it to press."},
  sw:{n:"Toggle switch",cat:"Switches & controls",load:0,manual:"toggle",al:"selector maintained on off",info:"Maintained on/off switch. Tap to flip."},
+ sel:{n:"Selector switch (RUN / JOG)",cat:"Switches & controls",load:0,manual:"toggle",al:"selector run jog hand off auto",info:"Two-position selector. RUN: its contact is closed. JOG: it's open. Put it in series with a seal-in contact so JOG breaks the seal and START only runs the motor while held."},
  tsw:{n:"Temperature switch (NO, closes on rise)",cat:"Switches & controls",load:0,manual:"toggle",al:"snap disc fan control temp",info:"Snap disc that closes on temperature rise (like a fan control). Tap to change."},
  hps:{n:"High pressure switch (NC)",cat:"Safeties",load:0,manual:"trip",al:"hp hpc head pressure control",info:"Closed normally, opens on high head pressure. Tap to simulate a trip."},
  lps:{n:"Low pressure switch (NC)",cat:"Safeties",load:0,manual:"trip",al:"lp lpc suction loss of charge control",info:"Closed while suction pressure is normal, opens on loss of charge. Tap to simulate."},
@@ -64,12 +66,13 @@ function mk(k){const e={id:"e"+(idn++),k,st:{}};const t=E[k];
  if(k==="lamp")e.color="#3fdc6c";
  if(k==="tterm")e.tag="Y";
  if(k==="xfmr")e.tag="T1";
+ if(k==="sel")e.st.on=true;
  return e}
 function each(f){rungs.forEach((r,ri)=>{r.cells.forEach((c,ci)=>c&&f(c,ri,"m",ci));r.br.forEach((b,bi)=>b.cells.forEach((c,ci)=>c&&f(c,ri,"b"+bi,ci)))})}
 function allTags(prefix){const s=[];each(c=>{if(c.tag&&c.tag.startsWith(prefix)&&(E[c.k].coil||E[c.k].motor))s.push(c.tag)});return [...new Set(s)]}
-function tagsFor(kind){const s=new Set();each(c=>{const t=E[c.k];if(kind==="coil"&&t.coil&&t.coil!=="TD")s.add(c.tag);if(kind==="timer"&&c.k==="td")s.add(c.tag);if(kind==="motor"&&t.motor)s.add(c.tag)});return [...s]}
+function tagsFor(kind){if(P3&&kind==="motor")return CIRC[P3S.circ].motors>1?["MTR1","MTR2"]:["MTR1"];const s=new Set();each(c=>{const t=E[c.k];if(kind==="coil"&&t.coil&&t.coil!=="TD")s.add(c.tag);if(kind==="timer"&&c.k==="td")s.add(c.tag);if(kind==="motor"&&t.motor)s.add(c.tag)});return [...s]}
 function snap(){hist.push(JSON.stringify({rungs,idn}));if(hist.length>60)hist.shift()}
-function save(){if(svc)return;try{localStorage.setItem("ld-board",JSON.stringify({v:2,rungs,idn,lts:{sys:LTS.sys,fan:LTS.fan,room:LTS.room,hs:LTS.hs,cs:LTS.cs}}))}catch(e){}}
+function save(){if(svc)return;try{localStorage.setItem(P3?"ld3-board":"ld-board",JSON.stringify({v:2,rungs,idn,lts:{sys:LTS.sys,fan:LTS.fan,room:LTS.room,hs:LTS.hs,cs:LTS.cs},p3:P3?{circ:P3S.circ,sup:P3S.sup,volt:$("volt").value}:undefined}))}catch(e){}}
 /* old boards (6 slots, one "branch") still load */
 function migrate(rs){return rs.map(r=>{if(r.br&&r.n)return r;const n=Math.max(DEFN,(r.cells||[]).length);const cells=blankCells();(r.cells||[]).forEach((c,i)=>cells[i]=c);
  const br=[];if(r.branch){const b=blankCells();r.branch.cells.forEach((c,i)=>b[i]=c);br.push({from:r.branch.from,to:r.branch.to,cells:b})}const o={n,cells,br};if(r.sec)o.sec=r.sec;return o})}
@@ -77,7 +80,7 @@ const xfmrEl=()=>{let x=null;each(c=>{if(c.k==="xfmr"&&!x)x=c});return x};
 const hasX=()=>!!xfmrEl();
 const secOf=r=>hasX()&&r.sec==="lo"?"lo":"hi";
 function sortRungs(){rungs.sort((a,b)=>(a.sec==="lo")-(b.sec==="lo"))}
-const lineV=()=>hasX()?120:+$("volt").value;
+const lineV=()=>P3?+$("volt").value:hasX()?120:+$("volt").value;
 const secV=s=>s==="lo"?24:lineV();
 
 /* ---------- evaluation ---------- */
@@ -86,7 +89,7 @@ function closed(c,ignoreFault){if(!ignoreFault&&c.f)return false;const k=c.k,s=c
  switch(k){case "no":return !!coilOn[c.tag];case "nc":return !coilOn[c.tag];
   case "tdno":return !!(timers[c.tag]&&timers[c.tag].done);case "tdnc":return !(timers[c.tag]&&timers[c.tag].done);
   case "ol":return !motorOL[c.tag];
-  case "pbno":return !!s.down;case "pbnc":return !s.down;case "sw":case "tsw":return !!s.on;
+  case "pbno":return !!s.down;case "pbnc":return !s.down;case "sw":case "tsw":case "sel":return !!s.on;
   case "ty":return tY();case "tw":return tW();case "tg":return LTS.fan==="on"||tY();
   case "tsc":return sysC();case "tsh":return sysH();case "tcc":return LTS.callC;case "thc":return LTS.callH;case "tfo":return LTS.fan==="on";case "tfa":return LTS.fan==="auto";case "tterm":return true;
   case "ty2":return sysC()&&LTS.call2C;case "tw2":return sysH()&&LTS.call2H;case "tyhp":return tY()||tW();case "to":return modeC();case "tb":return modeH();
@@ -161,7 +164,7 @@ function evaluate(dt){updCalls();
   // line side first; the 24 V side is live only if the transformer primary is energized
   const pass=(sec,on)=>{if(!on)return;rungs.forEach((r,ri)=>{if(sr!=null||secOf(r)!==sec)return;const s=solveRung(r);if(s.short){sr={ri,sec,s};return}if(s.series)seriesR.push(ri);
    s.live.forEach(e=>{energized.add(e.c.id);const t=E[e.c.k];if(t.coil)nextCoil[e.c.tag]=true});s.hot.forEach(h=>hotEdges.add(ri+":"+h))})};
-  pass("hi",power);
+  pass("hi",power&&(!P3||p3CtlLive()));
   loLive=!!(X&&power&&energized.has(X.id)&&!X.st.fuse&&!X.f);
   if(sr==null)pass("lo",loLive);
   if(sr!=null){handleShort(sr);return}
@@ -181,6 +184,7 @@ function handleShort({ri,sec,s}){const r=rungs[ri];
  if(fz){fz.c.st.blown=true;say(`Rung ${ri+1} shorted. Its fuse blew and cut the rung off. Fix the short, then tap the fuse to replace it.`,"b");shortRung=ri;flashModal("Fuse blown",`<p>Rung ${ri+1} connects the two rails with no load in the path. The fuse on that rung blew before anything else was damaged.</p><p>Find the short (outlined in red), then tap the fuse and replace it.</p>`);return}
  if(sec==="lo"){const X=xfmrEl();X.st.fuse=true;shortRung=ri;say(`24 V short on rung ${ri+1}: R straight to C. The transformer's fuse blew and the whole 24 V side went dead.`,"b");
   flashModal("24 V short: fuse blown",`<p>Rung ${ri+1} connects R straight to C with no load. The control transformer's fuse (often 3 A on the board or the R lead) blew, so the whole 24 V side is dead.</p><p>Fix the short, then tap the transformer and replace its fuse.</p>`);return}
+ if(P3){p3Short(ri);return}
  power=false;shortRung=ri;arc(ri)}
 function flashModal(t,b){render();const w=$("wrapL");w.classList.remove("shake");void w.offsetWidth;w.classList.add("shake");$("mT").textContent=t;$("mB").innerHTML=b;$("modal").hidden=false}
 let warned={};
@@ -192,7 +196,7 @@ function loadOhms(c,sec){const v=secV(sec),k=c.k;const at120={coil:450,mcoil:110
  if(k==="motor"||k==="heat"||k==="xfmr")return at120;return at120*(v/120)*(v/120)}
 /* probe points: "ri:node" inside a rung; rails are "hi:L","hi:R","lo:L","lo:R" */
 function ptKey(ri,node){const r=rungs[ri],s=secOf(r);if(node===0)return s+":L";if(node===r.n)return s+":R";return ri+":"+node}
-function ptSec(p){const a=p.split(":")[0];return a==="hi"||a==="lo"?a:secOf(rungs[+a])}
+function ptSec(p){const a=p.split(":")[0];if(a==="p")return "p";return a==="hi"||a==="lo"?a:secOf(rungs[+a])}
 function potentials(sec){/* volts at each probe point in a section, or null if floating */
  const out={};const live=sec==="lo"?loLive:power;const V=secV(sec);out[sec+":L"]=live?V:0;out[sec+":R"]=0;if(!live)return out;
  rungs.forEach((r,ri)=>{if(secOf(r)!==sec)return;const {edges,N,L,R}=rungEdges(r);const {find,uni}=uf(N);edges.forEach(e=>{if(conducts(e.c))uni(e.a,e.b)});
@@ -221,6 +225,7 @@ function resistance(pa,pb){/* ohms between two points in one section with power 
  for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];const d=M[c][c];if(Math.abs(d)<1e-12)return Infinity;for(let r=0;r<m;r++){if(r===c)continue;const f=M[r][c]/d;if(f)for(let k=c;k<=m;k++)M[r][k]-=f*M[c][k]}}
  return M[pos[a0]][m]/M[pos[a0]][pos[a0]]}
 function meterReading(){const {red,black,mode}=meter;if(!red||!black)return {txt:"----",note:"Tap a dot on the ladder for the red lead, then another for the black lead."};
+ if(P3&&(red.startsWith("p:")||black.startsWith("p:")))return p3Reading(red,black,mode);
  const sa=ptSec(red),sb=ptSec(black);
  if(mode==="v"){if(sa!==sb)return {txt:"0.0",unit:"V AC",note:"The leads are on two different supplies (line side and 24 V side). They aren't connected, so there's no reading between them."};
   const P=potentials(sa);const a=P[red],b=P[black];const v=a==null||b==null?0:Math.abs(a-b);
@@ -248,7 +253,7 @@ const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mi
  if(k==="no"||k==="nc"||k==="tdno"||k==="tdnc"||k==="ol"){const ncS=k==="nc"||k==="tdnc"||k==="ol";
   return lineL+lineR+`<line x1="${x+44}" y1="${mid-16}" x2="${x+44}" y2="${mid+16}" stroke="${col}" stroke-width="3"/><line x1="${x+76}" y1="${mid-16}" x2="${x+76}" y2="${mid+16}" stroke="${col}" stroke-width="3"/>`+(ncS?`<line x1="${x+38}" y1="${mid+16}" x2="${x+82}" y2="${mid-16}" stroke="${col}" stroke-width="2"/>`:"")+(cl&&!ncS?`<line x1="${x+44}" y1="${mid}" x2="${x+76}" y2="${mid}" stroke="${col}" stroke-width="3" opacity=".6"/>`:"")+(!cl&&ncS?`<text x="${x+60}" y="${mid+(br?-20:30)}" class="tg" fill="var(--bad)">OPEN</text>`:"")+lbl(k==="ol"?`OL ${c.tag}`:k.startsWith("td")?`${c.tag} ${k==="tdno"?"TDC":"TDO"}`:c.tag||"?")}
  if(k==="pbno"||k==="pbnc"){const d=c.st.down;return lineL+lineR+`<line x1="${x+40}" y1="${mid}" x2="${x+44}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${x+76}" y1="${mid}" x2="${x+80}" y2="${mid}" stroke="${col}" stroke-width="3"/><circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/>`+
-  (k==="pbno"?`<line x1="${x+40}" y1="${mid-(d?3:12)}" x2="${x+80}" y2="${mid-(d?3:12)}" stroke="${col}" stroke-width="3"/>`:`<line x1="${x+40}" y1="${mid+(d?-12:4)}" x2="${x+80}" y2="${mid+(d?-12:4)}" stroke="${col}" stroke-width="3"/>`)+`<line x1="${x+60}" y1="${mid-(d?3:12)}" x2="${x+60}" y2="${mid-26}" stroke="${col}" stroke-width="2"/><rect x="${x+50}" y="${mid-32}" width="20" height="6" fill="${k==="pbno"?"var(--ok)":"var(--bad)"}"/>`+`<text x="${x+CW/2}" y="${mid-38}" class="tg">${k==="pbno"?"START":"STOP"}</text>`}
+  (k==="pbno"?`<line x1="${x+40}" y1="${mid-(d?3:12)}" x2="${x+80}" y2="${mid-(d?3:12)}" stroke="${col}" stroke-width="3"/>`:`<line x1="${x+40}" y1="${mid+(d?-12:4)}" x2="${x+80}" y2="${mid+(d?-12:4)}" stroke="${col}" stroke-width="3"/>`)+`<line x1="${x+60}" y1="${mid-(d?3:12)}" x2="${x+60}" y2="${mid-26}" stroke="${col}" stroke-width="2"/><rect x="${x+50}" y="${mid-32}" width="20" height="6" fill="${k==="pbno"?"var(--ok)":"var(--bad)"}"/>`+`<text x="${x+CW/2}" y="${mid-38}" class="tg">${esc(c.tag||(k==="pbno"?"START":"STOP"))}</text>`}
  if(k==="tterm")return `<line x1="${x}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/><circle cx="${x+60}" cy="${mid}" r="12" fill="var(--paper)" stroke="${col}" stroke-width="3"/><text x="${x+60}" y="${mid+5}" class="tg" style="font-size:13px">${esc(c.tag||"?")}</text>`;
  if(k==="fuse"){const bl=c.st.blown&&showOpen;return lineL.replace(`x2="${x+40}"`,`x2="${x+36}"`)+lineR.replace(`x1="${x+80}"`,`x1="${x+84}"`)+`<rect x="${x+36}" y="${mid-9}" width="48" height="18" rx="3" fill="var(--paper)" stroke="${col}" stroke-width="2.5"/>`+(bl?`<path d="M${x+40} ${mid} h14 l4 -6 M${x+80} ${mid} h-14 l-4 6" stroke="${col}" stroke-width="2" fill="none"/>`:`<path d="M${x+38} ${mid} q11 -10 22 0 t22 0" stroke="${col}" stroke-width="2" fill="none"/>`)+`<text x="${x+CW/2}" y="${mid+30}" class="tg"${bl?' fill="var(--bad)"':""}>FUSE${bl?" BLOWN":""}</text>`}
  if(k==="tsw"||k==="lim"||k==="tcc"||k==="thc"||k==="rollout"||k==="aq"||k==="bts"||k==="lpc"){const ncS=k==="lim"||k==="thc"||k==="rollout"||k==="aq";const name={tsw:"TEMP SW",lim:"HIGH LIMIT",tcc:"COOL CALL",thc:"HEAT CALL",rollout:"ROLLOUT",aq:"AQUASTAT",bts:"BOX T'STAT",lpc:"LP CONTROL"}[k];
@@ -257,7 +262,7 @@ const sym=(c,x,y,on,br)=>{const k=c.k,col=on?"var(--hotw)":"var(--ink)";const mi
   return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+80}" y2="${by}" stroke="${col}" stroke-width="3"/>`+
    `<path d="${zz}" stroke="${col}" stroke-width="1.6" stroke-dasharray="3 2" fill="none"/><path d="M${sx-10} ${ey} l3.3 -4 l3.3 8 l3.3 -8 l3.3 8 l3.3 -8 l3.4 4" stroke="${col}" stroke-width="2" fill="none" stroke-linejoin="round"/>`+
    `<text x="${x+CW/2}" y="${mid+(ncS?34:38)}" class="tg"${trip?' fill="var(--bad)"':""}>${name}${trip?" OPEN":""}</text><text x="${x+CW/2}" y="${mid+(ncS?46:50)}" class="tg" style="font-size:9px;fill:var(--muted)">${k==="rollout"?"MANUAL RESET":k==="aq"?"OPENS AT 180°F":k==="bts"?"IN 38°F / OUT 34°F":k==="lpc"?"IN 35 / OUT 15 PSIG":ncS?"OPENS ON RISE":"CLOSES ON RISE"}</text>`}
- if(["sw","ty","tw","tg","hps","lps","tsc","tsh","tfo","tfa","ty2","tw2","tyhp","to","tb","lwco","aps","dtr","dtd"].includes(k)){const name={sw:"SWITCH",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",tsc:"SYS COOL",tsh:"SYS HEAT",tfo:"FAN ON",tfa:"FAN AUTO",ty2:"T'STAT Y2",tw2:"T'STAT W2",tyhp:"T'STAT Y",to:"T'STAT O",tb:"T'STAT B",lwco:"LWCO",aps:"PRESS SW "+(c.tag||""),dtr:"TIMER: COOL",dtd:"TIMER: DEFROST"}[k];
+ if(["sw","ty","tw","tg","hps","lps","tsc","tsh","tfo","tfa","ty2","tw2","tyhp","to","tb","lwco","aps","dtr","dtd","sel"].includes(k)){const name={sel:c.st.on?"SEL: RUN":"SEL: JOG",sw:"SWITCH",ty:"T'STAT Y",tw:"T'STAT W",tg:"T'STAT G",hps:"HPS",lps:"LPS",tsc:"SYS COOL",tsh:"SYS HEAT",tfo:"FAN ON",tfa:"FAN AUTO",ty2:"T'STAT Y2",tw2:"T'STAT W2",tyhp:"T'STAT Y",to:"T'STAT O",tb:"T'STAT B",lwco:"LWCO",aps:"PRESS SW "+(c.tag||""),dtr:"TIMER: COOL",dtd:"TIMER: DEFROST"}[k];
   return lineL+lineR+`<circle cx="${x+44}" cy="${mid}" r="3" fill="${col}"/><circle cx="${x+76}" cy="${mid}" r="3" fill="${col}"/><line x1="${x+44}" y1="${mid}" x2="${x+78}" y2="${mid-(cl?2:16)}" stroke="${col}" stroke-width="3"/>`+(k==="hps"||k==="lps"||k==="aps"?`<path d="M${x+60} ${mid+6} v10 m-8 0 h16" stroke="${col}" fill="none" stroke-width="2"/>`:"")+`<text x="${x+CW/2}" y="${mid+34}" class="tg"${!cl&&(k==="hps"||k==="lps"||k==="lwco")?' fill="var(--bad)"':""}>${name}${!cl&&(k==="hps"||k==="lps"||k==="lwco")?" OPEN":""}</text>`}
  // loads
  const lw=`<line x1="${x}" y1="${mid}" x2="${x+38}" y2="${mid}" stroke="${col}" stroke-width="3"/><line x1="${x+82}" y1="${mid}" x2="${x+CW}" y2="${mid}" stroke="${col}" stroke-width="3"/>`;
@@ -286,10 +291,11 @@ function render(){
  let s=`<defs><filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="arc"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#cfefff"/><stop offset="1" stop-color="#2f6fd6" stop-opacity="0"/></radialGradient><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--hotw)"/></marker></defs>`;
  const colors=!svc;// in a service call the power-flow colors are off: use the meter
  const X=xfmrEl();
- Object.entries(GEO.sec).forEach(([sname,sg])=>{const live=sname==="lo"?loLive:power;const railC=live&&colors?"var(--hotw)":"var(--muted)";
+ Object.entries(GEO.sec).forEach(([sname,sg])=>{const live=sname==="lo"?loLive:P3?p3CtlLive():power;const railC=live&&colors?"var(--hotw)":"var(--muted)";
   s+=`<line x1="${X0}" y1="${sg.top-10}" x2="${X0}" y2="${sg.bot+6}" stroke="${railC}" stroke-width="5"/><line x1="${sg.xr}" y1="${sg.top-10}" x2="${sg.xr}" y2="${sg.bot+6}" stroke="var(--ink)" stroke-width="5"/>`;
-  const v=sname==="lo"?"24":String(lineV());const lab=sname==="lo"?["R (24 V)","C"]:v==="24"?["R (24 V)","C"]:["L1 ("+v+" V)",v==="240"?"L2":"N"];
+  const v=sname==="lo"?"24":String(lineV());const lab=P3?["X1 ("+v+" V)","X2"]:sname==="lo"?["R (24 V)","C"]:v==="24"?["R (24 V)","C"]:["L1 ("+v+" V)",v==="240"?"L2":"N"];
   s+=`<text x="${X0}" y="${sg.top-16}" class="rail">${lab[0]}</text><text x="${sg.xr}" y="${sg.top-16}" class="rail">${lab[1]}</text>`;
+  if(P3)s+=`<path d="M${sg.xr} ${sg.top-10} h18 v10 m-10 0 h20 m-16 5 h12 m-8 5 h4" stroke="var(--ok)" stroke-width="2" fill="none"/>`;
   if(sname==="lo"&&X){const ty=sg.top-SEC_GAP/2-4;s+=`<g class="xbridge"><rect x="${X0-30}" y="${ty-26}" width="250" height="52" rx="6" fill="var(--panel)" stroke="var(--panel-edge)"/><text x="${X0-18}" y="${ty-6}" class="tg" style="text-anchor:start">${esc(X.tag)} SECONDARY: 24 V AC</text><text x="${X0-18}" y="${ty+12}" class="tg" style="text-anchor:start;fill:${loLive?"var(--ok)":"var(--bad)"}">${loLive?"Powered":X.st.fuse&&!svc?"Fuse blown":"No power"}</text></g>`}});
  rungs.forEach((r,ri)=>{const G=GEO.rung[ri],y=G.y,sg=GEO.sec[secOf(r)],n=r.n;
   s+=`<text x="${X0-28}" y="${y+5}" class="rn">${ri+1}</text>`;
@@ -320,15 +326,18 @@ function render(){
  s+=`<g id="fx"></g>`;
  svg.innerHTML=s;
  $("pwr").textContent=power?"Disconnect: ON":"Disconnect: OFF";$("pwr").setAttribute("aria-pressed",power);
- $("volt").disabled=hasX();$("voltNote").hidden=!hasX();
+ $("volt").disabled=hasX();if($("voltNote"))$("voltNote").hidden=!hasX();
  $("addLo").hidden=!hasX();$("delLo").hidden=!hasX();
  renderTstat();renderMeter();renderSvc();
  renderSheet()}
-function renderPalette(){$("palette").innerHTML=CATS.map(c=>`<h3>${c}</h3><div class="pal">${Object.entries(E).filter(([k,t])=>t.cat===c).map(([k,t])=>`<button class="palItem${placing===k?" on":""}" data-add="${k}" title="${esc(t.info)}">${esc(t.n)}</button>`).join("")}</div>`).join("")}
+const HIDE3=new Set(["xfmr","motor","heat","aq","bts","lpc","dtr","dtd","lwco","aps","rollout","lim","tsw","hps","lps"]);
+const hid=k=>P3&&(HIDE3.has(k)||E[k].cat==="Thermostat");
+const cats=()=>CATS.filter(c=>Object.entries(E).some(([k,t])=>t.cat===c&&!hid(k)));
+function renderPalette(){$("palette").innerHTML=cats().map(c=>`<h3>${c}</h3><div class="pal">${Object.entries(E).filter(([k,t])=>t.cat===c&&!hid(k)).map(([k,t])=>`<button class="palItem${placing===k?" on":""}" data-add="${k}" title="${esc(t.info)}">${esc(t.n)}</button>`).join("")}</div>`).join("")}
 function renderMeter(){const box=$("meterBox");if(!box)return;box.hidden=!meter.on;$("meterBtn").setAttribute("aria-pressed",meter.on);if(!meter.on)return;
  const r=meterReading();$("mLcd").innerHTML=`<b>${esc(r.txt)}</b><small>${esc(r.unit||"")}</small>`;$("mNote").textContent=r.note;
  document.querySelectorAll("[data-mmode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mmode===meter.mode));
- const where=p=>{if(!p)return "not placed";const [a,b]=p.split(":");if(a==="hi"||a==="lo")return (a==="lo"?"24 V ":"")+(b==="L"?"left rail":"right rail");return `rung ${+a+1}, point ${b}`};
+ const where=p=>{if(!p)return "not placed";const [a,b]=p.split(":");if(a==="p")return p3PtName(b);if(P3&&a==="hi")return b==="L"?"X1":"X2";if(a==="hi"||a==="lo")return (a==="lo"?"24 V ":"")+(b==="L"?"left rail":"right rail");return `rung ${+a+1}, point ${b}`};
  $("mLeads").textContent=`Red: ${where(meter.red)} · Black: ${where(meter.black)}`}
 function say(m,c=""){const d=document.createElement("div");d.innerHTML=`<span class="${c}">${esc(m)}</span>`;$("log").prepend(d);while($("log").children.length>100)$("log").lastChild.remove()}
 function arc(ri){say(`ARC FLASH: rung ${ri+1} connects ${lineV()===24?"R straight to C":"L1 straight to the other side"} with no load. Dead short. Power off.`,"b");
@@ -337,16 +346,19 @@ function arc(ri){say(`ARC FLASH: rung ${ri+1} connects ${lineV()===24?"R straigh
  $("mT").textContent="Arc flash: dead short";$("mB").innerHTML=`<p>Rung ${ri+1} has a path from the left rail to the right rail with nothing that uses power in it. With its switches closed, that's a dead short across the supply.</p><p>Every rung needs a load (a coil, motor, light, solenoid or heater) between its switches and the right rail. Contacts and switches go on the left; the load goes on the right. Watch for a branch that bypasses the load too.</p><p>Fix rung ${ri+1} (outlined in red), then turn the disconnect back on.</p>`;$("modal").hidden=false}
 
 /* ---------- sheet for a selected element ---------- */
+function pressPb(c){c.st.down=true;c.st.t=0;if(c.tag)each(x=>{if((x.k==="pbno"||x.k==="pbnc")&&x.tag===c.tag){x.st.down=true;x.st.t=0}})}
 function findEl(id){let f=null;rungs.forEach((r,ri)=>{r.cells.forEach((c,i)=>{if(c&&c.id===id)f={c,ri,w:"m",i}});r.br.forEach((b,bi)=>b.cells.forEach((c,i)=>{if(c&&c.id===id)f={c,ri,w:"b"+bi,i}}))});return f}
 function renderSheet(){const f=sel&&findEl(sel);const box=$("elSheet");if(!f){box.hidden=true;box.dataset.sel="";return}box.hidden=false;const c=f.c,t=E[c.k];
  if(box.dataset.sel===sel&&box.contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName))return;box.dataset.sel=sel;
  let h=`<h3>${esc(t.n)} <span class="note">rung ${f.ri+1}${f.w!=="m"?", branch":""}</span></h3><div class="btns">`;
- if(t.manual)h+=`<button class="btn blue" data-op="act">${t.manual==="push"?"Press":t.manual==="defrost"?(SIM.def>0?"In defrost":"Start defrost now"):t.manual==="trip"?(c.st.trip?"Reset":"Trip it"):(c.st.on?"Turn off":"Turn on")}</button>`;
+ if(t.manual)h+=`<button class="btn blue" data-op="act">${t.manual==="push"?"Press":t.manual==="defrost"?(SIM.def>0?"In defrost":"Start defrost now"):t.manual==="trip"?(c.st.trip?"Reset":"Trip it"):(c.k==="sel"?(c.st.on?"Switch to JOG":"Switch to RUN"):c.st.on?"Turn off":"Turn on")}</button>`;
  if(c.k==="fuse")h+=`<button class="btn blue" data-op="fuse">${c.st.blown?"Replace fuse":"Blow it"}</button>`;
  if(c.k==="xfmr")h+=`<button class="btn blue" data-op="xfuse">${c.st.fuse?"Replace 24 V fuse":"Blow 24 V fuse"}</button>`;
  if(t.motor)h+=`<button class="btn" data-op="ol">${motorOL[c.tag]?"Reset overload":"Trip overload"}</button>`;
  if(t.tagKind){const opts=tagsFor(t.tagKind);h+=`<label class="inl">Tied to <select data-op="tag">${opts.length?opts.map(o=>`<option${o===c.tag?" selected":""}>${o}</option>`).join(""):`<option value="">add a ${t.tagKind==="timer"?"timer coil":t.tagKind==="motor"?"motor":"coil"} first</option>`}</select></label>`}
  if(t.coil||t.motor)h+=`<label class="inl">Name <input data-op="name" value="${esc(c.tag)}" maxlength="8" size="7"></label>`;
+ if(c.k==="pbno"||c.k==="pbnc")h+=`<label class="inl">Button name <input data-op="pbname" value="${esc(c.tag||"")}" maxlength="8" size="7" placeholder="${c.k==="pbno"?"START":"STOP"}"></label>`;
+ if(c.k==="ol"&&P3)h+=`<button class="btn" data-op="olr">${motorOL[c.tag]?"Reset overload":"Trip overload"}</button>`;
  if(c.k==="td")h+=`<label class="inl">Delay <input data-op="secs" type="number" min="1" max="120" value="${c.secs}" style="width:64px"> s</label>`;
  if(c.k==="lamp")h+=`<label class="inl">Color <select data-op="color">${[["#3fdc6c","Green"],["#ff4a3a","Red"],["#ffd84a","Amber"],["#e9ecee","White"]].map(([v,n])=>`<option value="${v}"${v===c.color?" selected":""}>${n}</option>`).join("")}</select></label>`;
  if(c.k==="tterm")h+=`<label class="inl">Terminal <select data-op="term">${["R","C","Y","Y1","Y2","G","W","W1","W2","O","B","E","L"].map(o=>`<option${o===c.tag?" selected":""}>${o}</option>`).join("")}</select></label>`;
@@ -378,8 +390,8 @@ function openMenu(ri,w,i){menuAt={ri,w,i};$("smSearch").value="";const r=rungs[r
  $("smBrRow").hidden=w!=="m"||r.br.length>=MAXBR&&!r.br.some(b=>i>=b.from-1&&i<=b.to+1&&!b.cells[i]);$("smBr").checked=false;renderMenu();$("slotMenu").hidden=false;if(innerWidth>=700)$("smSearch").focus()}
 function closeMenu(){$("slotMenu").hidden=true;menuAt=null}
 function renderMenu(){const q=$("smSearch").value.trim().toLowerCase();
- $("smCats").innerHTML=q?"":CATS.map(c=>`<button class="${c===menuCat?"on":""}" data-mcat="${c}">${c}</button>`).join("");
- const list=Object.entries(E).filter(([k,t])=>q?(t.n+" "+(t.al||"")+" "+t.cat).toLowerCase().split(/\s+/).some(w=>w.startsWith(q))||(t.n+" "+(t.al||"")).toLowerCase().includes(q):t.cat===menuCat);
+ $("smCats").innerHTML=q?"":cats().map(c=>`<button class="${c===menuCat?"on":""}" data-mcat="${c}">${c}</button>`).join("");
+ const list=Object.entries(E).filter(([k,t])=>!hid(k)).filter(([k,t])=>q?(t.n+" "+(t.al||"")+" "+t.cat).toLowerCase().split(/\s+/).some(w=>w.startsWith(q))||(t.n+" "+(t.al||"")).toLowerCase().includes(q):t.cat===menuCat);
  $("smList").innerHTML=list.length?list.map(([k,t])=>`<button class="smItem" data-mput="${k}"><b>${esc(t.n)}</b><small>${esc(t.cat)}</small></button>`).join(""):`<p class="note">No parts match "${esc(q)}".</p>`}
 function menuPut(k){if(!menuAt)return;let {ri,w,i}=menuAt;const r=rungs[ri];
  if(w==="m"&&$("smBr").checked){let bi=r.br.findIndex(b=>!b.cells[i]&&i>=b.from-1&&i<=b.to+1);if(bi<0)bi=r.br.length;w="b"+bi}
@@ -420,8 +432,8 @@ const SVC={
  walkin:[{t:"LLS",k:"sol",msg:"The box is warm. The evaporator fans run, but the compressor never starts.",why:"Open liquid line solenoid coil: 240 V across it with the box thermostat closed. The valve stays shut, so suction never reaches the LP cut-in."},
   {t:"CC",k:"mcoil",msg:"The box is warm. Suction pressure rises past cut-in, but the compressor never starts.",why:"Open contactor coil: 240 V across it, coil reads OL."},
   {t:"EFAN",k:"motor",msg:"The compressor runs and the box creeps up. The evaporator is icing.",why:"Open evaporator fan motor: 240 V across it, OL with power off."}]};
-function svcStart(){const keys=Object.keys(SVC);const key=keys[Math.floor(Math.random()*keys.length)];snap();loadEx(key);
- const list=SVC[key];const pick=list[Math.floor(Math.random()*list.length)];let el=null;
+function svcStart(){const ST=P3?SVC3:SVC;const keys=Object.keys(ST);const key=keys[Math.floor(Math.random()*keys.length)];snap();loadEx(key);
+ const list=ST[key];const pick=list[Math.floor(Math.random()*list.length)];let el=null;
  each((c,ri)=>{if(el)return;if(c.k!==pick.k)return;if(pick.t&&c.tag!==pick.t)return;if(pick.color&&c.color!==pick.color)return;if(pick.line&&rungs[ri].sec==="lo")return;el=c});
  if(!el){say("Couldn't set up that service call. Try again.","w");return}
  el.f="open";svc={key,id:el.id,pick,done:false};meter.on=true;meter.red=meter.black=null;sel=null;
@@ -445,7 +457,7 @@ svg.addEventListener("click",ev=>{
  if(moving&&cell){moveTo(moving,+cell.dataset.r,cell.dataset.w,+cell.dataset.i);moving=null;$("hint").textContent="";render();return}
  if(placing&&cell){place(placing,+cell.dataset.r,cell.dataset.w,+cell.dataset.i);if(!ev.shiftKey){placing=null;renderPalette();$("hint").textContent=""}render();return}
  if(el){if(dragEl&&dragEl.moved)return;const f=findEl(el.dataset.id);sel=el.dataset.id;const t=E[f.c.k];
-  if(t.manual==="push"){f.c.st.down=true;f.c.st.t=0}
+  if(t.manual==="push")pressPb(f.c);
   render();if(t.manual!=="push"){const sh=$("elSheet"),rc=sh.getBoundingClientRect();if(rc.top>innerHeight-80||rc.bottom<0)sh.scrollIntoView({behavior:"smooth",block:"nearest"})}return}
  if(cell&&!svc){const r=rungs[+cell.dataset.r];if(!cellAt(r,cell.dataset.w,+cell.dataset.i)){openMenu(+cell.dataset.r,cell.dataset.w,+cell.dataset.i);return}}
  sel=null;render()});
@@ -479,10 +491,11 @@ document.addEventListener("click",ev=>{
  if(b.dataset.fan){LTS.fan=b.dataset.fan;say(`Thermostat fan: ${LTS.fan}${LTS.fan==="on"?" (R to G all the time)":" (G only with a call)"}.`);save();render();return}
  if(b.dataset.adj){const [k,d]=b.dataset.adj.split(":");LTS[k]=Math.round(LTS[k]+ +d);if(k==="hs")LTS.hs=Math.min(LTS.hs,LTS.cs-2);if(k==="cs")LTS.cs=Math.max(LTS.cs,LTS.hs+2);save();render();return}
  if(b.dataset.op){const f=findEl(sel);if(!f)return;const c=f.c,op=b.dataset.op,r=rungs[f.ri];const br=f.w!=="m"?r.br[brOf(r,f.w)]:null;
-  if(op==="act"){const t=E[c.k];if(t.manual==="push"){c.st.down=true;c.st.t=0}else if(t.manual==="defrost"){if(!(SIM.def>0))startDefrost()}else if(t.manual==="trip"){c.st.trip=!c.st.trip;say(`${t.n} ${c.st.trip?"tripped open":"reset"}.`)}else{c.st.on=!c.st.on}}
+  if(op==="act"){const t=E[c.k];if(t.manual==="push"){pressPb(c)}else if(t.manual==="defrost"){if(!(SIM.def>0))startDefrost()}else if(t.manual==="trip"){c.st.trip=!c.st.trip;say(`${t.n} ${c.st.trip?"tripped open":"reset"}.`)}else{c.st.on=!c.st.on}}
   if(op==="fuse"){c.st.blown=!c.st.blown;if(!c.st.blown)shortRung=null;say(c.st.blown?"Fuse blown.":"Fuse replaced.")}
   if(op==="xfuse"){c.st.fuse=!c.st.fuse;if(!c.st.fuse)shortRung=null;say(c.st.fuse?"Transformer fuse blown: 24 V side dead.":"Transformer fuse replaced.")}
   if(op==="ol"){motorOL[c.tag]=!motorOL[c.tag];say(`${c.tag} overload ${motorOL[c.tag]?"tripped":"reset"}.`)}
+  if(op==="olr"){motorOL[c.tag]=!motorOL[c.tag];if(P3&&!motorOL[c.tag])P3S.m.forEach(M=>{if(M.tag===c.tag)M.heat=0});say(`${c.tag} overload ${motorOL[c.tag]?"tripped":"reset"}.`)}
   if(op==="flip"){c.k=c.k==="no"?"nc":"no"}
   if(op==="move"){moving=c.id;$("hint").textContent=`Moving ${E[c.k].n}: tap the slot to move it to.`;render();return}
   if(op==="bl"&&br.from>0)br.from--;if(op==="br"&&br.to<r.n-1)br.to++;
@@ -510,6 +523,7 @@ document.addEventListener("click",ev=>{
 document.addEventListener("change",ev=>{const t=ev.target;if(t.id==="volt"){render();return}if(t.id==="ex"){if(t.value){if(svc)svcEnd("Service call ended.");snap();loadEx(t.value);t.value="";save();render()}return}
  const f=findEl(sel);if(!f||!t.dataset.op)return;const c=f.c;
  if(t.dataset.op==="tag")c.tag=t.value;if(t.dataset.op==="secs")c.secs=Math.max(1,Math.min(120,+t.value||5));if(t.dataset.op==="color")c.color=t.value;if(t.dataset.op==="term")c.tag=t.value;
+ if(t.dataset.op==="pbname"){const v=t.value.trim().toUpperCase().replace(/\s+/g,"").slice(0,8);if(v)c.tag=v;else delete c.tag}
  if(t.dataset.op==="name"){const old=c.tag,nw=t.value.trim().toUpperCase().replace(/\s+/g,"");if(nw){each(x=>{if(x.tag===old)x.tag=nw});c.tag=nw}}
  save();render()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("slotMenu").hidden){closeMenu();return}placing=null;moving=null;sel=null;$("hint").textContent="";renderPalette();render()}});
@@ -518,6 +532,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("slotMenu").h
 function loadEx(n){idn=1;coilOn={};timers={};motorOL={};shortRung=null;power=true;warned={};sel=null;
  const R=sec=>blank(sec);const put=(r,i,k,o={})=>{const e=mk(k);Object.assign(e,o);r.cells[i]=e;return e};
  const br=(r,from,to,items)=>{const b={from,to,cells:blankCells()};items.forEach(([i,k,o])=>{const e=mk(k);Object.assign(e,o||{});b.cells[i]=e});r.br.push(b)};
+ if(P3){p3Load(n,{R,put,br,set:v=>rungs=v});sortRungs();return}
  if(n==="seal"){$("volt").value="120";const r1=R(),r2=R(),r3=R(),r4=R();rungs=[r1,r2,r3,r4];
   put(r1,7,"mcoil",{tag:"M1"});put(r2,7,"motor",{tag:"MTR1"});
   put(r1,0,"pbnc");put(r1,1,"pbno");put(r1,3,"ol",{tag:"MTR1"});br(r1,1,1,[[1,"no",{tag:"M1"}]]);
@@ -590,14 +605,14 @@ function loadEx(n){idn=1;coilOn={};timers={};motorOL={};shortRung=null;power=tru
 
 /* ---------- loop ---------- */
 let last=performance.now(),acc=0,lastSig="";
-function frame(now){const dt=Math.min(0.2,(now-last)/1000);last=now;acc+=dt;if(acc>=0.1){evaluate(acc);acc=0;const X=xfmrEl();const sig=JSON.stringify([coilOn,Object.values(timers).map(t=>t.done?1:Math.round(t.t*10)),[...energized],[...hotEdges],power,loLive,motorOL,Math.round(LTS.room),LTS.sys,Math.round(SIM.wt),SIM.box.toFixed(1),Math.round(SIM.suct),Math.ceil(SIM.def),Math.ceil(SIM.clock/5),LTS.fan,LTS.hs,LTS.cs,X&&X.st,rungs.map(r=>[r.cells.map(c=>c&&c.st),r.br.map(b=>b.cells.map(c=>c&&c.st))])]);if(sig!==lastSig){lastSig=sig;render()}}requestAnimationFrame(frame)}
+function frame(now){const dt=Math.min(0.2,(now-last)/1000);last=now;acc+=dt;if(acc>=0.1){evaluate(acc);if(P3){p3Tick(acc);p3Render()}acc=0;const X=xfmrEl();const sig=JSON.stringify([coilOn,Object.values(timers).map(t=>t.done?1:Math.round(t.t*10)),[...energized],[...hotEdges],power,loLive,motorOL,P3?JSON.stringify([P3S.fuse,P3S.cfuse,P3S.circ]):0,Math.round(LTS.room),LTS.sys,Math.round(SIM.wt),SIM.box.toFixed(1),Math.round(SIM.suct),Math.ceil(SIM.def),Math.ceil(SIM.clock/5),LTS.fan,LTS.hs,LTS.cs,X&&X.st,rungs.map(r=>[r.cells.map(c=>c&&c.st),r.br.map(b=>b.cells.map(c=>c&&c.st))])]);if(sig!==lastSig){lastSig=sig;render()}}requestAnimationFrame(frame)}
 try{const t=localStorage.getItem("ld-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
-let ok=false;try{const s=JSON.parse(localStorage.getItem("ld-board")||"null");if(s&&s.rungs&&s.rungs.length){rungs=migrate(s.rungs);idn=s.idn;if(s.lts)Object.assign(LTS,s.lts);ok=true}}catch(e){}
-if(!ok)loadEx("seal");
+let ok=false;try{const s=JSON.parse(localStorage.getItem(P3?"ld3-board":"ld-board")||"null");if(s&&s.rungs&&s.rungs.length){rungs=migrate(s.rungs);idn=s.idn;if(s.lts)Object.assign(LTS,s.lts);if(P3&&s.p3){P3S.circ=s.p3.circ||"single";P3S.sup=s.p3.sup||480;if(s.p3.volt)$("volt").value=s.p3.volt}ok=true}}catch(e){}
+if(!ok)loadEx(P3?"p3seal":"seal");
 renderPalette();render();requestAnimationFrame(frame);
 window.__cardFor=k=>{const h=partCardHTML(k);const m=h.match(/<svg[\s\S]*?<\/svg>/);return m?m[0]:""};
-window.__ld={LTS,get rungs(){return rungs},evaluate,loadEx,get coilOn(){return coilOn},get energized(){return energized},findEl,setPower:v=>power=v,get power(){return power},motorOL,
- meter,meterReading,resistance,potentials,get loLive(){return loLive},svcStart,get svc(){return svc},svcGuess,place,moveTo,each,E,SIM,startDefrost};
+window.__ld={LTS,get rungs(){return rungs},evaluate,loadEx,get coilOn(){return coilOn},get energized(){return energized},findEl,setPower:v=>power=v,get power(){return power},get motorOL(){return motorOL},
+ meter,meterReading,resistance,potentials,get loLive(){return loLive},svcStart,get svc(){return svc},svcGuess,place,moveTo,each,E,SIM,startDefrost,get P3S(){return P3?P3S:null},p3Tick:P3?p3Tick:null};
 
 /* ---------- disclaimer + feedback (FB-Enable) ---------- */
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
