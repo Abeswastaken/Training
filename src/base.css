@@ -140,3 +140,9 @@ details .group{gap:10px}
 .tabs button{background:var(--paper);color:var(--ink);border:1px solid var(--panel-edge);box-shadow:0 1px 0 var(--panel-edge)}
 .tabs button:hover{border-color:var(--brass)}
 .tabs button[aria-selected="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
+/* reversing valve card: on phones it shrinks to a bar so the main drawing stays visible */
+.rvBar .rvMore{display:none}
+.sheet.mini{max-height:none;padding:8px 12px}
+.sheet.mini h2{font-size:15px;margin-bottom:4px}
+.sheet.mini #sheetB>*:not(.rvBar){display:none}
+.sheet.mini .rvBar .rvMore{display:inline-block}

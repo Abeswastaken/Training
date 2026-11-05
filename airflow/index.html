@@ -150,6 +150,12 @@ details .group{gap:10px}
 .tabs button{background:var(--paper);color:var(--ink);border:1px solid var(--panel-edge);box-shadow:0 1px 0 var(--panel-edge)}
 .tabs button:hover{border-color:var(--brass)}
 .tabs button[aria-selected="true"]{background:var(--plate);color:var(--plate-ink);border-color:var(--plate);box-shadow:inset 0 -3px 0 var(--brass)}
+/* reversing valve card: on phones it shrinks to a bar so the main drawing stays visible */
+.rvBar .rvMore{display:none}
+.sheet.mini{max-height:none;padding:8px 12px}
+.sheet.mini h2{font-size:15px;margin-bottom:4px}
+.sheet.mini #sheetB>*:not(.rvBar){display:none}
+.sheet.mini .rvBar .rvMore{display:inline-block}
 /* Refrigeration additions */
 :root{--r-dis:#d23a26;--r-liq:#e8892b;--r-mix:#2f6fd6;--r-suc:#6fb3e8;--air-warm:#e0662a;--air-cool:#3d8fe0;--ice:#eef6fb}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:4px 10px 2px;font-size:12px;color:var(--muted)}
@@ -1995,8 +2001,8 @@ function partHTML(k){const sim=cur,d=sim.parts[k];const im=ill(sim.id,k)+(k==="r
   if(ph.length)h+=`<h4>See it</h4><ul>${ph.map(([l,u])=>`<li><a href="${u}" target="_blank" rel="noopener">${l}</a></li>`).join("")}</ul>`;
   if(d.src.length)h+=`<h4>Sources</h4><ul>${d.src.map(s=>`<li><a href="${SRC[s][1]}" target="_blank" rel="noopener">${SRC[s][0]}</a></li>`).join("")}</ul>`;
   return h}
-function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
-function closeSheet(){$("sheet").hidden=true;openKey=null}
+function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheet").classList.remove("mini");$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
+function closeSheet(){$("sheet").hidden=true;$("sheet").classList.remove("mini");openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
 function renderAll(){renderControls();renderFailures();renderParts();renderLog();lastAlerts=null}
 /* A gradient can't paint a perfectly straight horizontal or vertical stroke (its box has no width or height), so those strokes vanished. Swap in a solid metal color. */
@@ -2062,7 +2068,7 @@ function frame(now){const real=Math.min(0.1,(now-last)/1000);last=now;
   cur.draw(running?real:0);syncStrip();if(tab==="controls"){syncSwitches();syncChargeSlider()}
   requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
-window.__rt={SIMS,reset,svc:{start:svcStart,guess:svcGuess,hint:svcHint,quit:svcGiveUp,C:COMPLAINTS},cur:()=>cur,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
+window.__rt={SIMS,reset,openPart:k=>openPart(k),svc:{start:svcStart,guess:svcGuess,hint:svcHint,quit:svcGiveUp,C:COMPLAINTS},cur:()=>cur,step:(n,dt=0.5)=>{for(let i=0;i<n&&!cur.S.dead;i++)cur.step(dt)}};
 
 // Feedback goes to the same Google Form as the boiler trainer (one question; context says which trainer).
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
