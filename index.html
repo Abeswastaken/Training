@@ -39,6 +39,22 @@ section{display:grid;gap:14px}
 h2{font:700 22px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:0;display:flex;align-items:baseline;gap:12px}
 h2 span{font:500 13px var(--body);letter-spacing:0;text-transform:none;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.sysList{display:grid;gap:26px;margin-bottom:8px}
+.sys{display:grid;gap:10px;min-width:0}
+.sysHead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--edge);padding-bottom:6px}
+.sysHead h3{font:700 24px/1 var(--display);text-transform:uppercase;letter-spacing:.04em;margin:0}
+.sysHead span{font:500 13px var(--mono);color:var(--muted)}
+.sysRow{display:grid;grid-template-columns:minmax(250px,330px) 1fr;gap:14px;align-items:start}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;align-content:start;min-width:0}
+.ltile{display:grid;gap:5px;align-content:start;background:var(--paper);border:1px solid var(--edge);border-left:4px solid var(--brass);border-radius:8px;padding:11px 13px;color:inherit;text-decoration:none;transition:transform .15s,border-color .15s;min-width:0}
+.ltile:hover{transform:translateY(-2px);border-color:var(--brass)}
+.ltile:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.ltile .ln{font:600 12px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
+.ltile b{font:700 18px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.ltile p{margin:0;font-size:13.5px;line-height:1.35;color:var(--muted)}
+.ltile em{font:500 12px var(--mono);font-style:normal;color:var(--muted);overflow-wrap:anywhere}
+.soon{border:1px dashed var(--edge);border-radius:8px;padding:14px;color:var(--muted);font-size:14px;align-self:start}
+@media (max-width:700px){.sysRow{grid-template-columns:1fr}}
 .card{display:grid;grid-template-rows:auto 1fr;background:var(--paper);border:1px solid var(--edge);border-radius:8px;overflow:hidden;color:inherit;text-decoration:none;transition:transform .15s,border-color .15s}
 .card:hover{transform:translateY(-2px);border-color:var(--brass)}
 .card:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
@@ -65,7 +81,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
 .news time{font:500 12px var(--mono);color:var(--muted);padding-top:2px}
 .news details summary{cursor:pointer;font:600 13px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
 @media (max-width:520px){.news li{grid-template-columns:1fr;gap:0}}
-@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+@media (prefers-reduced-motion:reduce){.card,.ltile{transition:none}.card:hover,.ltile:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -77,14 +93,14 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <div class="site">training.colvinj.com</div>
     <h1>HVAC Trainers</h1>
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
-    <div class="specs"><span><b>12</b> trainers</span><span><b>1</b> lesson</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
+    <div class="specs"><span><b>12</b> trainers</span><span><b>11</b> lessons</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
   </header>
 
   <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
   <section class="news" aria-labelledby="new">
     <h2 id="new">What's new</h2>
     <ul>
-      <li><time datetime="2026-11-07">Nov 7</time><span>New: lessons. The first one, Chiller evaporator approach, teaches in plain steps with drawings, then lets you try it on a live evaporator and solve 3 service calls. More lessons for every trainer are on the way.</span></li>
+      <li><time datetime="2026-11-07">Nov 7</time><span>New: lessons. Each system now has its own row: the simulator, then short lessons that teach in plain steps with drawings, let you see it live, then hand you service calls. Chillers are first with 10 lessons (approach, lift, surge, kW per ton, the tower, water treatment, safeties and purge). Controls adds a PID Learn lesson. More systems are on the way.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: Heat Exchangers trainer. Counterflow vs parallel flow on a live temperature graph, then plate, shell-and-tube, coaxial, coils and air-to-air heat recovery, each with faults.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: 3-Phase Motor Control. A colored L1/L2/L3 power circuit with a control transformer and ladder: start/stop, reversing, jog, sequence, wye-delta, single phasing.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>Controls: PID tuning with 5 guided lessons, pneumatic thermostat calibration benches (Honeywell, JCI, Siemens, TK) and a DA/RA, NO/NC fail-safe check.</span></li>
@@ -105,6 +121,25 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
 
   <section aria-labelledby="sys">
     <h2 id="sys">Systems <span>Equipment you service</span></h2>
+    <div class="sysList">
+      <div class="sys"><div class="sysHead"><h3>Chiller and cooling tower</h3><span>Simulator + 10 lessons</span></div><div class="sysRow">
+      <a class="card" href="/chiller/">
+        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
+          <rect x="20" y="40" width="96" height="70" fill="#d9dee1" stroke="#5f686d" stroke-width="2"/><path d="M40 40 L48 20 H88 L96 40 Z" fill="#c3cacf" stroke="#5f686d" stroke-width="2"/>
+          <path d="M30 60 H106 M30 70 H106 M30 80 H106" stroke="#5a9bd4" stroke-width="2" stroke-dasharray="3 5"/><rect x="24" y="92" width="88" height="16" fill="#5a9bd4"/>
+          <path d="M68 110 V150 H150" stroke="#5a9bd4" stroke-width="7" fill="none"/><path d="M150 108 H128 V52 H112" stroke="#d9824a" stroke-width="7" fill="none"/>
+          <rect x="150" y="96" width="120" height="26" rx="12" fill="#c3cacf" stroke="#4d555a" stroke-width="2"/><rect x="150" y="132" width="120" height="28" rx="13" fill="#c3cacf" stroke="#4d555a" stroke-width="2"/>
+          <circle cx="200" cy="78" r="16" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/><rect x="152" y="66" width="34" height="22" rx="5" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/>
+          <path d="M270 146 H300 V30" stroke="#2f6fd6" stroke-width="7" fill="none"/>
+          <rect x="196" y="18" width="80" height="40" rx="4" fill="#1b1f22"/><text x="236" y="35" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">LCHW 44.0</text><text x="236" y="49" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">0.56 kW/t</text>
+        </svg>
+        <div class="body"><h3>Chiller and cooling tower</h3><p>A 300-ton centrifugal chiller with its cooling tower: approaches, lift and surge, tower water treatment and the chiller's safeties.</p>
+          <ul class="inside"><li>Approaches, lift and surge</li><li>Tower water treatment and safeties</li></ul>
+          <div class="tags"><span>Chillers</span><span>Cooling towers</span><span>Commercial</span></div>
+          <div class="path"><span>/chiller</span><em>Open →</em></div></div>
+      </a>
+      <div class="lessons"><a class="ltile" href="/chiller/how-it-works/"><span class="ln">Lesson 1</span><b>How a centrifugal chiller works</b><p>Where the heat goes: evaporator, compressor, condenser and metering device, and how the chiller matches the load.</p><em>/chiller/how-it-works</em></a><a class="ltile" href="/chiller/evaporator-approach/"><span class="ln">Lesson 2</span><b>Evaporator approach</b><p>How close the refrigerant gets to the water it's cooling, and what it tells you about the chiller.</p><em>/chiller/evaporator-approach</em></a><a class="ltile" href="/chiller/condenser-approach/"><span class="ln">Lesson 3</span><b>Condenser approach</b><p>How close the condensing refrigerant gets to the tower water, and how to tell scale from air.</p><em>/chiller/condenser-approach</em></a><a class="ltile" href="/chiller/lift/"><span class="ln">Lesson 4</span><b>Lift</b><p>The pressure (and temperature) hill the compressor climbs, what sets it, and how lowering it saves power.</p><em>/chiller/lift</em></a><a class="ltile" href="/chiller/surge/"><span class="ln">Lesson 5</span><b>Surge</b><p>Why a centrifugal compressor stalls and roars, what pushes it there, and how to get it out.</p><em>/chiller/surge</em></a><a class="ltile" href="/chiller/kw-per-ton/"><span class="ln">Lesson 6</span><b>kW per ton</b><p>The chiller's efficiency in one number: how to measure it, why it changes with load and weather, and what it costs.</p><em>/chiller/kw-per-ton</em></a><a class="ltile" href="/chiller/cooling-tower/"><span class="ln">Lesson 7</span><b>Cooling tower range and approach</b><p>How a tower cools water by evaporation, why wet bulb is the limit, and what range and approach tell you.</p><em>/chiller/cooling-tower</em></a><a class="ltile" href="/chiller/water-treatment/"><span class="ln">Lesson 8</span><b>Tower water treatment</b><p>Cycles of concentration, blowdown and makeup: keeping minerals, corrosion and Legionella under control.</p><em>/chiller/water-treatment</em></a><a class="ltile" href="/chiller/safeties/"><span class="ln">Lesson 9</span><b>Chiller safeties</b><p>Freeze, pressure, flow and motor protection: what each safety guards against and what to do after a trip.</p><em>/chiller/safeties</em></a><a class="ltile" href="/chiller/purge/"><span class="ln">Lesson 10</span><b>Purge unit and non-condensables</b><p>Why air in a chiller raises head pressure, how a purge unit removes it, and what the purge tells you about leaks.</p><em>/chiller/purge</em></a></div></div></div>
+    </div>
     <div class="grid">
       <a class="card" href="/refrigeration/">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
@@ -165,35 +200,6 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <div class="tags"><span>Gas piping</span><span>Combustion</span><span>CO safety</span></div>
           <div class="path"><span>/combustion</span><em>Open →</em></div></div>
       </a>
-      <a class="card" href="/chiller/">
-        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
-          <rect x="20" y="40" width="96" height="70" fill="#d9dee1" stroke="#5f686d" stroke-width="2"/><path d="M40 40 L48 20 H88 L96 40 Z" fill="#c3cacf" stroke="#5f686d" stroke-width="2"/>
-          <path d="M30 60 H106 M30 70 H106 M30 80 H106" stroke="#5a9bd4" stroke-width="2" stroke-dasharray="3 5"/><rect x="24" y="92" width="88" height="16" fill="#5a9bd4"/>
-          <path d="M68 110 V150 H150" stroke="#5a9bd4" stroke-width="7" fill="none"/><path d="M150 108 H128 V52 H112" stroke="#d9824a" stroke-width="7" fill="none"/>
-          <rect x="150" y="96" width="120" height="26" rx="12" fill="#c3cacf" stroke="#4d555a" stroke-width="2"/><rect x="150" y="132" width="120" height="28" rx="13" fill="#c3cacf" stroke="#4d555a" stroke-width="2"/>
-          <circle cx="200" cy="78" r="16" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/><rect x="152" y="66" width="34" height="22" rx="5" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/>
-          <path d="M270 146 H300 V30" stroke="#2f6fd6" stroke-width="7" fill="none"/>
-          <rect x="196" y="18" width="80" height="40" rx="4" fill="#1b1f22"/><text x="236" y="35" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">LCHW 44.0</text><text x="236" y="49" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">0.56 kW/t</text>
-        </svg>
-        <div class="body"><h3>Chiller and cooling tower</h3><p>A 300-ton centrifugal chiller with its cooling tower: approaches, lift and surge, tower water treatment and the chiller's safeties.</p>
-          <ul class="inside"><li>Approaches, lift and surge</li><li>Tower water treatment and safeties</li></ul>
-          <div class="tags"><span>Chillers</span><span>Cooling towers</span><span>Commercial</span></div>
-          <div class="path"><span>/chiller</span><em>Open →</em></div></div>
-      </a>
-      <a class="card" href="/chiller/evaporator-approach/">
-        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
-          <rect x="70" y="56" width="190" height="80" rx="38" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/><rect x="92" y="70" width="146" height="54" fill="#2a3034"/><rect x="92" y="96" width="146" height="28" fill="#7fb6da"/>
-          <path d="M92 78 H238 M92 88 H238 M92 98 H238 M92 108 H238 M92 118 H238" stroke="#c9824a" stroke-width="5"/>
-          <path d="M20 80 H70" stroke="#2f6fd6" stroke-width="8"/><path d="M20 112 H70" stroke="#5a9bd4" stroke-width="8"/>
-          <circle cx="150" cy="36" r="16" fill="#fbfaf6" stroke="#4d555a" stroke-width="2"/><path d="M150 36 L141 27" stroke="#c0281c" stroke-width="2"/><path d="M150 52 V56" stroke="#9a6f1f" stroke-width="3"/>
-          <rect x="14" y="40" width="54" height="22" rx="3" fill="#1b1f22"/><text x="41" y="55" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">44.0°F</text>
-          <rect x="200" y="20" width="104" height="26" rx="4" fill="#9a6f1f"/><text x="252" y="38" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="14" fill="#fff">APPROACH 1.8°F</text>
-        </svg>
-        <div class="body"><h3>Lesson: Evaporator approach</h3><p>How close the refrigerant gets to the water it's cooling, and what that tells you about a chiller.</p>
-          <ul class="inside"><li><b>Learn:</b> 6 short steps with drawings</li><li><b>See it:</b> a cutaway evaporator with faults</li><li><b>Try it:</b> a baseline and 3 service calls</li></ul>
-          <div class="tags"><span>Lesson</span><span>Chillers</span></div>
-          <div class="path"><span>/chiller/evaporator-approach</span><em>Open →</em></div></div>
-      </a>
       <a class="card" href="/hx/">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
           <rect x="70" y="40" width="20" height="110" rx="3" fill="#3b6287" stroke="#1c3149"/><rect x="230" y="48" width="18" height="96" rx="3" fill="#3b6287" stroke="#1c3149"/>
@@ -211,7 +217,8 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
 
   <section aria-labelledby="ctl">
     <h2 id="ctl">Controls and electrical <span>What tells the equipment what to do</span></h2>
-    <div class="grid">
+    <div class="sysList">
+      <div class="sys"><div class="sysHead"><h3>Controls</h3><span>Simulator + 1 lesson</span></div><div class="sysRow">
       <a class="card" href="/controls/">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
           <path d="M30 60 H110 V100 H150" stroke="#0a6e8c" stroke-width="4" fill="none"/><rect x="40" y="30" width="44" height="54" rx="6" fill="#ece7dc" stroke="#8f887a"/><circle cx="62" cy="64" r="9" fill="#b9c1c6"/>
@@ -224,6 +231,9 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <div class="tags"><span>3-way valves</span><span>Spring ranges</span><span>PID</span></div>
           <div class="path"><span>/controls</span><em>Open →</em></div></div>
       </a>
+      <div class="lessons"><a class="ltile" href="/controls/pid/"><span class="ln">Lesson 1</span><b>PID control loops</b><p>What a control loop does, how P, I and D each move the valve, how to read a trend, and a simple way to tune.</p><em>/controls/pid</em></a></div></div></div>
+    </div>
+    <div class="grid">
       <a class="card" href="/wiring/">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
           <rect x="20" y="20" width="280" height="140" rx="4" fill="#c8b48a" stroke="#7d6b45"/>
