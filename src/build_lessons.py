@@ -1,5 +1,16 @@
 # Lesson pages: one HTML per lesson, sharing lesson.css/lesson.js and the rz drawing defs.
-LESSONS=[('chill-evap','Evaporator approach','chiller/evaporator-approach',['lesson/evap.js','lesson/chill_evap.js'])]
+PL=['lesson/kit.js','lesson/plant.js']
+LESSONS=[('chill-how','How a centrifugal chiller works','chiller/how-it-works',PL+['lesson/chill_how.js']),
+ ('chill-evap','Evaporator approach','chiller/evaporator-approach',['lesson/evap.js','lesson/chill_evap.js']),
+ ('chill-cond','Condenser approach','chiller/condenser-approach',PL+['lesson/chill_cond.js']),
+ ('chill-lift','Lift','chiller/lift',PL+['lesson/chill_lift.js']),
+ ('chill-surge','Surge','chiller/surge',PL+['lesson/chill_surge.js']),
+ ('chill-kwt','kW per ton','chiller/kw-per-ton',PL+['lesson/chill_kwt.js']),
+ ('chill-tower','Cooling tower range and approach','chiller/cooling-tower',PL+['lesson/chill_tower.js']),
+ ('chill-water','Tower water treatment','chiller/water-treatment',PL+['lesson/chill_water.js']),
+ ('chill-safe','Chiller safeties','chiller/safeties',PL+['lesson/chill_safe.js']),
+ ('chill-purge','Purge unit and non-condensables','chiller/purge',PL+['lesson/chill_purge.js']),
+ ('ctl-pid','PID control loops','controls/pid',['lesson/kit.js','lesson/pidm.js','lesson/ctl_pid_learn.js'])]
 if __name__=='__main__':
   css=open('base.css').read()+open('lesson/lesson.css').read()
   body=open('lesson/lesson-body.html').read()

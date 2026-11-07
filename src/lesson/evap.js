@@ -77,7 +77,7 @@ function evapSVG(R,opt={}){const u="ev"+(++evN);const x0=200,x1=560,cy=210,r=84,
  const pg=hi==="pe";s+=`<rect x="${x0+78}" y="${cy-r-26}" width="5" height="26" fill="url(#zBrass)"/>`+gaugeE(x0+80,cy-r-56,30,R.Pe,80,"PSIG","")+(pg?`<circle cx="${x0+80}" cy="${cy-r-56}" r="44" fill="none" stroke="var(--hot)" stroke-width="2.5" class="lsPulse"/>`:"");
  s+=lblE(x0+126,cy-r-72,"EVAPORATOR","start")+lblE(x0+126,cy-r-55,"PRESSURE","start")+(opt.noRead?"":lblE(x0+126,cy-r-37,`${R.Pe.toFixed(1)} psig`,"start","v"));
  // refrigerant feed in (bottom) from the expansion device
- s+=`<path d="M${x1-60} ${cy+r+40} V${cy+r}" stroke="url(#zCuV)" stroke-width="10"/><path class="lsFlow" d="M${x1-60} ${cy+r+40} V${cy+r}" stroke="#d9eef9" stroke-width="2" stroke-dasharray="4 8"/>`+lblE(x1-50,cy+r+56,"LIQUID REFRIGERANT IN (FROM THE ORIFICE OR FLOAT)","end");
+ s+=`<rect x="${x1-65}" y="${cy+r}" width="10" height="40" fill="url(#zCuV)"/><path class="lsFlow" d="M${x1-60} ${cy+r+40} V${cy+r}" stroke="#d9eef9" stroke-width="2" stroke-dasharray="4 8"/>`+lblE(x1-50,cy+r+56,"LIQUID REFRIGERANT IN (FROM THE ORIFICE OR FLOAT)","end");
  // sight glass
  s+=`<circle cx="${x1-10}" cy="${cy+30}" r="11" fill="#2a3034" stroke="url(#zBrass)" stroke-width="4"/><clipPath id="${u}Sg"><circle cx="${x1-10}" cy="${cy+30}" r="9"/></clipPath><rect clip-path="url(#${u}Sg)" x="${x1-20}" y="${cy+39-18*R.level}" width="20" height="20" fill="#8cc4e6"/>`+lblE(x1+48,cy+36,"SIGHT GLASS","start");
  if(hi==="tubes")s+=`<rect x="${x0+40}" y="${cy-56}" width="${x1-x0-70}" height="118" fill="none" stroke="var(--hot)" stroke-width="2.5" rx="8" class="lsPulse"/>`;

@@ -59,6 +59,33 @@ for d in EXTRA:
     li=([f'<li><b>Tabs:</b> {", ".join(t)}</li>'] if len(t)>1 else [])+[f'<li>{x}</li>' for x in EXTRA[d]]
     h=h.replace(f'<!--inside:{d}-->','<ul class="inside">'+''.join(li)+'</ul>')
 assert '<!--inside:' not in h
+# System rows: header, then the simulator card beside its lesson tiles.
+def lead_of(files):
+    for f in files[::-1]:
+        m=re.search(r'lead:"([^"]*)"',open(f).read())
+        if m:return m.group(1)
+    return ''
+NAMES={d:n for d,f,n in SITES}
+NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas'
+def sysblock(d,card):
+    ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
+    if not ls:return None
+    tiles=''.join(f'<a class="ltile" href="/{p}/"><span class="ln">Lesson {i+1}</span><b>{t}</b><p>{lead_of(fs)}</p><em>/{p}</em></a>' for i,(t,p,fs) in enumerate(ls))
+    cnt=f'Simulator + {len(ls)} lesson'+('s' if len(ls)!=1 else '')
+    return f'      <div class="sys"><div class="sysHead"><h3>{NAMES[d]}</h3><span>{cnt}</span></div><div class="sysRow">\n'+card+f'      <div class="lessons">{tiles}</div></div></div>\n'
+def regroup(m):
+    cards=re.findall(r'      <a class="card" href="/([a-z-]+)/">.*?</a>\n',m.group(1),flags=re.S)
+    full=re.findall(r'(      <a class="card" href="/[a-z-]+/">.*?</a>\n)',m.group(1),flags=re.S)
+    assert len(cards)==len(full)
+    rows=[];rest=[]
+    for d,c in zip(cards,full):
+        b=sysblock(d,c);(rows.append(b) if b else rest.append(c))
+    out=''
+    if rows:out+='<div class="sysList">\n'+''.join(rows)+'    </div>\n'
+    if rest:out+=('    ' if rows else '')+'<div class="grid">\n'+''.join(rest)+'    </div>\n'
+    return out
+h=re.sub(r'<div class="grid">\n(.*?)    </div>\n(?=  </section>)',regroup,h,flags=re.S)
+h=h.replace('<!--nlessons-->',str(len(LESSONS)))
 h=h.replace('<title>HVAC Trainers Home</title>','<title>HVAC Trainers</title>')
 open(f'{OUT}/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+h.replace('</style>','</style>\n</head>\n<body>',1)+'\n</body>\n</html>\n')
 open(f'{OUT}/CNAME','w').write('training.colvinj.com\n')
