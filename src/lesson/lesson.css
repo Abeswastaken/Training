@@ -1,0 +1,88 @@
+/* Lesson pages: Learn / See it / Try it / On the job */
+.lsWrap{max-width:1100px}
+.lsTop{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.lsCrumb{font-family:var(--display);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+.lsCrumb:hover{color:var(--brass)}
+.lsHead h1{font-size:30px;margin:2px 0 6px}
+.lsHead p{margin:0;color:var(--muted);line-height:1.45;max-width:70ch}
+.lsTabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:4px;position:sticky;top:0;z-index:5}
+.lsTabs button{flex:1;font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:0;border-radius:5px;background:transparent;color:var(--muted);padding:8px 4px;cursor:pointer;min-height:42px}
+.lsTabs button[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink)}
+.lsPanel{display:flex;flex-direction:column;gap:12px}
+.lsLearn{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.lsLearn{grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);align-items:start}}
+.lsText{background:var(--paper);border:1px solid var(--panel-edge);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.lsText p,.lsText li{line-height:1.55;font-size:15.5px;margin:0}
+.lsText ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.lsStepNo{font-family:var(--display);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.lsText h2{font-family:var(--display);font-size:24px;letter-spacing:.02em;margin:0;line-height:1.1}
+.lsText details{border-top:1px solid var(--panel-edge);padding-top:8px}
+.lsText summary{cursor:pointer;font-family:var(--display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brass)}
+.lsMathB{font-size:14.5px;line-height:1.55;margin-top:6px}
+.lsMathB code,.lsText code{font-family:var(--mono);font-size:13.5px;background:var(--bg);padding:1px 4px;border-radius:4px}
+.lsCtl{background:var(--bg);border-radius:6px;padding:8px 10px}
+.lsNav{display:flex;align-items:center;gap:8px;margin-top:4px}
+.lsNav .btn{min-width:96px}
+.lsDots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.lsDot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:transparent;padding:0;cursor:pointer}
+.lsDot.seen{background:var(--line)}
+.lsDot.on{background:var(--brass);border-color:var(--brass)}
+.lsPage .scroller svg{min-width:0}
+.lsPage .drawing{padding:4px}
+/* drawing text */
+.lsL{font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.05em;fill:var(--ink);text-transform:uppercase}
+.lsL.bad{fill:var(--bad)}.lsL.v{fill:var(--brass)}
+.lsG{font-family:var(--body);font-size:14px;fill:var(--muted);text-anchor:middle}
+.lsGn{font-family:var(--mono);font-size:10px;fill:#1d2327;text-anchor:middle}
+.lsLcd{font-family:var(--mono);font-size:17px;fill:#7CFFB2;text-anchor:middle}
+.lsBig{font-family:var(--display);font-size:24px;font-weight:700;fill:var(--ink);text-anchor:middle}
+.lsKey{font-family:var(--body);font-size:13px;fill:var(--muted)}
+@keyframes lsPulse{0%,100%{opacity:.25}50%{opacity:.9}}
+.lsPulse{animation:lsPulse 1.6s ease-in-out infinite}
+@keyframes lsRise{from{transform:translateY(0);opacity:.9}to{transform:translateY(-26px);opacity:0}}
+.lsBub{animation:lsRise 1.8s linear infinite;transform-box:fill-box}
+@keyframes lsDash{to{stroke-dashoffset:-40}}
+.lsFlow{animation:lsDash 1.2s linear infinite}
+@media (prefers-reduced-motion:reduce){.lsPulse,.lsBub,.lsFlow{animation:none}}
+/* See it */
+.lsSee,.lsCase{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.lsSee,.lsCase{grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);align-items:start}}
+.lsSide{display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:12px}
+.lsReads{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lsChk{display:flex;gap:8px;align-items:center;font-size:14px;min-height:32px}
+.lsChk input{width:20px;height:20px;accent-color:var(--brass)}
+.lsTbl{border-collapse:collapse;width:100%;font-size:14px}
+.lsTbl th,.lsTbl td{border-bottom:1px solid var(--panel-edge);padding:5px 6px;text-align:left;vertical-align:top}
+.lsTbl th{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+.lsTbl td{font-variant-numeric:tabular-nums}
+.note{font-size:12.5px;color:var(--muted);margin:0;line-height:1.4}
+/* Try it */
+.lsIntro{margin:0;line-height:1.5}
+.lsTask{background:var(--panel);border:1px solid var(--panel-edge);border-radius:8px;padding:12px}
+.lsTask h3{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--ink);letter-spacing:.06em}
+.lsTk{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--plate);color:var(--plate-ink);font-family:var(--mono);font-size:13px;flex:none}
+.lsTk.ok{background:var(--ok);color:#fff}
+.lsTask>p{color:var(--ink);font-size:14.5px}
+.lsPick{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.lsPick label{display:flex;gap:8px;align-items:flex-start;font-size:14.5px;background:var(--paper);border:1px solid var(--panel-edge);border-radius:6px;padding:8px 10px;cursor:pointer}
+.lsPick input{margin-top:3px;accent-color:var(--brass)}
+.lsRes{margin:6px 0 0;padding:8px 10px;border-radius:6px;font-size:14.5px;line-height:1.45}
+.lsRes.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);border-left:4px solid var(--ok)}
+.lsRes.no{background:color-mix(in srgb,var(--bad) 13%,transparent);border-left:4px solid var(--bad)}
+.lsHist{display:block;width:100%;height:auto;margin:6px 0}
+/* On the job */
+.lsJob{background:var(--paper);border:1px solid var(--panel-edge);border-radius:8px;padding:14px 16px}
+.lsJob h3{font-family:var(--display);font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:14px 0 6px}
+.lsJob h3:first-child{margin-top:0}
+.lsJob p,.lsJob li{line-height:1.55;font-size:15px}
+.lsJob ol,.lsJob ul{padding-left:20px}
+.lsSrc a{color:var(--cold)}
+@media (max-width:560px){.lsHead h1{font-size:25px}.lsTabs button{font-size:14px;letter-spacing:.03em}}
+p.lsKey{font-weight:600;border-left:4px solid var(--brass);padding:6px 10px;background:var(--bg);border-radius:4px}
+.lsText ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.lsCase select,.lsSide select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--panel-edge);border-radius:6px;padding:8px;min-height:42px}
+.lsCase .row{margin-top:8px}
+.lsCase label{font-size:14px}
+.lsJob .lsJob{border:0;padding:0;background:none}
+.lsJob table{margin-bottom:10px}
+.lsJob p{margin:0 0 8px}
