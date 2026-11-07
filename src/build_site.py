@@ -18,6 +18,14 @@ for d,f,name in SITES:
     head,body=wrap(s)
     page='<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+head+'\n'+CRUMB_CSS+'</head>\n<body>\n'+crumb(name)+body+'\n</body>\n</html>\n'
     os.makedirs(f'{OUT}/{d}',exist_ok=True);open(f'{OUT}/{d}/index.html','w').write(page)
+# lesson pages (built by build_lessons.py)
+from build_lessons import LESSONS
+for slug,title,path,files in LESSONS:
+    s=open(T+f'lesson-{slug}.html').read()
+    s=re.sub(r'<title>(.*?) FB-Enable</title>',r'<title>\1 | HVAC Lessons</title>',s,count=1)
+    head,body=wrap(s)
+    page='<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+head+'\n</head>\n<body>\n'+body+'\n</body>\n</html>\n'
+    os.makedirs(f'{OUT}/{path}',exist_ok=True);open(f'{OUT}/{path}/index.html','w').write(page)
 # home
 h=open('home.html').read()
 h=re.sub(r'\s*<div class="mock">.*?</div>\n','\n',h,count=1,flags=re.S)

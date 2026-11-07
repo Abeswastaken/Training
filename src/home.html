@@ -71,19 +71,20 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <div class="site">training.colvinj.com</div>
     <h1>HVAC Trainers</h1>
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
-    <div class="specs"><span><b>12</b> trainers</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
+    <div class="specs"><span><b>12</b> trainers</span><span><b>1</b> lesson</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
   </header>
 
   <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
   <section class="news" aria-labelledby="new">
     <h2 id="new">What's new</h2>
     <ul>
+      <li><time datetime="2026-11-07">Nov 7</time><span>New: lessons. The first one, Chiller evaporator approach, teaches in plain steps with drawings, then lets you try it on a live evaporator and solve 3 service calls. More lessons for every trainer are on the way.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: Heat Exchangers trainer. Counterflow vs parallel flow on a live temperature graph, then plate, shell-and-tube, coaxial, coils and air-to-air heat recovery, each with faults.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: 3-Phase Motor Control. A colored L1/L2/L3 power circuit with a control transformer and ladder: start/stop, reversing, jog, sequence, wye-delta, single phasing.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>Controls: PID tuning with 5 guided lessons, pneumatic thermostat calibration benches (Honeywell, JCI, Siemens, TK) and a DA/RA, NO/NC fail-safe check.</span></li>
-      <li><time datetime="2026-11-05">Nov 5</time><span>Boiler: Steam stations tab (PRV, trap and drip, 2D and isometric) and a counterflow/parallel-flow one-pipe main. Ladder Builder: 8-slot rungs, drag parts, 24 V ladder, meter, service calls and new presets. Home cards now list what's inside.</span></li>
     </ul>
     <details><summary>Earlier</summary><ul>
+      <li><time datetime="2026-11-05">Nov 5</time><span>Boiler: Steam stations tab (PRV, trap and drip, 2D and isometric) and a counterflow/parallel-flow one-pipe main. Ladder Builder: 8-slot rungs, drag parts, 24 V ladder, meter, service calls and new presets. Home cards now list what's inside.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>New: Chiller and cooling tower trainer. A 300-ton centrifugal plant: approaches, lift, surge, tower water treatment and chiller safeties.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>New: Combustion and gas trainer. Size gas piping, clock the meter, read a combustion analyzer, and run a worst-case draft and CAZ test.</span></li>
       <li><time datetime="2026-11-01">Nov 1</time><span>New: Airflow trainer. Static pressure at four test ports, blower and duct curves, room balancing with a flow hood, and a live psychrometric chart.</span></li>
@@ -172,6 +173,20 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
           <!--inside:chiller-->
           <div class="tags"><span>Chillers</span><span>Cooling towers</span><span>Commercial</span></div>
           <div class="path"><span>/chiller</span><em>Open →</em></div></div>
+      </a>
+      <a class="card" href="/chiller/evaporator-approach/">
+        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
+          <rect x="70" y="56" width="190" height="80" rx="38" fill="#d9dee1" stroke="#4d555a" stroke-width="2"/><rect x="92" y="70" width="146" height="54" fill="#2a3034"/><rect x="92" y="96" width="146" height="28" fill="#7fb6da"/>
+          <path d="M92 78 H238 M92 88 H238 M92 98 H238 M92 108 H238 M92 118 H238" stroke="#c9824a" stroke-width="5"/>
+          <path d="M20 80 H70" stroke="#2f6fd6" stroke-width="8"/><path d="M20 112 H70" stroke="#5a9bd4" stroke-width="8"/>
+          <circle cx="150" cy="36" r="16" fill="#fbfaf6" stroke="#4d555a" stroke-width="2"/><path d="M150 36 L141 27" stroke="#c0281c" stroke-width="2"/><path d="M150 52 V56" stroke="#9a6f1f" stroke-width="3"/>
+          <rect x="14" y="40" width="54" height="22" rx="3" fill="#1b1f22"/><text x="41" y="55" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#9fe0a8">44.0°F</text>
+          <rect x="200" y="20" width="104" height="26" rx="4" fill="#9a6f1f"/><text x="252" y="38" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="14" fill="#fff">APPROACH 1.8°F</text>
+        </svg>
+        <div class="body"><h3>Lesson: Evaporator approach</h3><p>How close the refrigerant gets to the water it's cooling, and what that tells you about a chiller.</p>
+          <ul class="inside"><li><b>Learn:</b> 6 short steps with drawings</li><li><b>See it:</b> a cutaway evaporator with faults</li><li><b>Try it:</b> a baseline and 3 service calls</li></ul>
+          <div class="tags"><span>Lesson</span><span>Chillers</span></div>
+          <div class="path"><span>/chiller/evaporator-approach</span><em>Open →</em></div></div>
       </a>
       <a class="card" href="https://claude.ai/artifact/QHZgqT4nHpHyFkXHjksrNS" target="_blank" rel="noopener">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
