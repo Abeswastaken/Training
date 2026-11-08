@@ -29,6 +29,12 @@ MSL=[('ms-vs','How a mini-split differs from a ducted split','mini-split/vs-duct
  ('ms-heat','Heating mode, defrost and low-ambient units','mini-split/heating-and-defrost',MSF+['lesson/ms_heat.js']),
  ('ms-multi','Multi-zone systems and reading error codes','mini-split/multi-zone-and-codes',MSF+['lesson/ms_multi.js'])]
 LESSONS+=MSL
+# Phase 3+ sections register their lessons in lessons_<sec>.py as L=[(slug,title,path,files),...]
+import os as _os
+for _sec in ['ref','boil','hx','heat','comb','air','ctl','wire','lad','tph','mot']:
+  _f=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),f'lessons_{_sec}.py')
+  if _os.path.exists(_f):
+    _ns={'RF':RF,'PL':PL,'MSF':MSF};exec(open(_f).read(),_ns);LESSONS+=_ns['L']
 TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js'])]
 if __name__=='__main__':
   css=open('base.css').read()+open('lesson/lesson.css').read()
