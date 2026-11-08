@@ -19,8 +19,8 @@ for d,f,name in SITES:
     page='<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+head+'\n'+CRUMB_CSS+'</head>\n<body>\n'+crumb(name)+body+'\n</body>\n</html>\n'
     os.makedirs(f'{OUT}/{d}',exist_ok=True);open(f'{OUT}/{d}/index.html','w').write(page)
 # lesson pages (built by build_lessons.py)
-from build_lessons import LESSONS
-for slug,title,path,files in LESSONS:
+from build_lessons import LESSONS,TOOLS
+for slug,title,path,files in LESSONS+TOOLS:
     s=open(T+f'lesson-{slug}.html').read()
     s=re.sub(r'<title>(.*?) FB-Enable</title>',r'<title>\1 | HVAC Lessons</title>',s,count=1)
     head,body=wrap(s)
@@ -47,7 +47,8 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
  'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
  'threephase':['Colored L1/L2/L3 power circuit: 208/240 V or 480 V','Control transformer, X1 fused, X2 grounded, 120 or 24 V','Start/stop, forward/reverse, jog, timed sequence, wye-delta','Swap two leads, single phasing, overloads, meter'],
- 'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests']}
+ 'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests'],
+ 'ph-chart':['<b>Tabs:</b> Chart, Calculator, Property table','R-410A, R-454B, R-32, R-22, R-134a and R-404A','Calculator laid out like the class P/E sheet, with both methods side by side']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)
     try:s=open(f'dist/{f}-trainer.html').read()
@@ -66,7 +67,7 @@ def lead_of(files):
         if m:return m.group(1)
     return ''
 NAMES={d:n for d,f,n in SITES}
-NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas'
+NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits'
 def sysblock(d,card):
     ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
     if not ls:return None

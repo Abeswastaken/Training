@@ -1,0 +1,41 @@
+/* ============ Lesson: Comparing refrigerants (R-410A, R-454B, R-32) ============ */
+(()=>{const NN=["R-410A","R-454B","R-32","R-22"],B={Te:40,Tc:105,sh:10,sc:10,eff:0.7};
+const INFO={"R-410A":{gwp:"2,088",safe:"A1 (not flammable)",note:"Being phased down in new AC equipment in the US from 2025."},"R-454B":{gwp:"466",safe:"A2L (mildly flammable)",note:"A blend of R-32 and R-1234yf. Common replacement for R-410A in new ducted systems."},"R-32":{gwp:"675",safe:"A2L (mildly flammable)",note:"Single refrigerant. Common in mini-splits worldwide."},"R-22":{gwp:"1,810",safe:"A1 (not flammable)",note:"No longer made new in the US since 2020; service from recovered stock only."}};
+const cyc=n=>RF.cycle(n,B);const C=Object.fromEntries(NN.map(n=>[n,cyc(n)]));
+const bars=(key,fmt,title,col)=>{const mx=Math.max(...NN.map(n=>key(C[n])))*1.12;return K.lbl(40,40,title,{a:"start"})+NN.map((n,i)=>{const y=70+i*70,v=key(C[n]),w=v/mx*430;return K.lbl(40,y+24,n,{a:"start",size:16})+`<rect x="150" y="${y}" width="${w}" height="36" rx="4" fill="${col}" opacity="${n==="R-22"?.45:.85}"/>`+K.lbl(160+w,y+25,fmt(v),{a:"start",size:15})}).join("")};
+const steps=[
+ {t:"Why the refrigerant is changing",
+  body:`<p>R-410A has a high <b>global warming potential</b> (GWP): a pound leaked warms the planet about 2,000 times as much as a pound of CO<sub>2</sub>. US rules (the AIM Act) phase down high-GWP refrigerants in new equipment.</p><p>New air conditioners and heat pumps mostly use <b>R-454B</b> or <b>R-32</b>. Both are <b>A2L</b>: mildly flammable. That changes how you braze, recover and store, but the cycle on the chart works the same way.</p>`,
+  draw:()=>NN.map((n,i)=>{const y=24+i*88,I=INFO[n];return `<rect x="30" y="${y}" width="660" height="78" rx="8" fill="var(--paper)" stroke="var(--panel-edge)"/>`+K.lbl(48,y+26,n,{a:"start",size:18})+K.txt(150,y+26,"GWP "+I.gwp+"  ·  "+I.safe,{a:"start"})+K.txt(48,y+56,I.note,{a:"start"})}).join("")},
+ {t:"Pressures: close, but not the same",
+  body:`<p>At the same 40°F evaporator and 105°F condenser, the three AC refrigerants run at similar pressures. R-454B runs a little <b>lower</b> than R-410A; R-32 a little <b>higher</b>.</p><p>Close isn't the same: <b>always use the PT chart for the refrigerant on the nameplate</b>. R-454B is also a blend with about 2°F of glide, so its bubble and dew pressures differ.</p>`,
+  draw:()=>bars(c=>c.Pd-14.7,v=>K.f0(v)+" psig","HEAD PRESSURE AT 105°F CONDENSING","var(--bad)")+K.txt(360,368,"suction at 40°F: "+NN.map(n=>n+" "+K.f0(C[n].Ps-14.7)).join(", ")+" psig")},
+ {t:"NRE: R-32 carries the most heat per pound",
+  body:`<p>R-32's dome is much <b>wider</b>: each pound absorbs far more heat as it boils. So a system needs fewer pounds per minute, and usually a smaller charge.</p><p>R-454B sits in between. This is why charge amounts and line set adders are different on the new equipment.</p>`,
+  draw:()=>["R-410A","R-32"].map((n,i)=>{const c=C[n],col=i?"#c0392b":"#2f6fd6",G=RF.chart(n,{x:80+i*340,y:40,w:280,h:270,iso:false,labels:false,zoom:{h:[-10,200],P:[40,800]}});
+   return G.s+`<path d="M${G.X(c.h6)} ${G.Y(c.Ps)} H${G.X(c.h1)} L${G.X(c.h2)} ${G.Y(c.Pd)} H${G.X(c.h5)} Z" fill="rgba(210,162,76,.15)" stroke="var(--ink)" stroke-width="2.5"/>`+RF.bracket(G,c.h6,c.h1,G.Y(c.Ps)+34,"NRE "+K.f0(c.NRE),col)+K.lbl(80+i*340,32,n,{a:"start",fill:col})}).join("")},
+ {t:"Flow and discharge temperature",
+  body:`<p>Because R-32 carries more heat per pound, it moves <b>fewer pounds per ton</b>. But it compresses <b>hotter</b>: discharge temperature runs 20 to 40°F higher than R-410A at the same conditions. Equipment designed for R-32 handles that with oil, injection or controls.</p><p>R-454B runs closer to R-410A on both.</p>`,
+  draw:()=>bars(c=>c.T2,v=>K.f0(v)+"°F","DISCHARGE TEMPERATURE (70% COMPRESSOR)","#c06a2a")+K.txt(360,368,"lb/min per ton: "+NN.map(n=>n+" "+K.f2(C[n].mdot)).join(", "))},
+ {t:"Efficiency is a wash; the vapor size isn't",
+  body:`<p>The cycle COPs are close: within a few percent. The big difference is the <b>volume</b> of suction vapor per ton (cfm per ton). R-22 needs about 50% more volume than R-410A, which is why R-410A compressors and lines got smaller.</p><p>You can't drop one refrigerant into a system built for another. Compressor, metering device, oil and safety controls are matched to it.</p>`,
+  draw:()=>bars(c=>c.cfm,v=>K.f2(v)+" cfm/ton","SUCTION VAPOR VOLUME PER TON","#2f6fd6")+K.txt(360,368,"cycle COP: "+NN.map(n=>n+" "+K.f2(C[n].COP)).join(", "))}];
+const see=K.see({vb:"0 0 720 400",init:{r:0,Te:40,Tc:105},sliders:[["r","Refrigerant",0,NN.length-1,1,v=>NN[v]],["Te","Evaporating",20,55,1,v=>v+"°F"],["Tc","Condensing",85,125,1,v=>v+"°F"]],
+ model:S=>{const n=NN[S.r];const c=RF.cycle(n,{...B,Te:S.Te,Tc:S.Tc});c.n=n;return c},
+ draw:c=>{const G=RF.std(c.n,{labels:false});return G.s+`<path d="M${G.X(c.h6)} ${G.Y(c.Ps)} H${G.X(c.h1)} L${G.X(c.h2)} ${G.Y(c.Pd)} H${G.X(c.h5)} Z" fill="rgba(210,162,76,.12)" stroke="var(--ink)" stroke-width="3"/>`+K.tag(150,56,c.n,{c:"v"})},
+ reads:c=>[["Suction",K.f0(c.Ps-14.7)+" psig"],["Head",K.f0(c.Pd-14.7)+" psig"],["NRE",K.f1(c.NRE)+" Btu/lb"],["COP",K.f2(c.COP)],["Flow per ton",K.f2(c.mdot)+" lb/min"],["Discharge",K.f0(c.T2)+"°F"]],
+ note:c=>INFO[c.n].safe+". GWP "+INFO[c.n].gwp+".",log:[["Ref",c=>c.n],["Evap",(c,S)=>S.Te],["Cond",(c,S)=>S.Tc],["NRE",c=>K.f1(c.NRE)],["Disch",c=>K.f0(c.T2)],["lb/min/t",c=>K.f2(c.mdot)]]});
+const tasks=[
+ K.goal({t:"Same job, three refrigerants",intro:"At <b>40°F / 105°F</b>, log R-410A, R-454B and R-32. Compare the NRE and the discharge temperature.",
+  check:(S,c,L)=>{const got=["R-410A","R-454B","R-32"].filter(n=>L.some(l=>l.R.n===n&&l.S.Te===40&&l.S.Tc===105));return got.length===3?true:`Logged so far at 40/105: ${got.join(", ")||"none"}.`},
+  ok:()=>{const g=n=>K.LOG.find(l=>l.R.n===n&&l.S.Te===40&&l.S.Tc===105).R;return `NRE: ${K.f0(g("R-410A").NRE)}, ${K.f0(g("R-454B").NRE)}, ${K.f0(g("R-32").NRE)} Btu/lb. Discharge: ${K.f0(g("R-410A").T2)}, ${K.f0(g("R-454B").T2)}, ${K.f0(g("R-32").T2)}°F. R-32 carries the most heat and runs the hottest.`}}),
+ K.goal({t:"Match R-410A's head pressure",intro:"An R-410A system runs <b>341 psig</b> head at 105°F condensing. Pick <b>R-454B</b> and find the condensing temperature that gives about the same head pressure (within 6 psi).",
+  check:(S,c)=>c.n!=="R-454B"?"Pick R-454B.":Math.abs(c.Pd-14.7-341)>6?`${K.f0(c.Pd-14.7)} psig at ${S.Tc}°F.`:true,ok:(S,c)=>`R-454B needs ${S.Tc}°F condensing to reach that pressure: the same gauge reading means a different temperature. Use the right PT chart.`})];
+window.LESSON={id:"ph-compare",sec:"P-H charts",secHref:"/ph-chart/",title:"Comparing refrigerants",lead:"R-410A vs R-454B vs R-32 (and old R-22) on the chart: pressures, heat per pound, flow, discharge temperature and why they aren't interchangeable.",
+ steps,see,tryIntro:"Two comparisons in See it.",tasks,
+ job:K.job({table:[["","R-410A","R-454B","R-32"],["Safety class","A1","A2L","A2L"],["GWP (AR4)","2,088","466","675"],["Glide","~0.1°F","~2°F","none"],["Head at 105°F","~341 psig","~315 psig","~350 psig"],["Discharge temp","baseline","a bit higher","20 to 40°F higher"]],tableT:"At a glance",
+  read:["The nameplate refrigerant and charge.","The PT chart for that exact refrigerant (dew for superheat, bubble for subcooling on R-454B)."],
+  safety:["A2L refrigerants need A2L-rated recovery machines and leak detectors, and no ignition sources nearby.","Follow the manufacturer's charge limits and any mitigation (leak sensors, fans) the unit requires.","Never mix refrigerants or top off with a different one."],
+  mistakes:["Using an R-410A PT chart on an R-454B system.","Assuming the same charge or line set adder.","Ignoring higher discharge temperature on R-32 when judging a compressor."]}),
+ sources:[["The Engineering Mindset: R454B pressure enthalpy chart","https://theengineeringmindset.com/r454b-pressure-enthalpy-chart/"],["The Engineering Mindset: R410A pressure enthalpy chart","https://theengineeringmindset.com/r410a-pressure-enthalpy-chart/"],["US EPA: technology transitions (AIM Act) for HVAC","https://www.epa.gov/climate-hfcs-reduction/technology-transitions"],["NIST Chemistry WebBook: thermophysical properties of fluids","https://webbook.nist.gov/chemistry/fluid/"]]};
+})();
