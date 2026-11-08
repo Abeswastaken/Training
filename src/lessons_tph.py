@@ -1,0 +1,5 @@
+TK=['lesson/kit.js','lesson/tph_kit.js']
+L=[('tph-starters','Starters and overloads','threephase/starters-and-overloads',TK+['lesson/tph_starters.js'])]
+L+=[('tph-reversing','Reversing and interlocks','threephase/reversing-and-interlocks',TK+['lesson/tph_reversing.js'])]
+L+=[('tph-wyedelta','Wye-delta starting','threephase/wye-delta-starting',TK+['lesson/tph_wyedelta.js'])]
+L+=[('tph-imbalance','Single phasing and voltage imbalance','threephase/single-phasing-and-imbalance',TK+['lesson/tph_imbalance.js'])]
