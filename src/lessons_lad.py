@@ -1,0 +1,5 @@
+LK=['lesson/kit.js','lesson/lad_kit.js']
+L=[('lad-read','Reading a ladder diagram','ladder/reading-ladder-diagrams',LK+['lesson/lad_read.js'])]
+L+=[('lad-xfmr','Control transformers','ladder/control-transformers',LK+['lesson/lad_xfmr.js'])]
+L+=[('lad-seq','Following a sequence of operation','ladder/sequence-of-operation',LK+['lesson/lad_seq.js'])]
+L+=[('lad-hop','Hopscotch troubleshooting with a meter','ladder/hopscotch-troubleshooting',LK+['lesson/lad_hop.js'])]

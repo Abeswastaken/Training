@@ -1,0 +1,7 @@
+HK=['lesson/kit.js','lesson/heat_kit.js']
+L=[('heat-seq','Furnace sequence of operation','heating/sequence-of-operation',HK+['lesson/heat_seq.js'])]
+L+=[('heat-ps','Inducer and pressure switches','heating/pressure-switches',HK+['lesson/heat_ps.js'])]
+L+=[('heat-flame','Flame sensing (microamps)','heating/flame-sensing',HK+['lesson/heat_flame.js'])]
+L+=[('heat-rise','Temperature rise','heating/temperature-rise',HK+['lesson/heat_rise.js'])]
+L+=[('heat-oil','Oil burner: nozzle, pump pressure, CAD cell','heating/oil-burner',HK+['lesson/heat_oil.js'])]
+L+=[('heat-hyd','Hydronic air handler','heating/hydronic-air-handler',HK+['lesson/heat_hyd.js'])]

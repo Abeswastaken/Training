@@ -1,0 +1,5 @@
+MK=['lesson/kit.js','lesson/mot_kit.js']
+L=[('mot-plate','Reading a motor nameplate','motors/reading-a-nameplate',MK+['lesson/mot_plate.js'])]
+L+=[('mot-megger','Megger (insulation resistance) testing','motors/megger-testing',MK+['lesson/mot_megger.js'])]
+L+=[('mot-vfd','How a VFD works','motors/how-a-vfd-works',MK+['lesson/mot_vfd.js'])]
+L+=[('mot-faults','Common drive faults','motors/drive-faults',MK+['lesson/mot_faults.js'])]

@@ -1,0 +1,5 @@
+WK=['lesson/kit.js','lesson/wire_kit.js']
+L=[('wire-read','Reading a wiring diagram','wiring/reading-diagrams',WK+['lesson/wire_read.js'])]
+L+=[('wire-meter','Using a multimeter safely','wiring/multimeter',WK+['lesson/wire_meter.js'])]
+L+=[('wire-contactor','Contactors and relays','wiring/contactors-and-relays',WK+['lesson/wire_cont.js'])]
+L+=[('wire-caps','Run and start capacitors','wiring/run-and-start-capacitors',WK+['lesson/wire_caps.js'])]

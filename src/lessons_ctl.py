@@ -1,0 +1,6 @@
+CK=['lesson/kit.js','lesson/ctl_kit.js']
+L=[('ctl-pneu','Pneumatic basics: main air, branch and 3 to 15 psi','controls/pneumatic-basics',CK+['lesson/ctl_pneu.js'])]
+L+=[('ctl-spring','Normally open, normally closed and spring ranges','controls/spring-ranges',CK+['lesson/ctl_spring.js'])]
+L+=[('ctl-seq','Sequencing two devices on one signal','controls/sequencing',CK+['lesson/ctl_seq.js'])]
+L+=[('ctl-ddc','DDC points: AI, AO, BI and BO','controls/ddc-points',CK+['lesson/ctl_ddc.js'])]
+L+=[('ctl-sig','Sensors and signals: thermistors, RTDs, volts and 4-20 mA','controls/sensors-and-signals',CK+['lesson/ctl_sig.js'])]
