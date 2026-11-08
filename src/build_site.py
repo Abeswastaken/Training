@@ -48,6 +48,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
  'threephase':['Colored L1/L2/L3 power circuit: 208/240 V or 480 V','Control transformer, X1 fused, X2 grounded, 120 or 24 V','Start/stop, forward/reverse, jog, timed sequence, wye-delta','Swap two leads, single phasing, overloads, meter'],
  'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests'],
+ 'mini-split':['<b>Tabs:</b> Simulator, Service calls, Error codes','1 to 4 heads, cooling, heating, defrost and cold-climate mode','Line set length and added charge, 14 faults, generic codes with brand links'],
  'ph-chart':['<b>Tabs:</b> Chart, Calculator, Property table','R-410A, R-454B, R-32, R-22, R-134a and R-404A','Calculator laid out like the class P/E sheet, with both methods side by side']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)

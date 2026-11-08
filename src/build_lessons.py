@@ -20,7 +20,16 @@ PH=[('ph-read','Reading the P-H chart','ph-chart/reading-the-chart',RF+['lesson/
  ('ph-faults','What faults look like on the chart','ph-chart/faults',RF+['lesson/ph_faults.js']),
  ('ph-compare','Comparing refrigerants','ph-chart/comparing-refrigerants',RF+['lesson/ph_compare.js'])]
 LESSONS+=PH
-TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js'])]
+MSF=RF+['lesson/ms.js','lesson/ms_kit.js']
+MSL=[('ms-vs','How a mini-split differs from a ducted split','mini-split/vs-ducted-split',MSF+['lesson/ms_vs.js']),
+ ('ms-inv','Inverter compressors and variable speed','mini-split/inverter-compressors',MSF+['lesson/ms_inv.js']),
+ ('ms-eev','EEVs and the thermistors the board reads','mini-split/eev-and-thermistors',MSF+['lesson/ms_eev.js']),
+ ('ms-install','Install: line set, flares, vacuum and added charge','mini-split/install',MSF+['lesson/ms_install.js']),
+ ('ms-charge','Charging and checking charge on a variable-speed system','mini-split/charging',MSF+['lesson/ms_charge.js']),
+ ('ms-heat','Heating mode, defrost and low-ambient units','mini-split/heating-and-defrost',MSF+['lesson/ms_heat.js']),
+ ('ms-multi','Multi-zone systems and reading error codes','mini-split/multi-zone-and-codes',MSF+['lesson/ms_multi.js'])]
+LESSONS+=MSL
+TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js'])]
 if __name__=='__main__':
   css=open('base.css').read()+open('lesson/lesson.css').read()
   body=open('lesson/lesson-body.html').read()
