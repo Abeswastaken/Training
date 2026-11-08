@@ -93,13 +93,14 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
     <div class="site">training.colvinj.com</div>
     <h1>HVAC Trainers</h1>
     <p class="lede">Hands-on simulators for HVAC/R apprentices. Run the system, change the settings, break a part, and find the fault with the gauges and a meter. Free, no sign-in, works on a phone.</p>
-    <div class="specs"><span><b>12</b> trainers</span><span><b>11</b> lessons</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
+    <div class="specs"><span><b>12</b> trainers</span><span><b>17</b> lessons</span><span>Service calls with a score</span><span>Tap any part for how it works and fails</span></div>
   </header>
 
   <!-- WHAT'S NEW: add the newest entry at the top; keep about 4 visible, older ones go inside <details>. -->
   <section class="news" aria-labelledby="new">
     <h2 id="new">What's new</h2>
     <ul>
+      <li><time datetime="2026-11-08">Nov 8</time><span>New: P-H charts. A real pressure-enthalpy chart for R-410A, R-454B, R-32, R-22, R-134a and R-404A: drag the cycle, add faults, and fill in the class P/E sheet from gauge readings (both the table and sheet methods). Six lessons from reading the chart to comparing refrigerants.</span></li>
       <li><time datetime="2026-11-07">Nov 7</time><span>New: lessons. Each system now has its own row: the simulator, then short lessons that teach in plain steps with drawings, let you see it live, then hand you service calls. Chillers are first with 10 lessons (approach, lift, surge, kW per ton, the tower, water treatment, safeties and purge). Controls adds a PID Learn lesson. More systems are on the way.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: Heat Exchangers trainer. Counterflow vs parallel flow on a live temperature graph, then plate, shell-and-tube, coaxial, coils and air-to-air heat recovery, each with faults.</span></li>
       <li><time datetime="2026-11-05">Nov 5</time><span>New: 3-Phase Motor Control. A colored L1/L2/L3 power circuit with a control transformer and ladder: start/stop, reversing, jog, sequence, wye-delta, single phasing.</span></li>
@@ -122,6 +123,22 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-s
   <section aria-labelledby="sys">
     <h2 id="sys">Systems <span>Equipment you service</span></h2>
     <div class="sysList">
+      <div class="sys"><div class="sysHead"><h3>P-H charts</h3><span>Simulator + 6 lessons</span></div><div class="sysRow">
+      <a class="card" href="/ph-chart/">
+        <svg class="art" viewBox="0 0 320 180" aria-hidden="true">
+          <rect x="30" y="14" width="270" height="150" fill="#fbfaf6" stroke="#9aa3aa"/>
+          <path d="M30 60 H300 M30 100 H300 M30 140 H300 M90 14 V164 M150 14 V164 M210 14 V164 M270 14 V164" stroke="#dde2e5"/>
+          <path d="M60 164 Q110 60 160 28" stroke="#2f6fd6" stroke-width="3" fill="none"/><path d="M172 28 Q196 40 204 80 L196 164" stroke="#c0392b" stroke-width="3" fill="none"/>
+          <path d="M112 112 H206 L240 52 H112 Z" fill="rgba(210,162,76,.25)" stroke="#1b1f22" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="206" cy="112" r="5" fill="#9a6f1f"/><circle cx="240" cy="52" r="5" fill="#9a6f1f"/><circle cx="112" cy="52" r="5" fill="#9a6f1f"/><circle cx="112" cy="112" r="5" fill="#9a6f1f"/>
+          <text x="160" y="130" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="13" fill="#9a6f1f">NRE</text><text x="226" y="128" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="13" fill="#c0392b">HOC</text>
+        </svg>
+        <div class="body"><h3>P-H charts</h3><p>A real pressure-enthalpy chart for six refrigerants. Drag the cycle, break it with faults, and fill in your class sheet from gauge readings.</p>
+          <ul class="inside"><li><b>Tabs:</b> Chart, Calculator, Property table</li><li>R-410A, R-454B, R-32, R-22, R-134a and R-404A</li><li>Calculator laid out like the class P/E sheet, with both methods side by side</li></ul>
+          <div class="tags"><span>NRE</span><span>COP</span><span>R-454B</span></div>
+          <div class="path"><span>/ph-chart</span><em>Open →</em></div></div>
+      </a>
+      <div class="lessons"><a class="ltile" href="/ph-chart/reading-the-chart/"><span class="ln">Lesson 1</span><b>Reading the P-H chart</b><p>The axes, the dome, the three regions and the lines that cross them, so any point on the chart makes sense.</p><em>/ph-chart/reading-the-chart</em></a><a class="ltile" href="/ph-chart/plotting-a-cycle/"><span class="ln">Lesson 2</span><b>Plotting a cycle from gauge readings</b><p>Turn five readings (two pressures and three line temperatures) into a cycle on the chart, point by point.</p><em>/ph-chart/plotting-a-cycle</em></a><a class="ltile" href="/ph-chart/nre-hoc-cop/"><span class="ln">Lesson 3</span><b>NRE, HOC, heat of rejection and COP</b><p>Read the cycle's energy off the chart: what each pound picks up, what the compressor adds, what the condenser dumps, and the ratio you pay for.</p><em>/ph-chart/nre-hoc-cop</em></a><a class="ltile" href="/ph-chart/mass-flow/"><span class="ln">Lesson 4</span><b>Mass flow and capacity</b><p>How many pounds of refrigerant a ton takes (200 ÷ NRE), why the compressor pumps volume not pounds, and what that does to capacity.</p><em>/ph-chart/mass-flow</em></a><a class="ltile" href="/ph-chart/faults/"><span class="ln">Lesson 5</span><b>What faults look like on the chart</b><p>Low charge, overcharge, restrictions, dirty coils, low airflow and worn compressors each bend the cycle a different way.</p><em>/ph-chart/faults</em></a><a class="ltile" href="/ph-chart/comparing-refrigerants/"><span class="ln">Lesson 6</span><b>Comparing refrigerants</b><p>R-410A vs R-454B vs R-32 (and old R-22) on the chart: pressures, heat per pound, flow, discharge temperature and why they aren't interchangeable.</p><em>/ph-chart/comparing-refrigerants</em></a></div></div></div>
       <div class="sys"><div class="sysHead"><h3>Chiller and cooling tower</h3><span>Simulator + 10 lessons</span></div><div class="sysRow">
       <a class="card" href="/chiller/">
         <svg class="art" viewBox="0 0 320 180" aria-hidden="true">

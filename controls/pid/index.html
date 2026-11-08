@@ -255,6 +255,21 @@ p.lsKey{font-weight:600;border-left:4px solid var(--brass);padding:6px 10px;back
 @keyframes lsFallK{to{stroke-dashoffset:-20}}
 .lsFall{animation:lsFallK .7s linear infinite}
 @media (prefers-reduced-motion:reduce){.lsSpin,.lsSpinS,.lsSpinY,.lsDrip,.lsFall{animation:none}}
+/* tool pages: P-H calculator and tables */
+.phCalc{display:grid;gap:12px}
+.phGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:6px 0 10px}
+.phF{display:flex;flex-direction:column;gap:4px;font-size:14px;min-width:0}
+.phF span:first-child{font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.phIn{display:flex;align-items:center;gap:6px}.phIn input{width:100%;min-width:0;font:500 17px var(--mono);padding:7px 9px;border:1px solid var(--panel-edge);border-radius:6px;background:var(--paper);color:var(--ink)}
+.phIn em{font-style:normal;font-family:var(--mono);font-size:13px;color:var(--muted);min-width:34px}
+.phCalc h4{margin:8px 0 0;font:700 15px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+.phSheet td:nth-child(3){color:var(--muted);font-size:13px}
+.phF select{font:500 15px var(--body);padding:8px 9px;border:1px solid var(--panel-edge);border-radius:6px;background:var(--paper);color:var(--ink);min-height:40px}
+.phChart{max-width:820px}
+.phScroll{overflow-x:auto;max-height:70vh}
+.phWhyM{margin-top:10px;font-size:14px}.phWhyM summary{cursor:pointer;font-weight:600}
+@media (max-width:560px){.phSheet{font-size:13px}.phSheet td,.phSheet th{padding:4px 3px}}
+.lsJob .group{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -294,9 +309,9 @@ p.lsKey{font-weight:600;border-left:4px solid var(--brass);padding:6px 10px;back
 </div>
 <div class="modal" id="disc" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="discT">
   <h2 id="discT">Training aid only</h2>
-  <p>These lessons explain how equipment works in plain language, with simplified drawings and a simple model. They are not a substitute for the manufacturer's manual, your plant's procedures, or your instructor.</p>
+  <p>These pages explain how equipment works in plain language, with simplified drawings and a simple model. They are not a substitute for the manufacturer's manual, your plant's procedures, or your instructor.</p>
   <ul><li>Numbers are typical values for learning. Your machine's real numbers are on its startup sheet and in its manual.</li>
-  <li>Chillers hold refrigerant under pressure and run on high voltage. Follow lockout/tagout and your site's safety rules.</li></ul>
+  <li>Real equipment runs on high voltage, holds refrigerant, water or steam under pressure, and may burn gas. Follow lockout/tagout and your site's safety rules.</li></ul>
   <p class="note">Spot something wrong? Use Feedback (top bar) to report it.</p>
   <div class="modalRow"><button class="btn" id="discOk">I understand</button></div></div></div>
 <div class="modal" id="fb" hidden><div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="fbT">
@@ -1566,7 +1581,14 @@ try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s)ST={...ST,...s}}c
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}};
 document.title=L.title+" | "+L.sec;
 $("lsSec").textContent=L.sec;$("lsSec").href=L.secHref||"#";$("lsH1").textContent=L.title;$("lsLead").textContent=L.lead;
-function showTab(t){ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
+/* tool pages (L.tabs = [{id,label,mount(el)}]) replace the four lesson tabs with their own */
+if(L.tabs){const nav=document.querySelector(".lsTabs");nav.setAttribute("aria-label","Parts of this tool");nav.innerHTML=L.tabs.map(t=>`<button data-ltab="${t.id}" aria-pressed="false">${t.label}</button>`).join("");
+ ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=true);
+ L.tabs.forEach(t=>{const sc=document.createElement("section");sc.className="lsPanel";sc.id="tab-"+t.id;sc.hidden=true;sc.innerHTML=`<div id="tb-${t.id}"></div>`;$("lsMain").appendChild(sc)});
+ if(!L.tabs.some(t=>t.id===ST.tab))ST.tab=L.tabs[0].id}
+function showTab(t){if(L.tabs){if(!L.tabs.some(x=>x.id===t))return;ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
+  L.tabs.forEach(x=>{$("tab-"+x.id).hidden=x.id!==t;const el=$("tb-"+x.id);if(x.id===t&&!el.dataset.m){el.dataset.m=1;x.mount(el)}});return}
+ ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
  ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=k!==t);if(t==="see"&&!$("lsSee").dataset.m){$("lsSee").dataset.m=1;L.see.mount($("lsSee"))}
  if(t==="try"&&!$("lsTry").dataset.m){$("lsTry").dataset.m=1;mountTasks()}if(t==="job"&&!$("lsJob").dataset.m){$("lsJob").dataset.m=1;mountJob()}}
 let stepState={};
@@ -1581,7 +1603,7 @@ function showStep(i){ST.step=Math.max(0,Math.min(L.steps.length-1,i));save();con
 $("lsCtl").addEventListener("input",e=>{const s=L.steps[ST.step];if(s.ctl&&s.ctl.input){s.ctl.input(e.target,stepState);drawStep()}});
 function mountTasks(){const el=$("lsTry");el.innerHTML=`<p class="lsIntro">${L.tryIntro||""}</p>`+L.tasks.map((t,i)=>`<div class="group lsTask" id="lsTask${i}"><h3><span class="lsTk${ST.done[i]?" ok":""}" id="lsTk${i}">${ST.done[i]?"✓":i+1}</span> ${t.t}</h3><p>${t.intro}</p><div class="lsTaskBody" id="lsTB${i}"></div></div>`).join("");
  L.tasks.forEach((t,i)=>t.mount($("lsTB"+i),ok=>{if(ok){ST.done[i]=true;save();$("lsTk"+i).textContent="✓";$("lsTk"+i).classList.add("ok")}}))}
-function mountJob(){$("lsJob").innerHTML=L.job+`<h3>Sources</h3><ul class="lsSrc">${L.sources.map(([n,u])=>`<li><a href="${u}" target="_blank" rel="noopener">${n}</a></li>`).join("")}</ul><p class="note">Drawings are made for this site from manufacturer literature and the sources above. Always follow the chiller manufacturer's manual and your plant's logs.</p>`}
+function mountJob(){$("lsJob").innerHTML=L.job+`<h3>Sources</h3><ul class="lsSrc">${L.sources.map(([n,u])=>`<li><a href="${u}" target="_blank" rel="noopener">${n}</a></li>`).join("")}</ul><p class="note">Drawings are made for this site from manufacturer literature and the sources above. Always follow the equipment manufacturer's manual and your site's procedures.</p>`}
 document.addEventListener("click",e=>{const t=e.target;
  const tb=t.closest("[data-ltab]");if(tb){showTab(tb.dataset.ltab);window.scrollTo({top:0});return}
  const d=t.closest("[data-ldot]");if(d){showStep(+d.dataset.ldot);return}
@@ -1590,7 +1612,7 @@ document.addEventListener("click",e=>{const t=e.target;
  if(t.id==="theme"){const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("ls-theme",r.dataset.theme)}catch(_){}}});
 document.addEventListener("keydown",e=>{if(ST.tab!=="learn"||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==="ArrowRight")showStep(ST.step+1);if(e.key==="ArrowLeft")showStep(ST.step-1)});
 try{const t=localStorage.getItem("ls-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
-showStep(ST.step);showTab(ST.tab);
+if(!L.tabs)showStep(ST.step);showTab(ST.tab);
 window.__ls={ST,showTab,showStep,L};
 /* ---------- disclaimer + feedback (FB-Enable) ---------- */
 const FEEDBACK={form:"https://docs.google.com/forms/d/e/1FAIpQLScaqpadGdwDY_CanACDH3X_ZAQ44LzrCwDYcaxIuaxYk6A5UA/viewform",entry:"entry.249128714"};
@@ -1598,7 +1620,7 @@ const DISC_VER="1";let CM=null,cmState="off";
 (async()=>{try{if(window.claude&&window.claude.use){CM=await window.claude.use("comments");if(CM){try{cmState=await CM.canSendToClaude()}catch(e){cmState="off"}}}}catch(e){CM=null}})();
 async function refreshFb(){if(CM){try{cmState=await CM.canSendToClaude()}catch(e){cmState="off"}}const to=CM&&cmState==="available";$("fbTo").textContent=to?"Sends straight to Claude as a comment on this page.":"No sign-in needed.";$("fbSend").textContent=to?"Send to Claude":"Send"}
 async function sendFb(){const msg=$("fbMsg").value.trim();if(!msg){$("fbStatus").textContent="Please write something first.";return}
- const where=ST.tab==="learn"?`Learn step ${ST.step+1}`:{see:"See it",try:"Try it",job:"On the job"}[ST.tab];
+ const where=L.tabs?ST.tab:ST.tab==="learn"?`Learn step ${ST.step+1}`:{see:"See it",try:"Try it",job:"On the job"}[ST.tab];
  const text=`[${$("fbType").value}] ${msg}\n\nFrom: ${$("fbName").value.trim()||"anonymous"}\nContext: Lesson ${L.sec} / ${L.title}, ${where}, ${navigator.userAgent}`;
  $("fbSend").disabled=true;$("fbStatus").textContent="Sending...";
  try{if(CM&&cmState==="available"){try{const anchor=await CM.anchorFor($("lsMain"));await CM.sendToClaude({anchor,text:text.slice(0,3900)});$("fbStatus").textContent="Sent to Claude.";$("fbMsg").value="";setTimeout(()=>$("fb").hidden=true,1500);return}
