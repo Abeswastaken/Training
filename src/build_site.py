@@ -74,20 +74,24 @@ def sysblock(d,card):
     ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
     if not ls:return None
     tiles=''.join(f'<a class="ltile" href="/{p}/"><span class="ln">Lesson {i+1}</span><b>{t}</b><p>{lead_of(fs)}</p><em>/{p}</em></a>' for i,(t,p,fs) in enumerate(ls))
-    cnt=f'Simulator + {len(ls)} lesson'+('s' if len(ls)!=1 else '')
-    return f'      <div class="sys"><div class="sysHead"><h3>{NAMES[d]}</h3><span>{cnt}</span></div><div class="sysRow">\n'+card+f'      <div class="lessons">{tiles}</div></div></div>\n'
+    cnt=f'{len(ls)} lesson'+('s' if len(ls)!=1 else '')
+    return f'      <div class="sys">\n'+card+f'      <details class="les"><summary>{cnt}</summary><div class="lessons">{tiles}</div></details></div>\n'
+# Every card stays in the grid. A card with lessons gets a folded "N lessons" bar under it; opening it widens that card to a full row.
 def regroup(m):
     cards=re.findall(r'      <a class="card" href="/([a-z0-9-]+)/">.*?</a>\n',m.group(1),flags=re.S)
     full=re.findall(r'(      <a class="card" href="/[a-z0-9-]+/">.*?</a>\n)',m.group(1),flags=re.S)
     assert len(cards)==len(full)
-    rows=[];rest=[]
-    for d,c in zip(cards,full):
-        b=sysblock(d,c);(rows.append(b) if b else rest.append(c))
-    out=''
-    if rows:out+='<div class="sysList">\n'+''.join(rows)+'    </div>\n'
-    if rest:out+=('    ' if rows else '')+'<div class="grid">\n'+''.join(rest)+'    </div>\n'
-    return out
+    return '<div class="grid">\n'+''.join(sysblock(d,c) or c for d,c in zip(cards,full))+'    </div>\n'
 h=re.sub(r'<div class="grid">\n(.*?)    </div>\n(?=  </section>)',regroup,h,flags=re.S)
+# What's new: the newest 3 as one-line expandable bullets on the home page, everything on /whats-new/.
+_i=h.index('<section class="news"');_j=h.index('</section>',_i)+10
+NEWS=re.findall(r'<li data-s="([^"]*)"><time datetime="([^"]+)">([^<]+)</time><span>(.*?)</span></li>',h[_i:_j],flags=re.S)
+assert len(NEWS)==h[_i:_j].count('<li'),'every What\'s new entry needs data-s'
+h=h[:_i]+'<section class="news" aria-labelledby="new">\n    <div class="newsHead"><h2 id="new">What\'s new</h2><a href="/whats-new/">Full change log →</a></div>\n'+''.join(f'    <details class="nw"><summary><time datetime="{d}">{l}</time><span>{s_}</span></summary><p>{x}</p></details>\n' for s_,d,l,x in NEWS[:3])+'  </section>'+h[_j:]
+_style=h[:h.index('</style>')+8].replace('<title>HVAC Trainers Home</title>','<title>What\'s new | HVAC Trainers</title>')
+_log=''.join(f'<article><time datetime="{d}">{l}, {d[:4]}</time><h3>{s_}</h3><p>{x}</p></article>\n' for s_,d,l,x in NEWS)
+os.makedirs(f'{OUT}/whats-new',exist_ok=True)
+open(f'{OUT}/whats-new/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+_style+'\n</head>\n<body>\n<main class="wrap">\n  <header class="plate"><i></i><i></i><i></i><i></i>\n    <a class="backHome" href="/">← All trainers</a>\n    <h1>What\'s new</h1>\n    <p class="lede">Every change to the site, newest first.</p>\n  </header>\n  <section class="log" aria-label="Change log">\n'+_log+'  </section>\n</main>\n</body>\n</html>\n')
 h=h.replace('<!--nlessons-->',str(len(LESSONS)))
 h=h.replace('<title>HVAC Trainers Home</title>','<title>HVAC Trainers</title>')
 open(f'{OUT}/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+h.replace('</style>','</style>\n</head>\n<body>',1)+'\n</body>\n</html>\n')
