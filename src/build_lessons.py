@@ -31,11 +31,11 @@ MSL=[('ms-vs','How a mini-split differs from a ducted split','mini-split/vs-duct
 LESSONS+=MSL
 # Phase 3+ sections register their lessons in lessons_<sec>.py as L=[(slug,title,path,files),...]
 import os as _os
-for _sec in ['ref','boil','hx','heat','comb','air','ctl','wire','lad','tph','mot']:
+for _sec in ['ref','boil','hx','heat','comb','air','ctl','wire','lad','tph','mot','comp']:
   _f=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),f'lessons_{_sec}.py')
   if _os.path.exists(_f):
     _ns={'RF':RF,'PL':PL,'MSF':MSF};exec(open(_f).read(),_ns);LESSONS+=_ns['L']
-TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js'])]
+TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js']),('comp-tool','Carlyle 06D compressor','carlyle-06d',RF+['lesson/comp_kit.js','lesson/comp_tool.js'])]
 if __name__=='__main__':
   css=open('base.css').read()+open('lesson/lesson.css').read()
   body=open('lesson/lesson-body.html').read()

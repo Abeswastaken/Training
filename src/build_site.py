@@ -49,6 +49,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'threephase':['Colored L1/L2/L3 power circuit: 208/240 V or 480 V','Control transformer, X1 fused, X2 grounded, 120 or 24 V','Start/stop, forward/reverse, jog, timed sequence, wye-delta','Swap two leads, single phasing, overloads, meter'],
  'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests'],
  'mini-split':['<b>Tabs:</b> Simulator, Service calls, Error codes','1 to 4 heads, cooling, heating, defrost and cold-climate mode','Line set length and added charge, 14 faults, generic codes with brand links'],
+ 'carlyle-06d':['<b>Tabs:</b> Cutaway, Teardown, Specs','Animated cross-section: pistons, reed valves, gas and oil paths','Valve plate and oil pump teardown with torques','Model and serial number decoder, oil pressure by build date'],
  'ph-chart':['<b>Tabs:</b> Chart, Calculator, Property table','R-410A, R-454B, R-32, R-22, R-134a and R-404A','Calculator laid out like the class P/E sheet, with both methods side by side']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)
@@ -68,7 +69,7 @@ def lead_of(files):
         if m:return m.group(1)
     return ''
 NAMES={d:n for d,f,n in SITES}
-NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits'
+NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits';NAMES['carlyle-06d']='Carlyle 06D compressor'
 def sysblock(d,card):
     ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
     if not ls:return None
@@ -76,8 +77,8 @@ def sysblock(d,card):
     cnt=f'Simulator + {len(ls)} lesson'+('s' if len(ls)!=1 else '')
     return f'      <div class="sys"><div class="sysHead"><h3>{NAMES[d]}</h3><span>{cnt}</span></div><div class="sysRow">\n'+card+f'      <div class="lessons">{tiles}</div></div></div>\n'
 def regroup(m):
-    cards=re.findall(r'      <a class="card" href="/([a-z-]+)/">.*?</a>\n',m.group(1),flags=re.S)
-    full=re.findall(r'(      <a class="card" href="/[a-z-]+/">.*?</a>\n)',m.group(1),flags=re.S)
+    cards=re.findall(r'      <a class="card" href="/([a-z0-9-]+)/">.*?</a>\n',m.group(1),flags=re.S)
+    full=re.findall(r'(      <a class="card" href="/[a-z0-9-]+/">.*?</a>\n)',m.group(1),flags=re.S)
     assert len(cards)==len(full)
     rows=[];rest=[]
     for d,c in zip(cards,full):
