@@ -97,5 +97,6 @@ h=h.replace('<!--nlessons-->',str(len(LESSONS)))
 h=h.replace('<title>HVAC Trainers Home</title>','<title>HVAC Trainers</title>')
 open(f'{OUT}/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+h.replace('</style>','</style>\n</head>\n<body>',1)+'\n</body>\n</html>\n')
 open(f'{OUT}/CNAME','w').write('training.colvinj.com\n')
+open(f'{OUT}/.nojekyll','w').write('')  # plain HTML site: skip GitHub's Jekyll step
 open(f'{OUT}/404.html','w').write('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title><meta http-equiv="refresh" content="0; url=/"></head><body><p><a href="/">Back to all trainers</a></p></body></html>\n')
 print('site written')
