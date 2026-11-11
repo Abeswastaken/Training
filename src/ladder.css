@@ -82,3 +82,13 @@
 .p3pwr .ladWrap{overflow-x:auto}#p3svg{width:100%;max-width:900px;height:auto;display:block}
 #p3svg .tg.bad{fill:var(--bad)}.p3notes{padding-left:18px;margin:0}.p3notes li{margin:4px 0}
 @media (max-width:700px){#p3svg{width:640px;max-width:none}}
+/* meter leads */
+.mJacks{display:flex;gap:6px}
+.mLead{flex:1;display:flex;align-items:center;gap:4px;padding:2px 6px 2px 0;border:2px solid #7a5600;border-radius:8px;background:#fbf3d8;color:#111;font:inherit;text-align:left;cursor:grab;touch-action:none;min-height:66px;user-select:none;-webkit-user-select:none}
+.mLead b{display:block;font:700 13px var(--display);letter-spacing:.03em;text-transform:uppercase}.mLead small{display:block;font-size:11px;line-height:1.2;color:#4a4f52}
+.mLead[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 5px #1d2327;background:#fff}
+.mLead.out svg{opacity:.3}
+.probe{cursor:grab;touch-action:none}.probe:hover{filter:brightness(1.15)}
+.pGhost{position:fixed;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:1000;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.pRing{position:fixed;width:30px;height:30px;margin:-15px 0 0 -15px;border:3px solid #c9a227;border-radius:50%;pointer-events:none;z-index:999;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+body.probing{cursor:grabbing;user-select:none;-webkit-user-select:none}body.probing .ladWrap{touch-action:none}

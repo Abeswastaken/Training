@@ -2478,7 +2478,7 @@ function renderControls(){const sim=cur;
   const main=sim.sliders.filter(s=>!s.more),more=sim.sliders.filter(s=>s.more);
   $("p-controls").innerHTML=`
    <div class="group"><h3>Switches</h3><div class="btns" id="switches">${sim.switches.map((w,i)=>`<button class="btn" data-sw="${i}"></button>`).join("")}</div>
-   <div class="btns" id="actions">${sim.actions.map(a=>`<button class="btn ${a.cls||""}" data-act="${a.id}" hidden>${a.l}</button>`).join("")}</div></div>
+   <div class="btns" id="actions">${sim.actions.map(a=>`<button class="btn ${a.cls||""}" data-act="${a.id}" hidden>${a.l}</button>`).join("")}</div><div id="actRes" class="actRes" role="status" aria-live="polite" hidden></div></div>
    <div class="group"><h3>Settings</h3><p>Sliders go well past normal so you can see what a wrong setting or wrong charge does. They turn red outside the normal range.</p>${main.map(s=>sliderRow(sim,s)).join("")}</div>
    <details id="more"><summary>More settings</summary><div class="group">${more.map(s=>sliderRow(sim,s)).join("")}</div></details>`;
   sim.sliders.forEach(s=>markRow(sim,s));syncSwitches();
@@ -2704,6 +2704,7 @@ const COMPLAINTS={
   radVent:["Customer: \"The radiators are only hot at the inlet end, and they never hiss anymore.\"",{s:{two:false}}],
   gasStuck:["Customer: \"The boiler won't stop firing and the gauge is climbing fast.\""],
   flameRod:["Customer: \"The burner lights, drops out and relights over and over.\""],
+  dirtyWater:["Customer: \"The water in the sight glass is rusty brown and bounces a couple of inches when it fires. The radiators hiss and spit water.\""],
   trapOpen:["Customer: \"The return pipes bang, and the vent on the return pipe spits steam.\"",{s:{two:true}}],
   trapShut:["Customer: \"One radiator is cold at the bottom and hot only at the top.\"",{s:{two:true}}],
   ftFail:["Customer: \"Banging in the main, and steam takes a long time to get to the far rooms.\"",{s:{two:true}}]}
@@ -2772,6 +2773,8 @@ function partHTML(k){const sim=cur,d=sim.parts[k];const im=ill(sim.id,k)+(k==="r
   if(ph.length)h+=`<h4>See it</h4><ul>${ph.map(([l,u])=>`<li><a href="${u}" target="_blank" rel="noopener">${l}</a></li>`).join("")}</ul>`;
   if(d.src.length)h+=`<h4>Sources</h4><ul>${d.src.map(s=>`<li><a href="${SRC[s][1]}" target="_blank" rel="noopener">${SRC[s][0]}</a></li>`).join("")}</ul>`;
   return h}
+/* Show what a check found right under the buttons (it also goes to the Log tab), so a tap never looks dead. */
+function showActRes(a,e){const r=$("actRes");if(!r)return;const lbl=typeof a.l==="function"?a.l(cur.S):a.l;r.className="actRes"+(e&&e[2]==="w"?" w":"");r.innerHTML=`<b>${lbl}</b><span>${e?e[1]:"Done. See the drawing and readouts."}</span>`;r.hidden=false;r.classList.remove("flash");void r.offsetWidth;r.classList.add("flash");if(r.getBoundingClientRect().bottom>innerHeight)r.scrollIntoView({block:"nearest",behavior:"smooth"})}
 function openPart(k){if(!cur.parts[k])return;openKey=k;$("sheet").classList.remove("mini");$("sheetT").textContent=cur.parts[k].n;$("sheetB").innerHTML=partHTML(k);$("sheet").hidden=false;syncFaults()}
 function closeSheet(){$("sheet").hidden=true;$("sheet").classList.remove("mini");openKey=null}
 function renderLog(){$("log").innerHTML=cur.logs.map(([t,m,c])=>`<div><time>${t}</time><span class="${c}">${m}</span></div>`).join("")}
@@ -2805,7 +2808,7 @@ function syncStrip(){const S=cur.S;
 document.addEventListener("click",e=>{const t=e.target.closest("button,.part");if(!t)return;
   if(t.classList.contains("part")){openPart(t.dataset.p);return}
   if(t.dataset.sw){cur.switches[+t.dataset.sw].act(cur);syncSwitches();return}
-  if(t.dataset.act){cur.actions.find(a=>a.id===t.dataset.act).act(cur);return}
+  if(t.dataset.act){const a=cur.actions.find(x=>x.id===t.dataset.act),n=cur.logs.length,top=cur.logs[0];a.act(cur);showActRes(a,cur.logs[0]!==top||cur.logs.length!==n?cur.logs[0]:null);return}
   if(t.dataset.reset){const r=cur.resets(cur.S)[+t.dataset.reset];r&&r[1]();lastAlerts="x";return}
   if(t.dataset.sc){const sc=cur.scenarios[+t.dataset.sc];cur.sliders.forEach(s=>cur.V[s.k]=s.v);Object.assign(cur.V,sc.v||{});if(sc.meter)cur.S.meter=sc.meter;reset(cur);if(sc.s)Object.assign(cur.S,JSON.parse(JSON.stringify(sc.s)));sc.f.forEach(k=>setFault(cur,k,true));log(cur,`Scenario: ${sc.l}.`,"b");setSpeed(60);running=true;$("run").textContent="Pause";return}
   if(t.dataset.sim){switchSim(t.dataset.sim);return}

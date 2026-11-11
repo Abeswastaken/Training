@@ -156,6 +156,13 @@ details .group{gap:10px}
 .sheet.mini h2{font-size:15px;margin-bottom:4px}
 .sheet.mini #sheetB>*:not(.rvBar){display:none}
 .sheet.mini .rvBar .rvMore{display:inline-block}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
 :root{--hotw:#d0312d;--hotf:#ffd3cf}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hotw:#ff5a4f;--hotf:#5a1d1a}}
 :root[data-theme="dark"]{--hotw:#ff5a4f;--hotf:#5a1d1a}
@@ -240,6 +247,16 @@ details .group{gap:10px}
 .p3pwr .ladWrap{overflow-x:auto}#p3svg{width:100%;max-width:900px;height:auto;display:block}
 #p3svg .tg.bad{fill:var(--bad)}.p3notes{padding-left:18px;margin:0}.p3notes li{margin:4px 0}
 @media (max-width:700px){#p3svg{width:640px;max-width:none}}
+/* meter leads */
+.mJacks{display:flex;gap:6px}
+.mLead{flex:1;display:flex;align-items:center;gap:4px;padding:2px 6px 2px 0;border:2px solid #7a5600;border-radius:8px;background:#fbf3d8;color:#111;font:inherit;text-align:left;cursor:grab;touch-action:none;min-height:66px;user-select:none;-webkit-user-select:none}
+.mLead b{display:block;font:700 13px var(--display);letter-spacing:.03em;text-transform:uppercase}.mLead small{display:block;font-size:11px;line-height:1.2;color:#4a4f52}
+.mLead[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 5px #1d2327;background:#fff}
+.mLead.out svg{opacity:.3}
+.probe{cursor:grab;touch-action:none}.probe:hover{filter:brightness(1.15)}
+.pGhost{position:fixed;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:1000;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.pRing{position:fixed;width:30px;height:30px;margin:-15px 0 0 -15px;border:3px solid #c9a227;border-radius:50%;pointer-events:none;z-index:999;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+body.probing{cursor:grabbing;user-select:none;-webkit-user-select:none}body.probing .ladWrap{touch-action:none}
 </style>
 <style>.crumb{display:flex;gap:6px;align-items:center;font:600 13px "Barlow Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;color:var(--muted,#5b666d)}.crumb a{color:var(--brass,#9a6f1f);text-decoration:none}.crumb a:hover,.crumb a:focus-visible{text-decoration:underline}</style>
 </head>
@@ -268,7 +285,7 @@ details .group{gap:10px}
   <div class="mainCol">
     <div class="group svcBox" id="svcBox" hidden><h3>Service call</h3><p class="svcMsg" id="svcMsg"></p><p class="note" id="svcHelp"></p><div class="btns"><button class="btn blue" id="svcDiag">I found it</button><button class="btn" id="svcQuit">Give up</button></div></div>
     <div class="group meterBox" id="meterBox" hidden>
-      <div class="mRow"><div class="mBody"><div class="mLcd" id="mLcd"><b>----</b></div><div class="seg" role="group" aria-label="Meter mode"><button data-mmode="v">V AC</button><button data-mmode="o">Ω</button><button data-mmode="c">Continuity</button></div></div>
+      <div class="mRow"><div class="mBody"><div class="mLcd" id="mLcd"><b>----</b></div><div class="seg" role="group" aria-label="Meter mode"><button data-mmode="v">V AC</button><button data-mmode="o">Ω</button><button data-mmode="c">Continuity</button></div><div class="mJacks" id="mJacks"></div></div>
       <div class="mInfo"><p class="note" id="mLeads"></p><p class="mNote" id="mNote"></p><button class="btn" id="mClear">Clear leads</button></div></div>
     </div>
     <p class="hint" id="hint" aria-live="polite"></p>
@@ -1457,7 +1474,19 @@ function flashModal(t,b){render();const w=$("wrapL");w.classList.remove("shake")
 let warned={};
 
 /* ---------- multimeter ---------- */
-const meter={on:false,mode:"v",red:null,black:null,next:"red"};
+const meter={on:false,mode:"v",red:null,black:null,next:"red",ri:{}};
+/* A test lead drawn tip-down at 0,0: needle point, finger guard, ribbed handle, strain relief. */
+function probeShape(lead){const c=lead==="red"?["#f0564a","#c9261c","#7a1410"]:["#566067","#1d2327","#000"];
+ return `<path d="M0 0 L-1.7 -9 V-20 H1.7 V-9 Z" fill="#cdd3d7" stroke="#59626a" stroke-width=".6"/><rect x="-3.2" y="-27" width="6.4" height="8" rx="1" fill="${c[2]}"/>`
+ +`<rect x="-7" y="-31" width="14" height="5" rx="2.2" fill="${c[1]}" stroke="${c[2]}" stroke-width=".6"/><path d="M-5 -31 L-5.8 -74 Q-5.8 -79 0 -79 Q5.8 -79 5.8 -74 L5 -31 Z" fill="${c[1]}" stroke="${c[2]}" stroke-width=".6"/>`
+ +`<path d="M-3 -34 L-3.6 -73" stroke="${c[0]}" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>`+[42,47,52,57].map(y=>`<path d="M-5.3 ${-y} H5.3" stroke="${c[2]}" stroke-width=".9" opacity=".7"/>`).join("")
+ +`<rect x="-2.6" y="-88" width="5.2" height="10" rx="2" fill="${c[2]}"/>`}
+const probeAng=(lead,flip)=>(lead==="red"?28:-28)*(flip?-1:1)+(flip?180:0);
+/* a lead sitting on a probe point inside a drawing; the handle is the drag target */
+function probeG(x,y,lead,flip,k=1){const c=lead==="red"?"#c9261c":"#1d2327",d=lead==="red"?1:-1;if(pd&&pd.moved&&pd.lead===lead)return "";
+ return `<g class="probe" data-lead="${lead}" transform="translate(${x} ${y}) rotate(${probeAng(lead,flip)}) scale(${k})"><title>${lead==="red"?"Red":"Black (COM)"} lead: drag to move it</title><path d="M0 -86 q${d*10} -22 ${d*34} -20 t${d*30} 14" stroke="${c}" stroke-width="3.2" fill="none" stroke-linecap="round"/>${probeShape(lead)}<circle r="4" fill="none" stroke="${c}" stroke-width="1.4"/><rect x="-10" y="-92" width="20" height="66" fill="transparent"/></g>`}
+/* pts: key -> [[x,y,rung]...]; a rail has a dot on every rung, so the lead stays on the rung it was put on */
+const probesFor=(pts,flipY=96,k=1)=>["black","red"].map(l=>{const a=meter[l]&&pts[meter[l]];if(!a)return "";const q=a.find(v=>v[2]===meter.ri[l])||a[0];return probeG(q[0],q[1],l,q[1]<flipY,k)}).join("");
 /* resistance of a load, scaled for the voltage it is rated for */
 function loadOhms(c,sec){const v=secV(sec),k=c.k;const at120={coil:450,mcoil:110,td:900,lamp:150,sol:120,heat:9.6,buzz:600,motor:3.5,xfmr:20}[k]||100;
  if(k==="motor"||k==="heat"||k==="xfmr")return at120;return at120*(v/120)*(v/120)}
@@ -1491,7 +1520,7 @@ function resistance(pa,pb){/* ohms between two points in one section with power 
  M[pos[a0]][m]=1;
  for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];const d=M[c][c];if(Math.abs(d)<1e-12)return Infinity;for(let r=0;r<m;r++){if(r===c)continue;const f=M[r][c]/d;if(f)for(let k=c;k<=m;k++)M[r][k]-=f*M[c][k]}}
  return M[pos[a0]][m]/M[pos[a0]][pos[a0]]}
-function meterReading(){const {red,black,mode}=meter;if(!red||!black)return {txt:"----",note:"Tap a dot on the ladder for the red lead, then another for the black lead."};
+function meterReading(){const {red,black,mode}=meter;if(!red||!black)return {txt:"----",note:"Put the red lead on one dot and the black lead on another."};
  if(P3&&(red.startsWith("p:")||black.startsWith("p:")))return p3Reading(red,black,mode);
  const sa=ptSec(red),sb=ptSec(black);
  if(mode==="v"){if(sa!==sb)return {txt:"0.0",unit:"V AC",note:"The leads are on two different supplies (line side and 24 V side). They aren't connected, so there's no reading between them."};
@@ -1718,10 +1747,11 @@ function render(){
   if(shortRung===ri)s+=`<rect x="${X0}" y="${y-30}" width="${n*CW}" height="60" fill="none" stroke="var(--bad)" stroke-width="4" class="blinkR"/>`;
  });
  // meter probe points
- if(meter.on){rungs.forEach((r,ri)=>{const G=GEO.rung[ri],sg=GEO.sec[secOf(r)];const pts=[[0,X0,G.y],[r.n,sg.xr,G.y]];for(let i=1;i<r.n;i++)pts.push([i,X0+i*CW,G.y]);
+ if(meter.on){const PT={};rungs.forEach((r,ri)=>{const G=GEO.rung[ri],sg=GEO.sec[secOf(r)];const pts=[[0,X0,G.y],[r.n,sg.xr,G.y]];for(let i=1;i<r.n;i++)pts.push([i,X0+i*CW,G.y]);
    const {N}=rungEdges(r);let base=r.n+1;r.br.forEach((b,bi)=>{for(let i=b.from+1;i<=b.to;i++)pts.push([base+i,X0+i*CW,G.ybr(bi)]);base+=r.n+1});
-   pts.forEach(([nd,x,y])=>{const key=nd<=r.n?ptKey(ri,nd):ri+":"+nd;const isR=meter.red===key,isB=meter.black===key;
-    s+=`<g class="mpt" data-pt="${key}"><circle cx="${x}" cy="${y}" r="14" fill="transparent"/><circle cx="${x}" cy="${y}" r="${isR||isB?8:5}" fill="${isR?"#d0312d":isB?"#1d2327":"var(--paper)"}" stroke="${isR?"#7a1410":"var(--brass)"}" stroke-width="2"/>${isR||isB?`<text x="${x}" y="${y-13}" class="tg" style="fill:${isR?"#d0312d":"var(--ink)"}">${isR?"RED":"COM"}</text>`:""}</g>`})})}
+   pts.forEach(([nd,x,y])=>{const key=nd<=r.n?ptKey(ri,nd):ri+":"+nd;const isR=meter.red===key,isB=meter.black===key;(PT[key]=PT[key]||[]).push([x,y,String(ri)]);
+    s+=`<g class="mpt" data-pt="${key}" data-ri="${ri}"><circle cx="${x}" cy="${y}" r="14" fill="transparent"/><circle cx="${x}" cy="${y}" r="${isR||isB?6.5:5}" fill="${isR?"#d0312d":isB?"#1d2327":"var(--paper)"}" stroke="${isR?"#7a1410":"var(--brass)"}" stroke-width="2"/></g>`})});
+  s+=probesFor(PT,128,1.3)}
  s+=`<g id="fx"></g>`;
  svg.innerHTML=s;
  $("pwr").textContent=power?"Disconnect: ON":"Disconnect: OFF";$("pwr").setAttribute("aria-pressed",power);
@@ -1737,7 +1767,9 @@ function renderMeter(){const box=$("meterBox");if(!box)return;box.hidden=!meter.
  const r=meterReading();$("mLcd").innerHTML=`<b>${esc(r.txt)}</b><small>${esc(r.unit||"")}</small>`;$("mNote").textContent=r.note;
  document.querySelectorAll("[data-mmode]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mmode===meter.mode));
  const where=p=>{if(!p)return "not placed";const [a,b]=p.split(":");if(a==="p")return p3PtName(b);if(P3&&a==="hi")return b==="L"?"X1":"X2";if(a==="hi"||a==="lo")return (a==="lo"?"24 V ":"")+(b==="L"?"left rail":"right rail");return `rung ${+a+1}, point ${b}`};
- $("mLeads").textContent=`Red: ${where(meter.red)} · Black: ${where(meter.black)}`}
+ const lead=l=>`<button class="mLead ${l}${meter[l]?" out":""}" data-lead="${l}" aria-pressed="${meter.next===l}"><svg viewBox="-34 -14 68 100" width="42" height="62" aria-hidden="true"><g transform="translate(0 82) rotate(${l==="red"?12:-12})">${probeShape(l)}</g></svg><span><b>${l==="red"?"Red (V Ω)":"Black (COM)"}</b><small>${meter[l]?"on "+where(meter[l]):"in the holder"}</small></span></button>`;
+ const h=lead("red")+lead("black");const J=$("mJacks");if(J&&J.dataset.h!==h&&!(pd&&pd.moved)){J.dataset.h=h;J.innerHTML=h}
+ $("mLeads").textContent=!meter.red&&!meter.black?"Drag a lead onto a dot in the drawing. Or tap a lead here, then tap a dot.":`Next tap places the ${meter.next==="red"?"red":"black"} lead. Drag a lead off the drawing to put it back.`}
 function say(m,c=""){const d=document.createElement("div");d.innerHTML=`<span class="${c}">${esc(m)}</span>`;$("log").prepend(d);while($("log").children.length>100)$("log").lastChild.remove()}
 function arc(ri){say(`ARC FLASH: rung ${ri+1} connects ${lineV()===24?"R straight to C":"L1 straight to the other side"} with no load. Dead short. Power off.`,"b");
  render();const fx=svg.querySelector("#fx");const G=GEO.rung[ri],y=G.y,x=X0+rungs[ri].n*CW/2;fx.innerHTML=`<circle cx="${x}" cy="${y}" r="160" fill="url(#arc)" class="flash"/>`+Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<path d="M${x} ${y} l${(Math.cos(a)*50).toFixed(0)} ${(Math.sin(a)*50).toFixed(0)} l${(Math.cos(a+.5)*25).toFixed(0)} ${(Math.sin(a+.5)*25).toFixed(0)} l${(Math.cos(a)*40).toFixed(0)} ${(Math.sin(a)*40).toFixed(0)}" stroke="#bfe6ff" stroke-width="3" fill="none" class="flash"/>`}).join("");
@@ -1848,7 +1880,7 @@ function svcGuess(id){$("modal").hidden=true;if(!svc)return;const ok=id===svc.id
 
 /* ---------- interaction ---------- */
 svg.addEventListener("click",ev=>{
- const mp=ev.target.closest(".mpt");if(mp&&meter.on&&!placing&&!moving){meter[meter.next]=mp.dataset.pt;meter.next=meter.next==="red"?"black":"red";render();return}
+ if(pdJust||(meter.on&&!placing&&!moving&&ev.target.closest(".mpt,.probe")))return;
  const sb=ev.target.closest(".sbtn");if(sb){const [ri,op]=sb.dataset.slot.split(":");const r=rungs[+ri];
   if(op==="+"){if(r.n<MAXN){snap();r.n++;save();render()}}
   else if(r.n>3){const last=r.n-1;if(r.cells[last]||r.br.some(b=>b.to>=last)){say(`Rung ${+ri+1}: clear the last slot before removing it.`,"w")}else{snap();r.n--;save();render()}}return}
@@ -1860,6 +1892,30 @@ svg.addEventListener("click",ev=>{
   render();if(t.manual!=="push"){const sh=$("elSheet"),rc=sh.getBoundingClientRect();if(rc.top>innerHeight-80||rc.bottom<0)sh.scrollIntoView({behavior:"smooth",block:"nearest"})}return}
  if(cell&&!svc){const r=rungs[+cell.dataset.r];if(!cellAt(r,cell.dataset.w,+cell.dataset.i)){openMenu(+cell.dataset.r,cell.dataset.w,+cell.dataset.i);return}}
  sel=null;render()});
+/* ---------- meter leads: tap a dot, tap a lead to choose it, or drag a lead to a dot ---------- */
+let pd=null,pdJust=false,pGhost=null,pRing=null;
+const other=l=>l==="red"?"black":"red";
+function nearDot(x,y,max){let best=null,bd=max;document.querySelectorAll(".mpt").forEach(m=>{const r=m.getBoundingClientRect();if(!r.width)return;const cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.hypot(cx-x,cy-y);if(d<bd){bd=d;best={pt:m.dataset.pt,ri:m.dataset.ri,cx,cy}}});return best}
+const tipOf=ev=>[ev.clientX,ev.clientY-(ev.pointerType==="touch"?44:0)];
+document.addEventListener("pointerdown",ev=>{if(!meter.on||placing||moving||!ev.target.closest)return;
+ const pr=ev.target.closest("[data-lead]"),mp=!pr&&ev.target.closest(".mpt");if(!pr&&!mp)return;
+ pd={lead:pr?pr.dataset.lead:null,pt:mp?mp.dataset.pt:null,ri:mp?mp.dataset.ri:null,sx:ev.clientX,sy:ev.clientY,moved:false};if(pr){ev.preventDefault();try{ev.target.releasePointerCapture(ev.pointerId)}catch(e){}}},true);
+document.addEventListener("pointermove",ev=>{if(!pd||!pd.lead)return;
+ if(!pd.moved&&Math.hypot(ev.clientX-pd.sx,ev.clientY-pd.sy)>6){pd.moved=true;document.body.classList.add("probing");
+  pGhost=document.createElementNS("http://www.w3.org/2000/svg","svg");pGhost.setAttribute("class","pGhost");pGhost.innerHTML=`<g transform="rotate(${probeAng(pd.lead,false)})">${probeShape(pd.lead)}</g>`;
+  pRing=document.createElement("div");pRing.className="pRing";pRing.hidden=true;document.body.append(pRing,pGhost);render();if(P3)p3Render()}
+ if(!pd.moved)return;ev.preventDefault();const [x,y]=tipOf(ev);pGhost.style.left=x+"px";pGhost.style.top=y+"px";
+ const n=nearDot(x,y,34);pRing.hidden=!n;if(n){pRing.style.left=n.cx+"px";pRing.style.top=n.cy+"px"}},{passive:false});
+function pdEnd(ev,cancel){if(!pd)return;const d=pd;pd=null;document.body.classList.remove("probing");if(pGhost){pGhost.remove();pGhost=null}if(pRing){pRing.remove();pRing=null}
+ if(cancel){render();return}
+ if(d.moved){const [x,y]=tipOf(ev);const n=nearDot(x,y,34);
+  if(n){if(meter[other(d.lead)]===n.pt)meter[other(d.lead)]=null;meter[d.lead]=n.pt;meter.ri[d.lead]=n.ri;meter.next=meter[other(d.lead)]?d.lead:other(d.lead)}
+  else{if(meter[d.lead])say(`${d.lead==="red"?"Red":"Black"} lead back in the holder.`);meter[d.lead]=null;meter.next=d.lead}
+  pdJust=true;setTimeout(()=>{pdJust=false},0)}
+ else if(d.lead){meter.next=d.lead}
+ else if(d.pt&&Math.hypot(ev.clientX-d.sx,ev.clientY-d.sy)<10){const l=meter.next;if(meter[other(l)]===d.pt)meter[other(l)]=null;meter[l]=d.pt;meter.ri[l]=d.ri;meter.next=other(l)}
+ render();if(P3)p3Render()}
+document.addEventListener("pointerup",ev=>pdEnd(ev,false));document.addEventListener("pointercancel",ev=>pdEnd(ev,true));
 // drag from the palette, or drag a placed part (mouse); long-press a placed part to move it (touch)
 let dragK=null,ghost=null,dragEl=null,lpTimer=null;
 document.addEventListener("pointerdown",ev=>{const b=ev.target.closest("[data-add]");
@@ -1911,7 +1967,7 @@ document.addEventListener("click",ev=>{
   case "undo":if(hist.length){const s=JSON.parse(hist.pop());rungs=s.rungs;idn=s.idn;sel=null;save();render()}break;
   case "clearL":if(confirm("Clear the ladder?")){snap();rungs=[blank(),blank(),blank()];sel=null;coilOn={};timers={};save();render()}break;
   case "mOk":$("modal").hidden=true;break;
-  case "meterBtn":meter.on=!meter.on;if(meter.on)say("Meter on: tap a dot for the red lead, then another for the black lead.");render();break;
+  case "meterBtn":meter.on=!meter.on;if(meter.on)say("Meter on: drag the red and black leads onto dots, or tap a lead and then a dot.");render();break;
   case "mClear":meter.red=meter.black=null;meter.next="red";render();break;
   case "svcBtn":if(svc){svcEnd("Service call ended.")}else svcStart();break;
   case "svcDiag":svcDiagnose();break;

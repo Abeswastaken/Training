@@ -156,6 +156,13 @@ details .group{gap:10px}
 .sheet.mini h2{font-size:15px;margin-bottom:4px}
 .sheet.mini #sheetB>*:not(.rvBar){display:none}
 .sheet.mini .rvBar .rvMore{display:inline-block}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
 :root{--wpart:#e9ecee}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wpart:#3a444a}}
 :root[data-theme="dark"]{--wpart:#3a444a}

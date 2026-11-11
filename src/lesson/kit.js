@@ -8,6 +8,23 @@ K.txt=(x,y,t,o={})=>`<text x="${x}" y="${y}" class="lsG" style="text-anchor:${o.
 K.tag=(x,y,t,o={})=>{const w=o.w||t.length*8.4+16;const ax=o.a==="start"?x:o.a==="end"?x-w:x-w/2;return `<rect x="${ax}" y="${y-17}" width="${w}" height="24" rx="4" fill="var(--paper)" opacity=".93" stroke="${o.stroke||"none"}"/>`+K.lbl(ax+w/2,y,t,{c:o.c,fill:o.fill})};
 K.arrowDef=(id,col)=>`<defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="${col}"/></marker></defs>`;
 K.arrow=(d,col,w=2.4)=>{const id=K.uid("ar");return K.arrowDef(id,col)+`<path d="${d}" stroke="${col}" stroke-width="${w}" fill="none" marker-end="url(#${id})"/>`};
+/* Keep drawing text readable in both themes. Theme-colored text (light in dark mode) can land on a shape with a fixed light fill, or the reverse.
+   For each <text>, find the topmost filled shape under its centre and, if the contrast is poor, switch the text to plain dark or light. */
+K.legible=svg=>{if(!svg||svg._lg)return;svg._lg=requestAnimationFrame(()=>{svg._lg=0;try{
+ const lum=c=>{const m=(c||"").match(/[\d.]+/g);if(!m||m.length<3)return null;if(m.length>3&&+m[3]<0.6)return null;const [r,g,b]=m.slice(0,3).map(v=>{v=+v/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+ const gl={},grad=id=>{if(id in gl)return gl[id];const g=document.getElementById(id);let v=null;if(g){let h=g,st=[...g.querySelectorAll("stop")];for(let k=0;!st.length&&k<3;k++){const r=(h.getAttribute("href")||h.getAttribute("xlink:href")||"").slice(1);h=r&&document.getElementById(r);if(!h)break;st=[...h.querySelectorAll("stop")]}
+   const ls=st.map(x=>{const cs=getComputedStyle(x);return +cs.stopOpacity<0.6?null:lum(cs.stopColor)});if(ls.length&&ls.every(x=>x!=null))v=ls.reduce((a,b)=>a+b,0)/ls.length}return gl[id]=v};
+ const all=[...svg.querySelectorAll("*")],geo=[];
+ all.forEach((e,i)=>{if(e instanceof SVGGeometryElement&&!e.closest("defs,clipPath,mask,marker,pattern,symbol")){const r=e.getBoundingClientRect();if(r.width>4&&r.height>4)geo.push([i,e,r])}});
+ const seeThrough=e=>{for(let n=e;n&&n!==svg;n=n.parentNode){const cs=getComputedStyle(n);if(+cs.opacity<0.6||cs.visibility==="hidden"||cs.display==="none")return true}return false};
+ all.forEach((t,i)=>{if(t.tagName!=="text"||t.closest("defs"))return;const r=t.getBoundingClientRect();if(!r.width)return;const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  if(t.dataset.lg0!==undefined)t.style.fill=t.dataset.lg0;
+  let bl=null;for(let k=geo.length-1;k>=0;k--){const [gi,e,gr]=geo[k];if(gi>i||cx<gr.left||cx>gr.right||cy<gr.top||cy>gr.bottom)continue;
+   const cs=getComputedStyle(e);if(cs.fill==="none"||+cs.fillOpacity<0.6)continue;let hit=false;try{hit=e.isPointInFill(new DOMPoint(cx,cy).matrixTransform(e.getScreenCTM().inverse()))}catch(_){}
+   if(!hit||seeThrough(e))continue;const u=cs.fill.match(/url\(["']?#([^"')]+)/);const l=u?grad(u[1]):lum(cs.fill);if(l==null)continue;bl=l;break}
+  if(bl==null)return;const tl=lum(getComputedStyle(t).fill);if(tl==null)return;
+  if((Math.max(tl,bl)+.05)/(Math.min(tl,bl)+.05)<3){if(t.dataset.lg0===undefined)t.dataset.lg0=t.style.fill||"";t.style.fill=bl>0.2?"#1d2327":"#eef1f3"}})}catch(_){}})};
+window.KLEG=K.legible;
 K.lcd=(x,y,t,w=92,lab)=>`<rect x="${x-w/2}" y="${y-15}" width="${w}" height="26" rx="4" fill="#15191c" stroke="#3a4247"/><text x="${x}" y="${y+4}" class="lsLcd">${t}</text>`+(lab?K.lbl(x,y+30,lab):"");
 K.tcol=T=>T<66?`hsl(212,72%,${Math.round(36+Math.max(0,Math.min(1,(T-36)/28))*30)}%)`:`hsl(${Math.round(30-Math.max(0,Math.min(1,(T-75)/30))*22)},78%,${Math.round(62-Math.max(0,Math.min(1,(T-75)/30))*16)}%)`;
 /* line chart. o: {x,y,w,h, X:[min,max], Y:[min,max], xt:[...], yt:[...], xf, yf, xl, yl, title, series:[{f|pts, c, dash, w, lbl, lblAt}], bands:[{y0,y1,c,lbl}], vlines:[{x,lbl}], dots:[{x,y,c,lbl,a}]} */
@@ -35,7 +52,7 @@ K.see=cfg=>({mount(el){const S={...cfg.init};K.SEE=S;
  <div class="btns">${cfg.log?`<button class="btn blue" id="seeLog">Log reading</button>`:""}<button class="btn" id="seeReset">Reset</button></div></div>
  ${cfg.log?`<div class="group"><h3>Your log</h3><div id="seeLogT"><p class="note">${cfg.logHint||"Press Log reading to write down what the gauges say, like a daily log sheet."}</p></div></div>`:""}</div></div>`;
  const q=id=>document.getElementById(id);
- const upd=()=>{const R=cfg.model(S);K.R=R;q("seeSvg").innerHTML=cfg.draw(R,S);
+ const upd=()=>{const R=cfg.model(S);K.R=R;q("seeSvg").innerHTML=cfg.draw(R,S);K.legible(q("seeSvg"));
   (cfg.sliders||[]).forEach(([k,,,,,fmt])=>{q("seo_"+k).textContent=fmt?fmt(S[k]):S[k];q("se_"+k).value=S[k]});
   el.querySelectorAll("[data-sec]").forEach(c=>c.checked=!!S[c.dataset.sec]);
   q("seeReads").innerHTML=K.reads(cfg.reads(R,S));q("seeNote").innerHTML=cfg.note?cfg.note(R,S):""};
@@ -57,7 +74,7 @@ K.caseTask=o=>({t:o.t,intro:o.intro,ans:o.ans,mount(el,done){const S={...o.state
   <label class="lsPick">What's causing it? <select class="casePick"><option value="">Choose...</option>${o.causes.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></label>
   <div class="btns"><button class="btn blue caseCheck">Check</button></div><p class="caseRes"></p></div></div>`;
  const q=c=>el.querySelector(c);const done1={};
- const upd=()=>{const R=o.model(S);q(".caseSvg").innerHTML=o.draw(R,S);q(".caseReads").innerHTML=K.reads(o.reads(R,S));
+ const upd=()=>{const R=o.model(S);q(".caseSvg").innerHTML=o.draw(R,S);K.legible(q(".caseSvg"));q(".caseReads").innerHTML=K.reads(o.reads(R,S));
   if(o.slider){q(".caseLo").textContent=o.slider[5]?o.slider[5](S[o.slider[0]]):S[o.slider[0]];q(".caseLoad").value=S[o.slider[0]]}
   if(o.actions)q(".caseActR").innerHTML=Object.keys(done1).map(i=>`<p class="note" style="color:var(--ink)">${o.actions[i][1](R,S)}</p>`).join("")};
  if(o.hist)q(".caseHist").innerHTML=K.hist(o.hist);

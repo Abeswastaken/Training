@@ -25,6 +25,10 @@ const ph=await p.evaluate(()=>{const c=__hx.calc('cf'),f=__hx.calc('pf');return 
 ok(ph.cfQ>ph.pfQ,'counterflow beats parallel '+JSON.stringify(ph));ok(ph.pfTco<=ph.pfTho+0.01,'parallel never crosses');ok(ph.cross||ph.cfTco>ph.cfTho||ph.e<0.6,'counterflow can cross');
 const conv=await p.evaluate(()=>{const id=Object.keys(__hx.SUBS).find(k=>__hx.SUBS[k].hot.kind==='steam');const R=__hx.calc(id);return {id,Tho:R.Tho,sat:__hx.satF(__hx.ST.v[id]?__hx.ST.v[id].hT:__hx.SUBS[id].hot.T),Tco:R.Tco}});
 ok(conv.id&&Math.abs(conv.Tho-conv.sat)<1&&conv.Tco<conv.sat,'steam converter condenses at saturation '+JSON.stringify(conv));
+// furnace: the secondary takes the gas below its dew point and lifts efficiency from about 80% into the 90s
+const fu=await p.evaluate(()=>{const c=__hx.calc('cfurn'),s=__hx.calc('sfurn');__hx.ST.F.cfurn={fDirtySec:true};const d=__hx.calc('cfurn');__hx.ST.F.cfurn={};__hx.ST.F.sfurn={fLowAir:true};const l=__hx.calc('sfurn');__hx.ST.F.sfurn={};return {ce:c.eff,se:s.eff,T2:c.T2,dew:c.dew,gph:c.gph,sT1:s.T1,dT2:d.T2,dgph:d.gph,lrise:l.rise,srise:s.rise}});
+ok(fu.se>0.77&&fu.se<0.84,'80% furnace efficiency '+fu.se);ok(fu.ce>0.90&&fu.ce<0.98,'condensing efficiency '+fu.ce);ok(fu.T2<fu.dew&&fu.T2<140,'vent gas below dew point and PVC limit '+fu.T2);ok(fu.gph>0.3&&fu.gph<1,'condensate '+fu.gph);
+ok(fu.sT1>300&&fu.sT1<450,'80% flue temp '+fu.sT1);ok(fu.dT2>fu.T2&&fu.dgph<fu.gph,'dirty secondary: hotter vent, less condensate');ok(fu.lrise>fu.srise+15,'low airflow raises the rise');
 await p.click('[data-sim="basics"]');await p.screenshot({path:'hx_full.png'});
 await p.setViewportSize({width:390,height:844});await p.waitForTimeout(200);ok(await p.evaluate(()=>document.documentElement.scrollWidth<=392),'no phone overflow');await p.screenshot({path:'hx_phone.png',fullPage:true});
 console.log('FAILS',fails);console.log('ERR',errs);await b.close()})();

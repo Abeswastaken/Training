@@ -42,7 +42,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'airflow':['Static pressure, fan curves and balancing','Psychrometrics: what the coil does to the air'],
  'combustion':['Combustion analyzer, draft and CAZ testing','CO safety'],
  'chiller':['Approaches, lift and surge','Tower water treatment and safeties'],
- 'hx':['Live temperature graph along the exchanger','Approach, LMTD, effectiveness and the temperature cross','Steam converter, DHW tank coil, coaxial and finned coils','Faults: scale, air binding, gasket leaks, frost, stuck wheel'],
+ 'hx':['Live temperature graph along the exchanger','Approach, LMTD, effectiveness and the temperature cross','Steam converter, DHW tank coil, coaxial and finned coils','Furnace: primary and condensing secondary, flue gas dew point and condensate','Faults: scale, air binding, gasket leaks, frost, stuck wheel'],
  'controls':['Pneumatic thermostat, PRV and spring ranges','DDC sensors, 2-10 V and trends','PID tuning: 5 guided lessons on a zone reheat valve, then free play','Calibration benches: Honeywell TP970/TP971, JCI T-4002, Siemens TH 192, TK-1001/1101','Fail-safe check: DA/RA thermostats with NO/NC valves and dampers'],
  'wiring':['Drag-and-wire board with a live multimeter','Examples: condensing unit, furnace, heat pump, walk-in'],
  'ladder':['Build rungs from a searchable parts menu, drag to move','Transformer with a 24 V ladder under the line ladder','Multimeter: volts, ohms, continuity','Service calls: find the failed part','Examples: furnace sequence, heat pump O/B, two-stage, boiler, walk-in pump-down'],
@@ -50,6 +50,7 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'motors':['Ramps, DC bus, bypass and overloads','Drive fault codes and megger tests'],
  'mini-split':['<b>Tabs:</b> Simulator, Service calls, Error codes','1 to 4 heads, cooling, heating, defrost and cold-climate mode','Line set length and added charge, 14 faults, generic codes with brand links'],
  'carlyle-06d':['<b>Tabs:</b> Cutaway, Teardown, Specs','Animated cross-section: pistons, reed valves, gas and oil paths','Valve plate and oil pump teardown with torques','Model and serial number decoder, oil pressure by build date'],
+ 'psychrometrics':['<b>Tabs:</b> Chart, Process, Mixed air','Sensible, latent and total heat with constants corrected for elevation','Outside air percentage from three temperatures'],
  'ph-chart':['<b>Tabs:</b> Chart, Calculator, Property table','R-410A, R-454B, R-32, R-22, R-134a and R-404A','Calculator laid out like the class P/E sheet, with both methods side by side']}
 def tabs_of(d):
     f={'boiler-trainer':'boiler'}.get(d,d)
@@ -69,7 +70,7 @@ def lead_of(files):
         if m:return m.group(1)
     return ''
 NAMES={d:n for d,f,n in SITES}
-NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits';NAMES['carlyle-06d']='Carlyle 06D compressor'
+NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits';NAMES['carlyle-06d']='Carlyle 06D compressor';NAMES['psychrometrics']='Psychrometrics'
 def sysblock(d,card):
     ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
     if not ls:return None

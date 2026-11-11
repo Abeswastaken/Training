@@ -156,6 +156,13 @@ details .group{gap:10px}
 .sheet.mini h2{font-size:15px;margin-bottom:4px}
 .sheet.mini #sheetB>*:not(.rvBar){display:none}
 .sheet.mini .rvBar .rvMore{display:inline-block}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
 
 /* Heat exchangers page */
 .hxSubs{margin:0 0 10px}.hxSubs[hidden]{display:none}
@@ -194,6 +201,7 @@ details .group{gap:10px}
     <button data-sim="coax" aria-pressed="false">Tube-in-tube</button>
     <button data-sim="coil" aria-pressed="false">Coils</button>
     <button data-sim="recov" aria-pressed="false">Air-to-air recovery</button>
+    <button data-sim="furn" aria-pressed="false">Furnace</button>
   </div>
   <div class="tools">
     <button class="btn" id="reset">Reset</button>
@@ -213,7 +221,7 @@ details .group{gap:10px}
     <div class="group"><h3>Adjust</h3><div id="ctl"></div></div>
     <div class="group"><h3>Faults</h3><div class="checks" id="faults"></div></div>
     <div class="group hxInfo" id="info"></div>
-    <p class="note">Numbers use the effectiveness-NTU method from heat transfer textbooks (ASHRAE Fundamentals ch. 4) with typical U values. Learn more: <a href="https://www.alfalaval.us/products/heat-transfer/plate-heat-exchangers/" target="_blank" rel="noopener">Alfa Laval plate exchangers</a>, <a href="https://www.bellgossett.com/heat-exchangers/" target="_blank" rel="noopener">Bell &amp; Gossett heat exchangers</a>, <a href="https://www.spiraxsarco.com/learn-about-steam" target="_blank" rel="noopener">Spirax Sarco steam tutorials</a>, <a href="https://www.ashrae.org/technical-resources/ashrae-handbook" target="_blank" rel="noopener">ASHRAE Handbook</a>.</p>
+    <p class="note">Numbers use the effectiveness-NTU method from heat transfer textbooks (ASHRAE Fundamentals ch. 4) with typical U values. Learn more: <a href="https://www.alfalaval.us/products/heat-transfer/plate-heat-exchangers/" target="_blank" rel="noopener">Alfa Laval plate exchangers</a>, <a href="https://www.bellgossett.com/heat-exchangers/" target="_blank" rel="noopener">Bell &amp; Gossett heat exchangers</a>, <a href="https://www.achrnews.com/articles/154030-how-a-condensing-gas-furnace-works" target="_blank" rel="noopener">ACHR News: how a condensing gas furnace works</a>, <a href="https://hvacrschool.com/troubleshooting-90-gas-furnaces" target="_blank" rel="noopener">HVAC School: troubleshooting 90% furnaces</a>, <a href="https://www.spiraxsarco.com/learn-about-steam" target="_blank" rel="noopener">Spirax Sarco steam tutorials</a>, <a href="https://www.ashrae.org/technical-resources/ashrae-handbook" target="_blank" rel="noopener">ASHRAE Handbook</a>.</p>
   </div>
 </div>
 </div>
@@ -1287,10 +1295,26 @@ const SUBS={
   appr:"Effectiveness about 45 to 55%.",
   svc:"Check the pump, glycol strength (freeze protection) and the expansion tank. A three-way valve bypasses the exhaust coil to keep it from frosting. Air in the loop starves the coils.",
   faults:["dirtyHR","pump","frost","unbal"]}};
-const FAULTS={scale:"Scale or fouling on the water side",air:"Air trapped in it (air bound)",lowHot:"Low flow on the hot side (plugged strainer, weak pump)",lowCold:"Low flow on the cold side",backward:"Piped backward (parallel flow)",
+const G=(T,f)=>({n:"Gas input",kind:"gas",T,f,r:[10,100],fr:[40,120]});
+/* arr "furn": a gas furnace. hot.T is excess air in %, hot.f is firing input in MBH. cond: has a secondary (condensing) exchanger */
+const FURN={
+ cfurn:{n:"Condensing furnace (90%+)",arr:"furn",cond:true,hot:G(40,80),cold:A("Return air",68,1200,[55,80],[600,2000]),
+  how:"Two exchangers in series. Burner gases go through the primary (serpentine steel tubes) and leave at a few hundred degrees. They then pass through the secondary, a stainless tube-and-fin coil that looks like an evaporator. The return air from the blower hits the secondary first, so the coolest air meets the coolest gas. That pulls the gas below its dew point: the water vapor made by burning gas condenses and gives up its latent heat.",
+  use:"Every 90%+ AFUE gas furnace. The inducer pulls the gases through both exchangers and pushes them out a plastic vent (Category IV, positive pressure). Combustion air usually comes from outdoors through a second pipe (sealed combustion).",
+  appr:"The vent gas leaves only 30 to 50°F above the return air. Natural gas flue gas has a dew point around 130 to 135°F (lower with more excess air), so everything colder than that in the secondary is wet.",
+  svc:"The condensate is acidic (about pH 3 to 5). It needs a primed trap, plastic drain pipe with pitch, and a neutralizer where required. A plugged or frozen drain backs water up into the secondary and collector box and opens the pressure switch. The fins on the air side load up with lint like an evaporator when filters are neglected. Vent pipe pitches back toward the furnace so condensate drains through it.",
+  faults:["fDirtySec","fTrap","fLowAir","fOver","fCrack"]},
+ sfurn:{n:"80% furnace (primary only)",arr:"furn",cond:false,hot:G(40,80),cold:A("Return air",68,1200,[55,80],[600,2000]),
+  how:"One exchanger. Burner gases pass through the primary tubes or clamshells and leave at 300 to 450°F. The water vapor from combustion goes up the vent as vapor, and its latent heat goes with it. That is most of the difference between 80% and 95%.",
+  use:"Mid-efficiency (about 80% AFUE) furnaces. The gases stay hot on purpose: a metal vent or lined chimney works on buoyancy and has to stay above the dew point or it rots.",
+  appr:"The flue gas leaves hundreds of degrees above the air. Making the exchanger bigger would cool the gas further, but it would then condense in an exchanger and vent that aren't built for acid water.",
+  svc:"Temperature rise tells you about the air side: check it against the rating plate. Low airflow overheats the exchanger, trips the limit and over time cracks the metal. Inspect for cracks, rust-through and soot. Flames that move or roll out when the blower starts point at a breached exchanger.",
+  faults:["fLowAir","fOver","fCrack"]}};
+const FAULTS={fDirtySec:"Secondary coil fins loaded with lint (air side)",fTrap:"Condensate not draining (plugged trap or frozen drain)",fLowAir:"Low airflow (loaded filter, closed registers)",fOver:"Overfired 15% (manifold pressure set high)",fCrack:"Cracked primary heat exchanger",scale:"Scale or fouling on the water side",air:"Air trapped in it (air bound)",lowHot:"Low flow on the hot side (plugged strainer, weak pump)",lowCold:"Low flow on the cold side",backward:"Piped backward (parallel flow)",
  gasket:"Gasket leaking at the plate edges",dwleak:"One wall leaking (double-wall)",tubes:"Tubes plugged (10% of the bundle)",flood:"Shell flooding: condensate not draining (failed trap)",vb:"Vacuum breaker stuck shut",freeze:"Water flow too low in heating mode",
  dirty:"Dirty fins (less airflow and heat transfer)",dirtyHR:"Dirty core or media",frost:"Frosted (exhaust side iced)",unbal:"Supply air 30% higher than exhaust",stopped:"Wheel stopped (broken belt)",tilt:"Heat pipe tilted the wrong way for the season",pump:"Run-around pump off"};
-const TABS={basics:{n:"Basics",subs:["cf","pf"]},plate:{n:"Plate",subs:["gasket","brazed","dwplate"]},shell:{n:"Shell-and-tube",subs:["straight","utube","steam","dwtube"]},coax:{n:"Tube-in-tube",subs:["coax"]},coil:{n:"Coils",subs:["fin","tank"]},recov:{n:"Heat recovery",subs:["hrvplate","wheel","hpipe","loop"]}};
+const TABS={basics:{n:"Basics",subs:["cf","pf"]},plate:{n:"Plate",subs:["gasket","brazed","dwplate"]},shell:{n:"Shell-and-tube",subs:["straight","utube","steam","dwtube"]},coax:{n:"Tube-in-tube",subs:["coax"]},coil:{n:"Coils",subs:["fin","tank"]},recov:{n:"Heat recovery",subs:["hrvplate","wheel","hpipe","loop"]},furn:{n:"Furnace",subs:["cfurn","sfurn"]}};
+Object.assign(SUBS,FURN);
 /* ---------- state ---------- */
 const ST={tab:"basics",sub:{},v:{},F:{},t:0};
 Object.keys(TABS).forEach(t=>ST.sub[t]=TABS[t].subs[0]);
@@ -1298,7 +1322,26 @@ function vals(id){if(!ST.v[id]){const s=SUBS[id];ST.v[id]={hT:s.hot.T,cT:s.cold.
 try{const s=JSON.parse(localStorage.getItem("hx-state")||"null");if(s){if(s.tab&&TABS[s.tab])ST.tab=s.tab;if(s.sub)Object.assign(ST.sub,s.sub)}}catch(e){}
 const save=()=>{try{localStorage.setItem("hx-state",JSON.stringify({tab:ST.tab,sub:ST.sub}))}catch(e){}};
 /* ---------- the math (effectiveness-NTU) ---------- */
+/* ---------- gas furnace: primary, then a condensing secondary ----------
+ Natural gas, per 1,000 Btu of input: about 0.72 lb of air to burn it, 0.095 lb of water made, 900 Btu released as sensible heat (the rest is latent in the water vapor).
+ The secondary is worked on enthalpy, so the latent heat released below the dew point is counted. UA values are set so the stock furnace lands near 80% and 93%. */
+const pwsF=T=>{const R=T+459.67;return Math.exp(-1.0440397e4/R-1.1294650e1-2.7022355e-2*R+1.2890360e-5*R*R-2.4780681e-9*R**3+6.5459673*Math.log(R))};
+function furnCalc(s,v,F){const inMBH=v.hF*(F.fOver?1.15:1),EA=v.hT/100,cfm=v.cF*(F.fLowAir?0.6:1)*(F.fDirtySec?0.85:1),Tr=v.cT,Tca=70;
+ const Cg=inMBH*(0.72*(1+EA)+0.045)*0.27,Ca=1.08*cfm,Tfl=Tca+inMBH*900/Cg;
+ const dry=1+7.52+EA*9.52,pw=14.696*2/(dry+2);let lo=60,hi=160;for(let i=0;i<40;i++){const m=(lo+hi)/2;if(pwsF(m)>pw)hi=m;else lo=m}const dew=(lo+hi)/2;
+ const wform=inMBH*0.095,vap=T=>{const q=pwsF(T);return q>=pw?2:dry*q/(14.696-q)},H=T=>Cg*(T-Tca)-wform*1040*(1-vap(T)/2);
+ const invH=h=>{let a=Tr-5,b=3600;for(let i=0;i<50;i++){const m=(a+b)/2;if(H(m)>h)b=m;else a=m}return (a+b)/2};
+ const k=v.size/100*Math.pow(cfm/1200,0.3),UA1=52.3*k,UA2=s.cond?34*k*(F.fDirtySec?0.4:1)*(F.fTrap?0.45:1):0;
+ const e1=1-Math.exp(-UA1/Cg),e2=1-Math.exp(-UA2/Cg);let Tm=Tr,T1=400,T2=400,Q2=0;
+ for(let i=0;i<8;i++){T1=Tfl-e1*(Tfl-Tm);Q2=s.cond?e2*(H(T1)-H(Tr)):0;T2=s.cond?invH(H(T1)-Q2):T1;Tm=Tr+Q2/Ca}
+ const Q1=Cg*(Tfl-T1),Q=Q1+Q2,Ts=Tr+Q/Ca,water=s.cond?wform*(1-vap(T2)/2):0;
+ /* profiles: gas from the burner end (left) to the vent (right), air the other way */
+ const N=120,n1=s.cond?50:N,ph=[],pc=[];
+ for(let i=0;i<=N;i++){if(i<=n1){const x=i/n1,t=Tm+(Tfl-Tm)*Math.exp(-UA1/Cg*x);ph.push(t);pc.push(Tm+(Ts-Tm)*(Cg*(t-T1))/Math.max(1,Q1))}
+  else{const x=(i-n1)/(N-n1),h=H(Tr)+(H(T1)-H(Tr))*Math.exp(-UA2/Cg*x),t=invH(h);ph.push(t);pc.push(Tr+(Tm-Tr)*(h-(H(T1)-Q2))/Math.max(1,Q2))}}
+ return {furn:true,cond:s.cond,inMBH,EA,cfm,Tr,Tm,Ts,T1,T2,Tfl,dew,Q,Q1,Q2,eff:Q/(inMBH*1000),rise:Ts-Tr,water,gph:water/8.34,ph,pc,n1,N,lock:!!F.fTrap,crack:!!F.fCrack,dirty:!!F.fDirtySec,coldFlow:v.cF}}
 function calc(id){const s=SUBS[id],v=vals(id),F=ST.F[id]||{};
+ if(s.arr==="furn")return furnCalc(s,v,F);
  const cap=(side,flow)=>side.kind==="air"?1.08*flow:side.kind==="water"?500*flow:Infinity;
  if(s.arr==="hr"){let e=s.eff*(F.dirtyHR?0.8:1)*(F.stopped?0.08:1)*(F.tilt?0.15:1)*(F.pump?0:1)*(F.frost?0.55:1);
   const Ce=1.08*v.hF,Cs=1.08*v.cF*(F.unbal?1.3:1),Cmin=Math.min(Ce,Cs);const dT=v.hT-v.cT;
@@ -1432,10 +1475,75 @@ function drawHR(R,kind){let s="";const v=vals(kind);const oa=v.cT,ra=v.hT;
   s+=flow(`M340 110 H60`,tcol(ra),5)+flow(`M460 250 H740`,tcol(oa),5)+lbl(340,70,"EXHAUST DUCT","end")+temp(340,190,ra,"end")+temp(60,190,R.ea,"start")+lbl(460,330,"OUTDOOR AIR DUCT","start")+temp(460,180,oa,"start")+temp(740,180,R.sa,"end")+lbl(180,330,"GLYCOL LOOP: DUCTS CAN BE FAR APART");}
  if(R.frost)s+=lbl(400,24,"FROST RISK: EXHAUST LEAVING BELOW 32°F. THE UNIT NEEDS DEFROST OR PREHEAT.","middle","bad");
  return s}
-function drawFor(id,R){switch(id){case "cf":return drawBasic(R,false);case "pf":return drawBasic(R,true);case "gasket":case "brazed":case "dwplate":return drawGasket(R,id);
+/* gas furnace cutaway: upflow, seen from the side. Vestibule (burners, inducer) on the left, blower at the bottom. */
+function drawFurn(R){let s="";const c=R.cond,x0=230,x1=560,vx=310;
+ const hot=T=>T>600?"#ff9d2e":T>300?"#e8602c":tcol(Math.min(200,T));
+ s+=`<defs><linearGradient id="fuP" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffb347"/><stop offset=".5" stop-color="#f0702c"/><stop offset="1" stop-color="${hot(R.T1)}"/></linearGradient><linearGradient id="fuS" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="${hot(R.T1)}"/><stop offset="1" stop-color="${tcol(R.T2)}"/></linearGradient></defs>`;
+ /* cabinet, vestibule wall, blower deck */
+ s+=`<rect x="${x0}" y="14" width="${x1-x0}" height="336" rx="4" fill="url(#zCab)" stroke="${SE}" stroke-width="2"/><rect x="${vx+4}" y="22" width="${x1-vx-12}" height="232" fill="url(#zInside)"/><rect x="${x0+8}" y="22" width="${vx-x0-12}" height="232" fill="#3a4146"/><rect x="${x0+8}" y="262" width="${x1-x0-16}" height="80" fill="#2f3438"/><path d="M${vx} 22 V254" stroke="${K}" stroke-width="4"/><path d="M${x0+8} 258 H${x1-8}" stroke="${K}" stroke-width="4"/>`;
+ /* air: return in at the bottom right, up through both exchangers, out the top */
+ const aT=[R.Tr,R.Tm,R.Ts];
+ s+=flow(`M620 310 H${x1-20}`,tcol(R.Tr),6);
+ [350,410,470,520].forEach((x,i)=>{s+=`<path class="hxFlow" d="M${x} 250 V30" fill="none" stroke="${tcol(R.Ts)}" stroke-width="2.5" stroke-dasharray="5 12" opacity=".55"/>`});
+ /* blower */
+ s+=zBlower(430,302,34,"fuBl");
+ /* primary: serpentine tube */
+ const yb=c?196:206,legs=c?[yb,yb-52,yb-104]:[yb,yb-80];const xa=vx+26,xb=x1-44;
+ let d=`M${vx-14} ${legs[0]} H${xb}`;for(let i=1;i<legs.length;i++){const r=(legs[i-1]-legs[i])/2;d+=i%2?` a${r} ${r} 0 0 0 0 ${-2*r} H${xa}`:` a${r} ${r} 0 0 1 0 ${-2*r} H${xb}`}
+ if(!c)d+=` H${vx-10}`;
+ s+=`<path d="${d}" fill="none" stroke="#3a3f42" stroke-width="27" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="url(#fuP)" stroke-width="21" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="3" opacity=".18" transform="translate(0 -6)"/><path class="hxFlow" d="${d}" fill="none" stroke="#fff3" stroke-width="4" stroke-dasharray="4 14"/>`;
+ if(R.crack)s+=`<path d="M${xa+90} ${legs[1]-12} l6 7 l-5 5 l7 6 l-4 6" fill="none" stroke="#111" stroke-width="2.4"/><circle cx="${xa+92}" cy="${legs[1]}" r="18" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 3"/>`+lbl(xa+116,legs[1]+5,"crack","start","bad");
+ /* burner and flame in the vestibule */
+ s+=`<rect x="${x0+16}" y="${legs[0]-9}" width="46" height="18" rx="3" fill="url(#zSteel)" stroke="${K}"/><rect x="${x0+14}" y="${legs[0]+16}" width="30" height="26" rx="3" fill="#7a8388" stroke="${K}"/><path d="M${x0+30} ${legs[0]+16} V${legs[0]+9}" stroke="#d9b13b" stroke-width="5"/>`;
+ s+=`<path d="M${x0+62} ${legs[0]} q${R.crack?26:34} ${R.crack?-16:-9} ${R.crack?44:70} ${R.crack?-6:0} q${R.crack?-20:-36} 9 ${R.crack?-44:-70} ${R.crack?6:0}z" fill="url(#zFlame)"><animate attributeName="opacity" values="1;.75;1" dur="${R.crack?0.25:0.6}s" repeatCount="indefinite"/></path>`;
+ let ix,iy;
+ if(c){/* transition at the back, secondary coil, cold collector box, inducer */
+  const ys=232,yt=legs[2];
+  s+=`<path d="M${xb} ${yt} H${x1-22} V${ys} H${xb}" fill="none" stroke="#3a3f42" stroke-width="20" stroke-linejoin="round"/><path d="M${xb} ${yt} H${x1-22} V${ys} H${xb}" fill="none" stroke="${hot(R.T1)}" stroke-width="14" stroke-linejoin="round"/>`;
+  s+=`<rect x="${xa-6}" y="${ys-13}" width="${xb-xa+10}" height="26" fill="url(#zFinsH)" stroke="${SE}" stroke-width="1.4"/><path d="M${xb} ${ys} H${xa}" stroke="url(#fuS)" stroke-width="9"/><path class="hxFlow" d="M${xb} ${ys} H${xa}" fill="none" stroke="#fff5" stroke-width="3" stroke-dasharray="4 12"/>`;
+  if(R.dirty)s+=`<rect x="${xa-6}" y="${ys+9}" width="${xb-xa+10}" height="8" fill="#7b6a4a" opacity=".9"/>`+lbl((xa+xb)/2,ys+34,"lint on the fins","middle","bad");
+  s+=`<rect x="${vx-22}" y="${ys-18}" width="44" height="36" rx="3" fill="#d9dde0" stroke="${SE}" stroke-width="1.5"/>`;
+  if(R.lock)s+=`<rect x="${vx-20}" y="${ys-4}" width="40" height="20" fill="#5fa8e0"/><rect x="${xa-6}" y="${ys+2}" width="${(xb-xa)*0.45}" height="10" fill="#5fa8e0" opacity=".85"/>`;
+  ix=x0+42;iy=ys-52;
+  s+=`<path d="M${vx-22} ${ys-6} H${ix} V${iy}" fill="none" stroke="#d9dde0" stroke-width="12"/><circle cx="${ix}" cy="${iy}" r="20" fill="url(#zPlasticDk)" stroke="${K}" stroke-width="1.5"/><circle cx="${ix}" cy="${iy}" r="7" fill="#8d969c"/>`;
+  /* PVC vent and intake */
+  s+=`<path d="M${ix} ${iy-20} V-4" stroke="#f1f1ea" stroke-width="16"/><path d="M${ix-8} ${iy-20} V-4M${ix+8} ${iy-20} V-4" stroke="#9aa3a8" stroke-width="1"/>`+flow(`M${ix} ${iy-22} V2`,tcol(R.T2),3);
+  /* condensate trap and drain */
+  s+=`<path d="M${vx-8} ${ys+18} V${ys+34} q0 10 -10 10 h-8 q-10 0 -10 -10 v-6 q0 -8 -8 -8 H${x0-30}" fill="none" stroke="#e9e9e2" stroke-width="7"/><path d="M${vx-8} ${ys+18} V${ys+34} q0 10 -10 10 h-8 q-10 0 -10 -10 v-6 q0 -8 -8 -8 H${x0-30}" fill="none" stroke="${R.lock?"#8a6a3a":"#5fa8e0"}" stroke-width="3" ${R.lock?"":'class="hxFlow" stroke-dasharray="3 9"'}/>`;
+  s+=lbl(x0-34,ys+20,R.lock?"drain blocked":"condensate "+R.gph.toFixed(2)+" gal/h","end",R.lock?"bad":"")+lbl(x0-34,ys+38,"trap, plastic drain","end");
+  s+=lbl(x1+14,ys-2,"SECONDARY","start")+lbl(x1+14,ys+14,"stainless tube-and-fin","start")+temp(x1+14,178,R.T1,"start")+lbl(x1+62,178,"gas into the secondary","start");
+  s+=lbl(x0-34,40,"PVC vent","end")+temp(x0-34,58,R.T2,"end")+lbl(x0-34,iy+4,"inducer","end");
+ }else{ix=x0+42;iy=legs[1];
+  s+=`<rect x="${vx-22}" y="${iy-18}" width="34" height="36" rx="3" fill="#8b949a" stroke="${SE}" stroke-width="1.5"/><path d="M${vx-22} ${iy} H${ix}" stroke="#8b949a" stroke-width="12"/><circle cx="${ix}" cy="${iy}" r="20" fill="url(#zSteel)" stroke="${K}" stroke-width="1.5"/><circle cx="${ix}" cy="${iy}" r="7" fill="#5f686d"/>`;
+  s+=`<path d="M${ix} ${iy-20} V-4" stroke="url(#zSteelH)" stroke-width="18"/>`+flow(`M${ix} ${iy-22} V2`,"#e8602c",3);
+  s+=lbl(x0-34,40,"metal vent","end")+temp(x0-34,58,R.T1,"end")+lbl(x0-34,iy+4,"inducer","end");}
+ s+=lbl(x1+14,legs[1]-8,"PRIMARY","start")+lbl(x1+14,legs[1]+8,"steel serpentine tubes","start");
+ s+=lbl(x0-34,legs[0]+4,"burner","end")+lbl(x0-34,legs[0]+34,"gas valve","end");
+ s+=lbl(640,300,"RETURN AIR","start")+temp(640,326,R.Tr,"start")+lbl(430,348,"blower "+Math.round(R.cfm)+" cfm");
+ s+=flow(`M${(vx+x1)/2} 14 V-6`,tcol(R.Ts),6)+lbl(x1+14,34,"SUPPLY AIR","start")+temp(x1+14,58,R.Ts,"start");
+ if(c)s+=temp(x1+14,200,R.Tm,"start")+lbl(x1+62,200,"air between the two","start");
+ return s}
+function furnGraph(R,W,H,L,Rr,T0,B){const hi=R.cond?500:1200,lo=40,X=i=>L+(Rr-L)*i/R.N,Y=t=>B-(Math.min(hi,t)-lo)/(hi-lo)*(B-T0);
+ let g=`<path d="M${L} ${T0} V${B} H${Rr}" stroke="var(--muted)" fill="none"/>`;
+ for(let t=R.cond?100:200;t<=hi;t+=R.cond?100:200)g+=`<path d="M${L} ${Y(t)} H${Rr}" stroke="var(--line)" stroke-width=".6" opacity=".6"/><text x="${L-6}" y="${Y(t)+4}" class="hxG" style="text-anchor:end">${t}</text>`;
+ if(R.cond)g+=`<rect x="${X(R.n1)}" y="${T0}" width="${Rr-X(R.n1)}" height="${B-T0}" fill="#2f6fd6" opacity=".06"/><path d="M${X(R.n1)} ${T0} V${B}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${(X(R.n1)+Rr)/2}" y="${T0+12}" class="hxG" style="text-anchor:middle">secondary</text>`;
+ g+=`<text x="${(L+X(R.n1))/2}" y="${T0+12}" class="hxG" style="text-anchor:middle">primary</text>`;
+ g+=`<path d="M${L} ${Y(R.dew)} H${Rr}" stroke="#7a5cd0" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${L+(X(R.n1)-L)*0.35}" y="${Y(R.dew)-6}" class="hxG" style="text-anchor:start;fill:#7a5cd0">flue gas dew point ${Math.round(R.dew)}°F</text>`;
+ const i0=R.ph.findIndex(t=>t<=hi),pl=(a,from)=>a.map((t,i)=>i<from?"":`${i===from?"M":"L"}${X(i).toFixed(1)} ${Y(t).toFixed(1)}`).join(" ");
+ g+=`<path d="${pl(R.ph,Math.max(0,i0))}" fill="none" stroke="#d23a26" stroke-width="3"/><path d="${pl(R.pc,0)}" fill="none" stroke="#2f6fd6" stroke-width="3"/>`;
+ g+=`<text x="${L+8}" y="${T0+30}" class="hxG" style="text-anchor:start;fill:#d23a26">gas near the burner is far hotter than this chart goes</text>`;
+ /* where the gas crosses its dew point */
+ const ic=R.ph.findIndex((t,i)=>i>=R.n1&&t<R.dew);if(R.cond&&ic>0)g+=`<circle cx="${X(ic)}" cy="${Y(R.dew)}" r="5" fill="#7a5cd0"/><text x="${X(ic)+10}" y="${Y(R.dew)-8}" class="hxG" style="text-anchor:start;fill:#7a5cd0">condensing from here on</text>`;
+ const n=R.N;g+=`<text x="${X(R.n1)-10}" y="${Y(R.ph[R.n1])+4}" class="hxG" style="text-anchor:end;fill:#d23a26">${Math.round(R.T1)}°F leaving the primary</text>`;
+ if(R.cond)g+=`<text x="${Rr-4}" y="${Y(R.T2)-24}" class="hxG" style="text-anchor:end;fill:#d23a26">${Math.round(R.T2)}°F to the vent</text>`;
+ g+=`<text x="${L+6}" y="${Y(R.Ts)+16}" class="hxG" style="text-anchor:start;fill:#2f6fd6">${Math.round(R.Ts)}°F supply air</text><text x="${Rr-4}" y="${Y(R.Tr)+16}" class="hxG" style="text-anchor:end;fill:#2f6fd6">${Math.round(R.Tr)}°F return air</text>`;
+ g+=`<path d="M${X(40)+7} ${Y(R.pc[40])-6} L${X(40)-5} ${Y(R.pc[40])} L${X(40)+7} ${Y(R.pc[40])+6}" fill="none" stroke="#2f6fd6" stroke-width="2.5"/>`;
+ return g+`<text x="${(L+Rr)/2}" y="${H-4}" class="hxG" style="text-anchor:middle">gas path: burner on the left, vent on the right. Air goes the other way.</text><text x="${L}" y="12" class="hxG" style="text-anchor:start">°F</text>`}
+function drawFor(id,R){switch(id){case "cfurn":case "sfurn":return drawFurn(R);case "cf":return drawBasic(R,false);case "pf":return drawBasic(R,true);case "gasket":case "brazed":case "dwplate":return drawGasket(R,id);
  case "straight":case "utube":case "steam":case "dwtube":return drawShell(R,id);case "coax":return drawCoax(R);case "fin":return drawFin(R);case "tank":return drawTank(R);default:return drawHR(R,id)}}
 /* ---------- temperature graph ---------- */
 function graph(R,s){const W=760,H=250,L=56,Rr=W-20,T0=20,B=H-36;
+ if(R.furn)return furnGraph(R,W,H,L,Rr,T0,B);
  if(R.hr){const v=vals(ST.sub.recov);const bars=[["Outdoor air",v.cT],["Supply air",R.sa],["Return air",v.hT],["Exhaust air",R.ea]];const lo=Math.min(...bars.map(b=>b[1]),0)-5,hi=Math.max(...bars.map(b=>b[1]))+10;const y=t=>B-(t-lo)/(hi-lo)*(B-T0);
   let g=`<path d="M${L} ${T0} V${B} H${Rr}" stroke="var(--muted)" fill="none"/>`;for(let t=Math.ceil(lo/10)*10;t<=hi;t+=10)g+=`<path d="M${L} ${y(t)} H${Rr}" stroke="var(--line)" stroke-width=".6" opacity=".6"/><text x="${L-6}" y="${y(t)+4}" class="hxG" style="text-anchor:end">${t}</text>`;
   bars.forEach((b,i)=>{const x=L+40+i*170;g+=`<rect x="${x}" y="${Math.min(y(b[1]),y(0))}" width="90" height="${Math.abs(y(b[1])-y(0))}" fill="${tcol(b[1])}" opacity=".8"/><text x="${x+45}" y="${y(b[1])-6}" class="hxT" style="text-anchor:middle;fill:${tcol(b[1])}">${Math.round(b[1])}°F</text><text x="${x+45}" y="${B+18}" class="hxG" style="text-anchor:middle">${b[0]}</text>`});
@@ -1457,6 +1565,8 @@ function graph(R,s){const W=760,H=250,L=56,Rr=W-20,T0=20,B=H-36;
  return g}
 /* ---------- panels ---------- */
 function controlsHTML(id){const s=SUBS[id],v=vals(id);const rows=[];
+ if(s.arr==="furn"){rows.push(["hF","Gas input",s.hot.fr,5,v.hF," MBH"],["hT","Excess air",s.hot.r,5,v.hT,"% excess air"],["cT","Return air",s.cold.r,1,v.cT,"°F"],["cF","Airflow",s.cold.fr,50,v.cF," cfm"],["size","Exchanger size (surface area)",[60,160],5,v.size,"%"]);
+  return rows.map(([k,n,r,st,val,u])=>`<div class="row"><label for="hx_${k}">${esc(n)}</label><output id="o_${k}">${(+val).toFixed(0)}${esc(u)}</output><input type="range" id="hx_${k}" data-hx="${k}" min="${r[0]}" max="${r[1]}" step="${st}" value="${val}"></div>`).join("")}
  const fu=side=>side.kind==="air"?"cfm":"gpm";
  if(s.hot.kind==="steam")rows.push(["hT","Steam pressure (psig)",s.hot.r,0.5,v.hT,` psig (${Math.round(satF(v.hT))}°F)`]);
  else if(s.hot.kind==="ref")rows.push(["hT","Condensing temperature",s.hot.r,1,v.hT,"°F"]);
@@ -1467,6 +1577,15 @@ function controlsHTML(id){const s=SUBS[id],v=vals(id);const rows=[];
  if(s.arr!=="hr")rows.push(["size","Size (surface area)",[40,200],5,v.size,"%"]);
  return rows.map(([k,n,r,st,val,u])=>`<div class="row"><label for="hx_${k}">${esc(n)}</label><output id="o_${k}">${(+val).toFixed(st<1?1:0)}${esc(u)}</output><input type="range" id="hx_${k}" data-hx="${k}" min="${r[0]}" max="${r[1]}" step="${st}" value="${val}"></div>`).join("")}
 function resultsHTML(id,R){const s=SUBS[id];
+ if(R.furn){const hi=R.rise>65,lo=R.rise<35;
+  return `<div class="hxNums"><div><b>${Math.round(R.eff*100)}%</b><span>efficiency right now</span></div><div><b>${(R.Q/1000).toFixed(0)} MBH</b><span>heat into the air</span></div><div><b>${Math.round(R.rise)}°F</b><span>temperature rise</span></div><div><b>${Math.round(R.Ts)}°F</b><span>supply air</span></div><div><b>${Math.round(R.T1)}°F</b><span>gas leaving the primary</span></div>${R.cond?`<div><b>${Math.round(R.T2)}°F</b><span>vent gas</span></div><div><b>${R.gph.toFixed(2)} gal/h</b><span>condensate</span></div>`:""}<div><b>${Math.round(R.dew)}°F</b><span>flue gas dew point</span></div></div>`+
+  `<p class="note">Heat into the air = 1.08 × cfm × rise: 1.08 × ${Math.round(R.cfm)} × ${R.rise.toFixed(1)} = ${(R.Q/1000).toFixed(0)} MBH from ${R.inMBH.toFixed(0)} MBH of gas.${R.cond?` The primary gives ${(R.Q1/1000).toFixed(0)} MBH and the secondary ${(R.Q2/1000).toFixed(1)} MBH.`:""}</p>`+
+  (R.lock?`<p class="note bad">Water is backing up into the secondary and collector box. On a real furnace the pressure switch opens and the burners shut off. Clear the trap and drain; thaw and protect a frozen line.</p>`:"")+
+  (R.crack?`<p class="note bad">A crack barely changes these numbers, which is why it gets missed. Watch the flames when the blower starts: if they waver, lift or roll out, blower air is getting into the exchanger. Shut it down. This is a carbon monoxide hazard.</p>`:"")+
+  (hi?`<p class="note bad">Temperature rise is over this trainer furnace's 35 to 65°F rating plate range. The exchanger is running hot: expect the high limit to trip. Find the airflow problem.</p>`:lo?`<p class="note bad">Temperature rise is under the 35 to 65°F rating plate range for this trainer furnace: too much airflow for the input, or it is underfired.</p>`:"")+
+  (R.cond&&R.T2>140?`<p class="note bad">Vent gas is over 140°F, the limit for Schedule 40 PVC vent pipe.</p>`:"")+
+  (R.cond&&R.T2>=R.dew?`<p class="note bad">The gas never gets below its dew point: nothing is condensing and the latent heat is going out the vent.</p>`:"")+
+  (!R.cond&&R.T1<300?`<p class="note bad">Flue gas under 300°F is cool for a non-condensing furnace: it can condense in the metal vent or chimney.</p>`:"")}
  if(R.hr){return `<div class="hxNums"><div><b>${Math.round(R.e*100)}%</b><span>sensible effectiveness</span></div><div><b>${Math.round(R.sa)}°F</b><span>supply air</span></div><div><b>${Math.round(R.ea)}°F</b><span>exhaust leaving</span></div><div><b>${(Math.abs(R.Q)/1000).toFixed(0)} MBH</b><span>${R.Q>=0?"recovered heat":"recovered cooling"}</span></div></div>`+(s.lat?`<p class="note">This type also moves moisture: latent effectiveness about ${Math.round(s.lat*100)}%.</p>`:`<p class="note">Sensible only: it doesn't move moisture.</p>`)+(R.frost?`<p class="note bad">Frost risk: the exhaust is cooled below freezing.</p>`:"")}
  return `<div class="hxNums"><div><b>${(R.Q/1000).toFixed(0)} MBH</b><span>heat moved (${(R.Q/12000).toFixed(1)} tons)</span></div><div><b>${Math.round(R.Tho)}°F</b><span>${s.arr==="cond"?"hot side (condensing)":"hot out"}</span></div><div><b>${Math.round(R.Tco)}°F</b><span>cold out</span></div><div><b>${R.appr.toFixed(1)}°F</b><span>closest approach</span></div><div><b>${R.lmtd.toFixed(1)}°F</b><span>LMTD</span></div><div><b>${Math.round(R.e*100)}%</b><span>effectiveness</span></div></div>`+
   `<p class="note">Q = ${s.cold.kind==="air"?"1.08 × cfm":"500 × gpm"} × ΔT on the cold side: ${s.cold.kind==="air"?"1.08":"500"} × ${R.coldFlow} × ${(R.Tco-R.Tc).toFixed(1)} = ${(R.Q/1000).toFixed(0)} MBH.</p>`}
@@ -1476,9 +1595,9 @@ function render(full){const t=ST.tab,id=ST.sub[t],s=SUBS[id];const R=calc(id);
  document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sim===t));
  if(full){$("subs").innerHTML=TABS[t].subs.length>1?TABS[t].subs.map(k=>`<button data-sub="${k}" aria-pressed="${k===id}">${esc(SUBS[k].n)}</button>`).join(""):"";$("subs").hidden=TABS[t].subs.length<2;
   $("ctl").innerHTML=controlsHTML(id);$("faults").innerHTML=faultsHTML(id);$("info").innerHTML=infoHTML(id)}
- $("hxSvg").innerHTML=drawFor(id,R);$("graph").innerHTML=graph(R);$("gTitle").textContent=R.hr?"Air temperatures":"Temperatures along the exchanger";
+ $("hxSvg").innerHTML=drawFor(id,R);$("graph").innerHTML=graph(R);$("gTitle").textContent=R.hr?"Air temperatures":R.furn?"Gas and air temperatures through the furnace":"Temperatures along the exchanger";
  $("res").innerHTML=resultsHTML(id,R);
- const v=vals(id);document.querySelectorAll("[data-hx]").forEach(i=>{const k=i.dataset.hx,o=$("o_"+k);if(!o)return;const st=+i.step;o.textContent=(+v[k]).toFixed(st<1?1:0)+(k==="hT"&&s.hot.kind==="steam"?` psig (${Math.round(satF(v.hT))}°F)`:k[1]==="T"?"°F":k==="size"?"%":" "+((k==="hF"?s.hot:s.cold).kind==="air"?"cfm":"gpm"))})}
+ const v=vals(id);document.querySelectorAll("[data-hx]").forEach(i=>{const k=i.dataset.hx,o=$("o_"+k);if(!o)return;const st=+i.step;o.textContent=(+v[k]).toFixed(st<1?1:0)+(s.arr==="furn"?(k==="hT"?"% excess air":k==="hF"?" MBH":k==="cT"?"°F":k==="size"?"%":" cfm"):k==="hT"&&s.hot.kind==="steam"?` psig (${Math.round(satF(v.hT))}°F)`:k[1]==="T"?"°F":k==="size"?"%":" "+((k==="hF"?s.hot:s.cold).kind==="air"?"cfm":"gpm"))})}
 document.addEventListener("click",ev=>{const b=ev.target.closest("[data-sim]");if(b){ST.tab=b.dataset.sim;save();render(true);return}
  const sb=ev.target.closest("[data-sub]");if(sb){ST.sub[ST.tab]=sb.dataset.sub;save();render(true);return}
  if(ev.target.id==="reset"){const id=ST.sub[ST.tab];delete ST.v[id];delete ST.F[id];render(true)}
