@@ -95,6 +95,14 @@ details .group{gap:10px}
 .checks label{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;min-height:34px}
 .checks input{accent-color:var(--bad);width:18px;height:18px;flex:none}
 .mystery{font-size:14px;color:var(--bad);font-weight:600}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
+
 .ticket{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--paper)}
 .ticket p{margin:6px 0}.ticket select{width:100%;margin:4px 0 8px}.ticket .hint{color:var(--warn);font-weight:600}
 .ticket .good{color:var(--ok);font-weight:700}.svcmeta{font-size:12px;color:var(--muted)}
@@ -175,6 +183,13 @@ details .group{gap:10px}
 .sheet.mini h2{font-size:15px;margin-bottom:4px}
 .sheet.mini #sheetB>*:not(.rvBar){display:none}
 .sheet.mini .rvBar .rvMore{display:inline-block}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
 </style>
 <style>.crumb{display:flex;gap:6px;align-items:center;font:600 13px "Barlow Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;color:var(--muted,#5b666d)}.crumb a{color:var(--brass,#9a6f1f);text-decoration:none}.crumb a:hover,.crumb a:focus-visible{text-decoration:underline}</style>
 </head>
@@ -1501,6 +1516,10 @@ function at(id,k,v){const e=$(id);if(e)e.setAttribute(k,v)}
 function txt(id,v){const e=$(id);if(e&&e.textContent!==v)e.textContent=v}
 
 const SRC={
+  bbrf:["R.F. MacDonald: step-by-step boiler blowdown (valve order, never leave it unattended)","https://www.rfmacdonald.com/step-by-step-guide-to-boiler-blowdown/"],
+  bbnb:["National Board: How to Destroy a Boiler, Part 3 (poor blowdown, water column blowdown)","https://www.nationalboard.org/Index.aspx?pageID=244"],
+  bbwm:["Weil-McLain SB-1102: steam boiler water treatment (1,000 ppm TDS, drain and refill, foaming)","https://www.weil-mclain.com/wp-content/uploads/sb-1102-steam-boiler-water-treatment_1.pdf"],
+  bbhh:["HeatingHelp: Nature of the New Steam Beast (makeup water and corrosion)","https://heatinghelp.com/systems-help-center/nature-of-the-new-steam-beast/"],
   oep:["Boiler trim and safety controls (NC HVAC exam guide)","https://open-exam-prep.com/study-guides/nc-hvac-contractor/hydronic-heating-and-boilers/boiler-trim-and-safety-controls"],
   md:["Maryland DLLR: Low pressure and cast iron boilers","https://www.dllr.state.md.us/labor/safety/boilbrochurelp.shtml"],
   csd:["Burnham HP608: ASME CSD-1 requirements","https://www.burnhamcommercial.com/wp-content/uploads/2021/05/HP608-CSD-1-Requirements.pdf"],
@@ -1836,6 +1855,16 @@ const STEAM_SVG=`<defs>${BZ_DEFS}</defs><line x1="10" y1="452" x2="790" y2="452"
 <text class="lbl" id="s_outTxt" x="750" y="132" text-anchor="end">Outside 25°F</text>
 <path d="M308 128 H338 V444" class="pipe" stroke="#9aa3a9" stroke-width="5"/>
 <rect x="326" y="446" width="24" height="6" fill="var(--line)"/>
+<g class="part" data-p="bblow" tabindex="0">
+  <rect class="hl" x="342" y="394" width="24" height="56" fill="transparent" stroke="none"/>
+  <rect x="351.5" y="392" width="5" height="14" fill="url(#zSteel)"/>
+  <rect x="346.5" y="404" width="15" height="11" rx="2" fill="url(#zBrass)" stroke="#6b5210" stroke-width=".8"/>
+  <rect id="s_bbH" x="343" y="400.5" width="22" height="4" rx="1.5" fill="#c0281c" stroke="#5c120c" stroke-width=".6"/>
+  <rect x="351.5" y="415" width="5" height="16" fill="url(#zSteel)"/>
+  <rect x="344" y="446" width="20" height="6" fill="var(--line)"/>
+  <g id="s_bbJet" opacity="0"><circle cx="354" cy="435" r="3"/><circle cx="350" cy="441" r="2.2"/><circle cx="358" cy="443" r="2.6"/></g>
+  <text class="lbl" x="330" y="434" text-anchor="end" style="font-size:9px">Bottom blowdown</text>
+</g>
 <g id="s_svPuff" opacity="0" fill="var(--paper)" stroke="var(--line)"><circle cx="338" cy="436" r="6"/><circle cx="328" cy="428" r="4"/><circle cx="348" cy="426" r="5"/></g>
 <g class="part" data-p="ret" tabindex="0">
   <path id="s_retA" d="M760 92 V436 H405 V299 H370" class="pipe" stroke="#6b8fc9"/>
@@ -2171,7 +2200,7 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   {k:"sv",l:"Safety valve setting",u:" psi",min:5,max:100,step:1,v:15,n:[15,15],note:"Low pressure steam: 15 psi",more:1}],
  faults:[["lwco1Fail","Primary LWCO float stuck (won't trip)"],["lwco2Fail","Secondary LWCO fails"],["feedFail","Feeder fails (no makeup water)"],["feedStuck","Feeder stuck open (floods boiler)"],
   ["returnLeak","Wet return broken"],["pigtail","Pigtail plugged (gauge and pressuretrol)"],["ptStuck","Pressuretrol contacts stuck closed"],["hlFail","High-limit pressuretrol fails closed"],
-  ["mainVent","Main vent stuck shut"],["radVent","Radiator vents stuck shut"],["trapOpen","Radiator trap failed open (blowing steam)"],["trapShut","Radiator traps failed shut"],["ftFail","F&T trap stuck shut"],["glassShut","Gauge glass valves shut"],["gasStuck","Gas valve stuck open"],["svStuck","Safety valve stuck shut"],["flameRod","Dirty flame rod"]],
+  ["mainVent","Main vent stuck shut"],["radVent","Radiator vents stuck shut"],["trapOpen","Radiator trap failed open (blowing steam)"],["trapShut","Radiator traps failed shut"],["ftFail","F&T trap stuck shut"],["glassShut","Gauge glass valves shut"],["gasStuck","Gas valve stuck open"],["svStuck","Safety valve stuck shut"],["flameRod","Dirty flame rod"],["dirtyWater","Dirty boiler water (high solids)"]],
  hidden:["lwco1Fail","lwco2Fail","hlFail","svStuck","feedFail","glassShut"],
  scenarios:[{l:"Overpressure: gas valve stuck open, safety valve stuck shut",f:["gasStuck","svStuck"]},{l:"Dry fire: wet return broken, both LWCOs and feeder fail",f:["returnLeak","lwco1Fail","lwco2Fail","feedFail"]}],
  parts:{
@@ -2185,6 +2214,7 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   lwco2:{n:"Secondary low water cutoff",s:"Lower backup cutoff, manual reset.",w:"A probe set a little lower than the primary cutoff. If the water reaches it, the burner locks off until someone resets it.",y:"Backup for the primary. CSD-1 requires two cutoffs on steam boilers, the lower one manual reset.",f:"If both cutoffs fail, nothing stops the burner from dry firing.",src:["csd","md","wm"],faults:["lwco2Fail"]},
   feeder:{n:"Automatic water feeder",s:"Adds water when the level drops.",w:"A valve that adds water when the level drops to its feed point, just above the cutoff. Its outlet is piped into the wet return below the Hartford loop's close nipple, so cold makeup water mixes with returning condensate instead of hitting hot sections directly.",y:"Makes up water lost to leaks and venting. In a tight system it should hardly run.",f:"Fails shut: no makeup, the level keeps falling. Stuck open: the boiler floods, water gets into the steam main, and you get water hammer and wet steam.",src:["mm67"],faults:["feedFail","feedStuck"]},
   sv:{n:"Safety valve",s:"Pops at 15 psi and vents steam.",w:"An ASME V-rated valve that pops at its set pressure (15 psi on a low pressure steam boiler) and vents steam.",y:"The last line of protection against overpressure. Spindle vertical; discharge piped near the floor, rated for the heat, never plugged or valved.",f:"Stuck shut, nothing limits the pressure if the controls or gas valve fail.",src:["oep","md","wm"],faults:["svStuck"]},
+  bblow:{n:"Bottom blowdown valve",s:"Drains sludge and dirty water from the lowest point of the boiler.",w:"A drain at the lowest water point of the boiler, here teed into the bottom return tapping. Larger boilers use two valves in series: a quick-opening valve next to the boiler and a slow-opening valve after it. Open the quick-opening valve first and close it last, so the slow-opening valve takes the wear.",y:"Steam leaves the boiler as pure water, so the minerals in every gallon of makeup water stay behind and build up. Heavy solids settle to the bottom as sludge. A short bottom blowdown sends them to the drain. A tight heating system returns nearly all its condensate and needs very little; one that leaks or vents steam takes on makeup water and needs more.",f:"Too little: solids climb, the water foams and surges, the water line bounces in the glass and wet steam carries water into the main. Weil-McLain says to drain and refill a steam boiler when dissolved solids pass 1,000 ppm. Too much: every blowdown is replaced with fresh water, which brings in new minerals and oxygen that corrode the boiler. Never leave an open blowdown valve unattended, and keep the water in sight in the glass. This is a different job from blowing down the low water cutoff, which is done weekly to prove the cutoff works. Try Bottom blowdown and Test the boiler water in Controls.",src:["bbrf","bbnb","bbwm","bbhh"],faults:["dirtyWater"]},
   hartford:{n:"Hartford loop",s:"Keeps a broken return from draining the boiler.",w:"The equalizer drops from the header back into the bottom of the boiler. The wet return joins it through a close nipple about 2 in. below the lowest water line, above the crown sheet.",y:"Balances pressure between the steam side and the return so water stays in the boiler.",f:"If the wet return breaks, the boiler can only drain down to the close nipple, which leaves the crown sheet covered. Remove the loop (switch in Controls) and a broken return can drain the boiler dry. It backs up the LWCO; it doesn't replace it.",src:["hh"],faults:["returnLeak"]},
   trap:{n:"Radiator steam trap (thermostatic)",s:"Lets air and condensate out of a two-pipe radiator, holds steam in.",w:"A small thermostatic trap on the radiator's outlet, at the bottom on the far end from the supply valve. Its bellows or disc is open when cool, so air and water drain into the dry return, and closes when steam reaches it.",y:"Keeps steam in the radiator until it condenses. On a two-pipe system the radiators have no air vents: the air leaves through the traps into the dry return and out the return vent.",f:"Failed open (the common failure): steam blows into the dry return, heats it, and causes water hammer and uneven heat. Failed shut: the radiator fills with water and air and stays cold at the bottom.",src:["hh","vent"],faults:["trapOpen","trapShut"]},
   ft:{n:"F&amp;T trap (end of main)",s:"Drains the end of the steam main into the dry return.",w:"A float and thermostatic trap: the float drains condensate, and a thermostatic element vents air. Installed where the main drips into the return.",y:"Drains the water that forms in the main and lets the main's air out, while keeping steam out of the return.",f:"Stuck shut: the main can't drain or vent, steam arrives slowly and water builds up in the main (water hammer).",src:["hh"],faults:["ftFail"]},
@@ -2193,7 +2223,9 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   mainvent:{n:"Main vent",s:"Lets air out of the main so steam can get in.",w:"A large air vent at the end of the steam main, after the last radiator. It lets air out fast while the system fills, then closes when steam reaches it.",y:"Steam can only move into space the air has left. Good main venting gets steam to the radiators sooner.",f:"Stuck shut: air stays trapped, steam reaches the radiators slowly, pressure builds early and the pressuretrol short-cycles the burner while rooms stay cold. Some small systems skip the main vent and rely on the radiator vents alone, but a main vent is standard on residential one-pipe steam. Two-pipe systems are different: the end of each main drains through a float and thermostatic (F&amp;T) trap into the return, and air leaves through vents on the dry return. That trap comes later with a two-pipe steam sim.",src:["vent"],faults:["mainVent"]},
   rad:{n:"Radiators",s:"Where steam gives up its heat.",w:"Cast-iron radiators. Steam enters, gives up its heat and condenses. One-pipe: the water runs back out the same pipe, and an air vent on each radiator lets the air out. Two-pipe: steam enters through a supply valve and the water and air leave through a trap into the dry return.",y:"The radiators heat the room. The water they make returns to the boiler.",f:"Stuck vents keep the radiators from filling with steam, so they stay cool.",src:["vent"],faults:["radVent"]},
   burner:BURNER, gas:GAS, tstat:TSTAT, room:ROOM},
- init(){return Object.assign(baseState(),{two:true,Tw:195,P:0,fs:0,L:0.6,Troom:66,ptOpen:false,hlTrip:false,lw2Trip:false,low1:false,blow:0,feedValve:true,hartford:true,queue:[],pFrozen:0,glassFrozen:0.6,m:0,venting:false,relief:false,feeding:false,flood:false,off:0,puff:null})},
+ onFault(k,on){if(k==="dirtyWater"){const S=this.S,w=S.L*this.consts.VB;S.sol=(on?1600:300)*w;S.sludge=on?1:.15;if(!on)S.surge=false}},
+ tds(){const S=this.S,w=Math.max(1,S.L*this.consts.VB);if(S.sol==null)S.sol=300*w;return S.sol/w},
+ init(){return Object.assign(baseState(),{two:true,Tw:195,P:0,fs:0,L:0.6,Troom:66,ptOpen:false,hlTrip:false,lw2Trip:false,low1:false,blow:0,bb:0,topup:0,sol:null,sludge:.15,surge:false,feedValve:true,hartford:true,queue:[],pFrozen:0,glassFrozen:0.6,m:0,venting:false,relief:false,feeding:false,flood:false,off:0,puff:null})},
  switches:[
   {l:S=>`Service switch: ${S.svc?"on":"off"}`,on:S=>S.svc,act(sim){sim.S.svc=!sim.S.svc;log(sim,`Service switch ${sim.S.svc?"on":"off"}.`)}},
   {l:S=>`Feeder supply: ${S.feedValve?"open":"shut"}`,on:S=>S.feedValve,act(sim){sim.S.feedValve=!sim.S.feedValve;log(sim,`Feeder supply valve ${sim.S.feedValve?"opened":"shut"}.`)}},
@@ -2201,7 +2233,10 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   {l:S=>`Piping: ${S.two?"two-pipe (traps)":"one-pipe"}`,on:S=>S.two,act(sim){sim.S.two=!sim.S.two;log(sim,sim.S.two?"Two-pipe system: steam in one pipe, condensate out through a trap on each radiator into a dry return. Air leaves through the traps and the return vent.":"One-pipe system: steam and condensate share one pipe. Each radiator and the main have air vents; no traps.")}},
   {l:S=>`Hartford loop: ${S.hartford?"installed":"removed"}`,on:S=>S.hartford,act(sim){sim.S.hartford=!sim.S.hartford;log(sim,sim.S.hartford?"Hartford loop installed.":"Hartford loop removed. The wet return now enters at the bottom of the boiler.","w")}}],
  actions:[
-  {id:"blow",l:"Blow down LWCO",show:S=>!S.dead,act(sim){const S=sim.S;S.blow=10;S.blowFailLogged=false;log(sim,S.flame?"Blowing down the LWCO with the burner on.":"Blowing down the LWCO. (Do it with the burner on to prove it shuts the burner off.)")}},
+  {id:"blow",l:"Blow down the LWCO",show:S=>!S.dead,act(sim){const S=sim.S;S.blow=10;S.blowFailLogged=false;log(sim,S.flame?"Blowing down the LWCO with the burner on.":"Blowing down the LWCO. (Do it with the burner on to prove it shuts the burner off.)")}},
+  {id:"bblow",l:"Bottom blowdown",show:S=>!S.dead,act(sim){const S=sim.S;if(S.bb>0)return;const t=Math.round(sim.tds());S.bb=10;S.bbFrom=t;
+    log(sim,`Bottom blowdown: quick-opening valve open first, then the slow-opening valve. ${S.sludge>0.5?"Thick brown sludge":t>1000?"Dirty brown water":"Slightly cloudy water"} to the drain. Watch the gauge glass the whole time.`,S.sludge>0.5||t>1000?"w":"")}},
+  {id:"tds",l:"Test the boiler water",show:S=>!S.dead,act(sim){const t=Math.round(sim.tds());log(sim,`Boiler water test: ${t} ppm total dissolved solids. `+(t>1000?"Over 1,000 ppm: blow down, or drain and refill, until it comes down. Find out why so much makeup water is going in.":t>700?"Getting high. Blow down and look for leaks or bad vents that are making the feeder run.":"Normal for a tight system."),t>1000?"w":"")}},
   {id:"tcTop",l:"Try cock: top",show:S=>!S.dead,act(sim){sim.tryCock(0.75,"top")}},
   {id:"tcMid",l:"Try cock: middle",show:S=>!S.dead,act(sim){sim.tryCock(0.6,"middle")}},
   {id:"tcBot",l:"Try cock: bottom",show:S=>!S.dead,act(sim){sim.tryCock(0.45,"bottom")}},
@@ -2242,7 +2277,7 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   if(m>0&&!S.boiling)log(sim,"Water is boiling. Steam is pushing air out of the main.");
   S.boiling=m>0;S.m=m;
   const two=S.two,rv=!two&&F.radVent,tS=two&&F.trapShut,tO=two&&F.trapOpen,ftS=two&&F.ftFail;
-  const qrad=c.UAR*S.fs*Math.max(0,Ts-S.Troom)*(S.flood?0.5:1)*(rv?0.5:1)*(tS?0.35:1);
+  const qrad=c.UAR*S.fs*Math.max(0,Ts-S.Troom)*(S.flood?0.5:1)*(S.surge?0.8:1)*(rv?0.5:1)*(tS?0.35:1);
   const cond=qrad/970+0.0004*S.fs+(tO?0.0035*S.fs:0);S.trapBlow=tO&&S.fs>0.7;
   let left=m;S.venting=false;
   if(S.fs<1&&m>0){const vent=two?(1/200)*(tS?0.4:1)*(ftS?0.5:1):(F.mainVent?1/2400:1/200)*(rv?0.6:1)*(S.cnt?0.8:1);const dF=Math.min(m*dt/c.MS,vent*dt,1-S.fs);S.fs+=dF;left=m-dF*c.MS/dt;S.venting=dF>0;S.queue.push([S.t+c.DELAY,dF*c.MS/8.33])}
@@ -2269,6 +2304,13 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   if(add>0&&S.Tm>600&&S.dry){explode(sim,"flash");return}
   if(add>0&&!S.feeding&&!(S.t-(S.feedLogT||-1e9)<60)){S.feedLogT=S.t;log(sim,"Feeder adding water.")}
   S.feeding=add>0;w+=add;
+  /* water quality: steam leaves as pure water, so dissolved solids stay behind; every gallon of makeup brings more */
+  {const tds=sim.tds();if(S.topup>0&&!(S.bb>0)){const tu=Math.min(S.topup,0.06*dt);S.topup-=tu;w+=tu;add+=tu}S.sol+=add*150;if(S.draining)S.sol-=0.03*dt*tds;
+   if(S.bb>0){const dv=Math.min(Math.max(0,w-0.5),0.15*dt);w-=dv;S.sol-=dv*tds;S.topup=(S.topup||0)+dv;S.bb-=dt;
+    if(S.bb<=0){S.bb=0;S.sludge*=0.3;log(sim,`Blowdown done: slow-opening valve shut first, then the quick-opening valve. About 1.5 gallons out at ${S.bbFrom} ppm. Topping back up to the water line by hand; the fresh water dilutes what is left.`)}}
+   S.sol=Math.max(0,S.sol);const sg=S.boiling&&(S.surge?tds>900:tds>1000);
+   if(sg&&!S.surge)log(sim,"The water line is bouncing in the gauge glass. Dirty water is foaming and surging: wet steam is carrying water into the main.","w");
+   if(!sg&&S.surge&&tds<=900)log(sim,"Water line steady again.");S.surge=sg}
   S.L=clamp(w/c.VB,0,1.05);
   const flood=S.L>0.95;if(flood&&!S.flood)log(sim,"Boiler flooded. Water is getting into the steam main: water hammer and wet steam.","b");S.flood=flood;
   if(heatIron(sim,qin,wet,dt))return;
@@ -2284,11 +2326,13 @@ const STEAM={id:"steam",p:"s_",name:"Steam",
   at(p+"glow","height",Math.max(0,wy-176));at(p+"glow","opacity",clamp((S.Tm-300)/600,0,.85));
   at(p+"bub","opacity",S.m>0?(blink(150)?1:.35):0);
   txt(p+"lvl",`Water ${Math.round(S.L*100)}% full`+(S.dry?` · iron ${Math.round(S.Tm)}°F`:""));
-  const gl=F.glassShut?S.glassFrozen:S.L,gy=314-clamp((gl-.25)/.6,0,1)*110;
+  const gl=(F.glassShut?S.glassFrozen:S.L)+(S.surge&&!F.glassShut?0.07*Math.sin(performance.now()/230):0),gy=314-clamp((gl-.25)/.6,0,1)*110;
   at(p+"glassW","y",gy);at(p+"glassW","height",314-gy);
   const fy=F.lwco1Fail?S.floatStuckY??(S.floatStuckY=clamp(wy,240,338)):(S.blow>0?338:clamp(wy,240,338));if(!F.lwco1Fail)S.floatStuckY=undefined;
   at(p+"float","cy",fy);at(p+"lw1Lamp","fill",S.low1?"var(--bad)":"var(--ok)");
   at(p+"blowJet","opacity",S.blow>0?(blink(120)?1:.5):0);
+  at(p+"bbJet","opacity",S.bb>0?(blink(120)?1:.5):0);at(p+"bbJet","fill",S.sludge>0.5||(S.bbFrom||0)>1000?"#7a5a2e":"var(--cold)");at(p+"bbH","transform",S.bb>0?"rotate(90 354 409.5)":"");
+  at(p+"glassW","fill",this.tds()>1000?"#8a6a3a":"var(--cold)");
   at(p+"lw2Lamp","fill",S.lw2Trip?"var(--bad)":"var(--ok)");
   at(p+"feedLamp","fill",S.feeding?"var(--cold)":"var(--lamp-off)");
   at(p+"ptLamp","fill",S.ptOpen?"var(--warn)":"var(--ok)");at(p+"hlLamp","fill",S.hlTrip?"var(--bad)":"var(--ok)");
@@ -2366,7 +2410,7 @@ function renderControls(){const sim=cur;
   const main=sim.sliders.filter(s=>!s.more),more=sim.sliders.filter(s=>s.more);
   $("p-controls").innerHTML=`
    <div class="group"><h3>Switches</h3><div class="btns" id="switches">${sim.switches.map((w,i)=>`<button class="btn" data-sw="${i}"></button>`).join("")}</div>
-   <div class="btns" id="actions">${sim.actions.map(a=>`<button class="btn ${a.cls||""}" data-act="${a.id}" hidden>${a.l}</button>`).join("")}</div></div>
+   <div class="btns" id="actions">${sim.actions.map(a=>`<button class="btn ${a.cls||""}" data-act="${a.id}" hidden>${a.l}</button>`).join("")}</div><div id="actRes" class="actRes" role="status" aria-live="polite" hidden></div></div>
    <div class="group"><h3>Settings</h3><p>Sliders go well past normal so you can see what a wrong setting or wrong part does. They turn red outside the normal range.</p>${main.map(s=>sliderRow(sim,s)).join("")}</div>
    <details id="more"><summary>More settings</summary><div class="group">${more.map(s=>sliderRow(sim,s)).join("")}</div></details>`;
   sim.sliders.forEach(s=>markRow(sim,s));syncSwitches();
@@ -2591,6 +2635,7 @@ const COMPLAINTS={
   radVent:["Customer: \"The radiators are only hot at the inlet end, and they never hiss anymore.\"",{s:{two:false}}],
   gasStuck:["Customer: \"The boiler won't stop firing and the gauge is climbing fast.\""],
   flameRod:["Customer: \"The burner lights, drops out and relights over and over.\""],
+  dirtyWater:["Customer: \"The water in the sight glass is rusty brown and bounces a couple of inches when it fires. The radiators hiss and spit water.\""],
   trapOpen:["Customer: \"The return pipes bang, and the vent on the return pipe spits steam.\"",{s:{two:true}}],
   trapShut:["Customer: \"One radiator is cold at the bottom and hot only at the top.\"",{s:{two:true}}],
   ftFail:["Customer: \"Banging in the main, and steam takes a long time to get to the far rooms.\"",{s:{two:true}}]}
@@ -2684,7 +2729,8 @@ function syncStrip(){const S=cur.S;
 document.addEventListener("click",e=>{const t=e.target.closest("button,.part");if(!t)return;
   if(t.classList.contains("part")){openPart(t.dataset.p);return}
   if(t.dataset.sw){cur.switches[+t.dataset.sw].act(cur);syncSwitches();return}
-  if(t.dataset.act){cur.actions.find(a=>a.id===t.dataset.act).act(cur);return}
+  if(t.dataset.act){const a=cur.actions.find(x=>x.id===t.dataset.act),n0=cur.logs.length,top=cur.logs[0];a.act(cur);const e=cur.logs[0]!==top||cur.logs.length!==n0?cur.logs[0]:null,r=$("actRes");
+    if(r){r.className="actRes"+(e&&e[2]==="w"?" w":"");r.innerHTML=`<b>${a.l}</b><span>${e?e[1]:"Done. Watch the drawing."}</span>`;r.hidden=false;r.classList.remove("flash");void r.offsetWidth;r.classList.add("flash")}return}
   if(t.dataset.reset){const r=cur.resets(cur.S)[+t.dataset.reset];r&&r[1]();lastAlerts="x";return}
   if(t.dataset.sc){const sc=cur.scenarios[+t.dataset.sc];reset(cur);sc.f.forEach(k=>setFault(cur,k,true));log(cur,`Scenario: ${sc.l}.`,"b");setSpeed(60);running=true;$("run").textContent="Pause";return}
   if(t.dataset.part){openPart(t.dataset.part);return}

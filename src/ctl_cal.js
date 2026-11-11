@@ -153,12 +153,12 @@ function render(){const box=$("calSec");if(!box||box.hidden)return;
 function quick(full){if(CS.sub==="bench"){$("calSvg").innerHTML=benchSVG(CS.S);const S=CS.S,B=BENCH[S.id],n=night(S);const o=(k,v)=>{const e=$("calo_"+k);if(e)e.textContent=v};
   o("sup",(B.dn?S.main:S.sup).toFixed(1)+" psi");o("dial",(n?S.dialN:S.dial).toFixed(1)+"°F");o("sens",B.tr?`${(10/S.sens).toFixed(1)}°F`:`${S.sens.toFixed(2)} psi/°F`)}
  else{$("calSvg").innerHTML=pairSVG(CS.pair);if(full)$("calSide").innerHTML=pairSide(CS.pair);else{const o=$("pairo_T");if(o)o.textContent=CS.pair.T.toFixed(1)+"°F"}}}
-function show(on){const box=$("calSec");if(!box)return;box.hidden=!on;if(on){document.querySelector(".layout").hidden=true;const p=$("pidSec");if(p)p.hidden=true;
+function show(on){const box=$("calSec");if(!box)return;box.hidden=!on;if(on){document.querySelector(".layout").hidden=true;const p=$("pidSec");if(p)p.hidden=true;const lp=$("lpSec");if(lp)lp.hidden=true;$("simLoops")&&$("simLoops").setAttribute("aria-pressed",false);
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",false));$("simPid")&&$("simPid").setAttribute("aria-pressed",false);render()}
  $("simCal").setAttribute("aria-pressed",on)}
 document.addEventListener("click",ev=>{const t=ev.target;
  if(t.closest("#simCal")){show(true);return}
- if(t.closest("[data-sim]")||t.closest("#simPid")){if(!$("calSec").hidden)show(false);if(t.closest("[data-sim]"))document.querySelector(".layout").hidden=false;return}
+ if(t.closest("[data-sim]")||t.closest("#simPid")||t.closest("#simLoops")){if(!$("calSec").hidden)show(false);if(t.closest("[data-sim]"))document.querySelector(".layout").hidden=false;return}
  if(!t.closest("#calSec"))return;const S=CS.S;
  const sb=t.closest("[data-csub]");if(sb){CS.sub=sb.dataset.csub;save();render();return}
  const bb=t.closest("[data-cb]");if(bb){CS.bench=bb.dataset.cb;CS.S=newBench(CS.bench);save();render();return}

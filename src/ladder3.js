@@ -78,7 +78,7 @@ function p3Render(){const sv=$("p3svg");if(!sv)return;const c=P3S.circ,col=PCOL[
  const W={single:740,rev:780,seq:860,wyedelta:820}[c],H={single:540,rev:560,seq:540,wyedelta:600}[c];sv.setAttribute("viewBox",`0 0 ${W} ${H}`);sv.style.maxWidth=W+"px";
  const x0=70,dx=46,X=k=>x0+k*dx;let s="";
  const wire=(d,k,on,thin)=>`<path d="${d}" fill="none" stroke="#8e969b" stroke-width="${thin?3.5:on?6.5:5}" stroke-linecap="round" stroke-linejoin="round" opacity="${on?1:.35}"/><path d="${d}" fill="none" stroke="${col[k]}" stroke-width="${thin?2:on?4:2.5}" stroke-linecap="round" stroke-linejoin="round"${on?"":' stroke-dasharray="6 5" opacity=".55"'}/>`;
- const dot=(x,y,key)=>meter.on?`<circle class="mpt" data-pt="p:${key}" cx="${x}" cy="${y}" r="7" fill="${meter.red==="p:"+key?"#d62828":meter.black==="p:"+key?"#111":"var(--paper)"}" stroke="var(--brass)" stroke-width="2.5"/>`:"";
+ const PT={};const dot=(x,y,key)=>{if(!meter.on)return "";PT["p:"+key]=[[x,y]];return `<g class="mpt" data-pt="p:${key}"><circle cx="${x}" cy="${y}" r="13" fill="transparent"/><circle cx="${x}" cy="${y}" r="6.5" fill="${meter.red==="p:"+key?"#d62828":meter.black==="p:"+key?"#111":"var(--paper)"}" stroke="var(--brass)" stroke-width="2.5"/></g>`};
  const txt=(x,y,t,a="middle",cls="tg")=>`<text x="${x}" y="${y}" class="${cls}" style="text-anchor:${a}">${esc(t)}</text>`;
  const node=(x,y)=>`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--ink)"/>`;
  // a 3-pole contactor: xs = pole x's, y = top; up/dn = live above/below; cl = closed
@@ -154,6 +154,7 @@ function p3Render(){const sv=$("p3svg");if(!sv)return;const c=P3S.circ,col=PCOL[
   s+=txt(sxs[2]+20,369,"S"+(sOn?" CLOSED":" OPEN"),"start")+txt(sxs[1],330,"STAR POINT")+txt(sxs[2]+24,404,"S ties T4, T5, T6 together = wye","start")+txt(sxs[2]+24,418,"D puts a line on each = delta","start")+txt(sxs[2]+24,432,"D: L1→T6, L2→T4, L3→T5","start");
   s+=`<path d="M${sxs[2]+60} 365 H${sxs[2]+60}" />`;
   s+=motor(cx,cy,0)}
+ s+=probesFor(PT,110);
  s=`<defs><marker id="ah3" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="var(--ok)"/></marker></defs>`+s;
  sv.innerHTML=s;
  const inf=$("p3info");if(inf)inf.innerHTML=`<b>${esc(CIRC[c].name)}</b><br>Supply ${V} V 3-phase: L1 ${PCOLN[V][0]}, L2 ${PCOLN[V][1]}, L3 ${PCOLN[V][2]}.<br>Control ${lineV()} V from X1 (fused) to X2 (grounded).`;

@@ -16,10 +16,10 @@ if(L.tabs){const nav=document.querySelector(".lsTabs");nav.setAttribute("aria-la
 function showTab(t){if(L.tabs){if(!L.tabs.some(x=>x.id===t))return;ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
   L.tabs.forEach(x=>{$("tab-"+x.id).hidden=x.id!==t;const el=$("tb-"+x.id);if(x.id===t&&!el.dataset.m){el.dataset.m=1;x.mount(el)}});return}
  ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
- ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=k!==t);if(t==="see"&&!$("lsSee").dataset.m){$("lsSee").dataset.m=1;L.see.mount($("lsSee"))}
+ ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=k!==t);if(t==="see"&&!$("lsSee").dataset.m){$("lsSee").dataset.m=1;L.see.mount($("lsSee"))}if(window.KLEG)document.querySelectorAll("#tab-"+t+" svg").forEach(KLEG);
  if(t==="try"&&!$("lsTry").dataset.m){$("lsTry").dataset.m=1;mountTasks()}if(t==="job"&&!$("lsJob").dataset.m){$("lsJob").dataset.m=1;mountJob()}}
 let stepState={};
-function drawStep(){const s=L.steps[ST.step];$("lsSvg").setAttribute("viewBox",s.vb||"0 0 720 380");$("lsSvg").innerHTML=s.draw(stepState)}
+function drawStep(){const s=L.steps[ST.step];$("lsSvg").setAttribute("viewBox",s.vb||"0 0 720 380");$("lsSvg").innerHTML=s.draw(stepState);if(window.KLEG)KLEG($("lsSvg"))}
 function showStep(i){ST.step=Math.max(0,Math.min(L.steps.length-1,i));save();const s=L.steps[ST.step];stepState={...(s.init||{})};
  $("lsStepNo").textContent=`Step ${ST.step+1} of ${L.steps.length}`;$("lsStepT").textContent=s.t;$("lsStepB").innerHTML=s.body;
  $("lsMath").hidden=!s.math;if(s.math){$("lsMathB").innerHTML=s.math;$("lsMath").open=false}

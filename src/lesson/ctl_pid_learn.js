@@ -55,16 +55,27 @@ function loopSVG(z,o={}){const v=Math.max(0,Math.min(100,z.valve)),tc=T=>T>73?"v
 function pneuVsDdc(){let s="";
  s+=`<rect x="14" y="14" width="340" height="352" rx="10" fill="var(--paper)" stroke="var(--panel-edge)"/><rect x="366" y="14" width="340" height="352" rx="10" fill="var(--paper)" stroke="var(--panel-edge)"/>`;
  s+=K.lbl(30,42,"PNEUMATIC THERMOSTAT",{a:"start"})+K.lbl(382,42,"DDC CONTROLLER",{a:"start"});
- // pneumatic: bimetal, flapper, nozzle
- s+=`<rect x="40" y="60" width="140" height="110" rx="8" fill="url(#zPlastic)" stroke="#8f8a7f"/><path d="M60 150 Q70 100 130 82" stroke="#b5651d" stroke-width="5" fill="none"/><path d="M60 150 Q70 100 130 82" stroke="#c9c9c9" stroke-width="2" fill="none" transform="translate(2 3)"/>`;
- s+=`<rect x="128" y="74" width="40" height="5" fill="#5f686d"/><rect x="146" y="80" width="10" height="30" fill="url(#zBrass)"/>`+K.txt(110,190,"bimetal moves the flapper");
- s+=`<rect x="210" y="80" width="40" height="9" fill="url(#zCuH)"/><rect x="156" y="94" width="54" height="7" fill="url(#zCuH)"/>`+K.txt(262,74,"main 20 psi",{a:"start"});
- s+=`<rect x="156" y="124" width="140" height="7" fill="url(#zCuH)"/>`+K.txt(300,120,"branch",{a:"end"})+K.txt(300,148,"3 to 15 psi",{a:"end"});
+ // pneumatic: one-pipe (bleed) thermostat cutaway. Main air -> restrictor -> tee: up to the nozzle under the flapper, and out the branch to the valve actuator.
+ const D="#1d2327",D2="#3d474d",cu="url(#zCuH)";
+ s+=`<rect x="34" y="56" width="216" height="130" rx="8" fill="url(#zPlastic)" stroke="#8f8a7f"/>`;
+ // main air in, restrictor, branch out (all one line at y=158..166)
+ s+=`<rect x="20" y="158" width="64" height="8" fill="${cu}"/><rect x="84" y="153" width="22" height="18" rx="2" fill="url(#zBrass)" stroke="#6b5210" stroke-width=".8"/><rect x="84" y="160.5" width="22" height="3" fill="#3a2c08"/><rect x="106" y="158" width="218" height="8" fill="${cu}"/>`;
+ // tee up to the nozzle
+ s+=`<rect x="166" y="112" width="8" height="48" fill="url(#zCuV)"/><path d="M163 112h14l-3 -10h-8z" fill="url(#zBrass)" stroke="#6b5210" stroke-width=".8"/>`;
+ // bimetal strip (two layers) anchored at the left post, flapper pad over the nozzle
+ s+=`<rect x="46" y="84" width="10" height="26" rx="2" fill="#5f686d"/><path d="M54 95 Q112 90 186 96" stroke="#b5651d" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M54 91.5 Q112 86.5 186 92.5" stroke="#c9ced1" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="160" y="96" width="20" height="3" fill="#2f363a"/>`;
+ // air bleeding from the nozzle gap
+ s+=`<path d="M159 101 q-7 -2 -11 2 M181 101 q7 -2 11 2" stroke="#4b8fd0" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+ s+=K.txt(112,78,"bimetal",{fill:D2})+K.txt(214,90,"flapper",{fill:D2})+K.txt(206,126,"nozzle",{fill:D2})+K.txt(95,183,"restrictor",{fill:D2});
+ // valve actuator on the end of the branch line
+ s+=`<path d="M300 166 a24 20 0 0 1 48 0 z" fill="url(#zSteel)" stroke="#5f686d"/><rect x="298" y="166" width="52" height="5" fill="#5f686d"/><rect x="321" y="171" width="6" height="14" fill="#8a9298"/>`;
+ s+=K.arrow("M22 148 H62","var(--cold)",2)+K.arrow("M262 148 H296","var(--cold)",2);
+ s+=K.txt(20,206,"main air 20 psi",{a:"start"})+K.txt(346,206,"branch 3 to 15 psi to the valve",{a:"end"});
  // branch vs temp chart = proportional only
- const ch=K.chart({x:70,y:206,w:250,h:100,X:[68,76],Y:[3,15],xt:[68,70,72,74,76],yt:[3,9,15],xf:v=>v+"°",yf:v=>v,series:[{pts:[[68,15],[70,15],[74,3],[76,3]],c:"var(--brass)",w:3}],vlines:[{x:72,lbl:"SP"}]});
+ const ch=K.chart({x:70,y:222,w:250,h:88,X:[68,76],Y:[3,15],xt:[68,70,72,74,76],yt:[3,9,15],xf:v=>v+"°",yf:v=>v,series:[{pts:[[68,15],[70,15],[74,3],[76,3]],c:"var(--brass)",w:3}],vlines:[{x:72,lbl:"SP"}]});
  s+=ch+K.txt(190,354,"branch psi vs room: 4°F throttling range");
  // DDC: sensor -> AI -> PI block -> AO -> actuator
- const box=(x,y,w,t1,t2,f="url(#zPlastic)")=>`<rect x="${x}" y="${y}" width="${w}" height="56" rx="6" fill="${f}" stroke="#5f686d"/>${K.lbl(x+w/2,y+24,t1,{size:14})}${K.txt(x+w/2,y+44,t2)}`;
+ const box=(x,y,w,t1,t2,f="url(#zPlastic)")=>`<rect x="${x}" y="${y}" width="${w}" height="56" rx="6" fill="${f}" stroke="#5f686d"/>${K.lbl(x+w/2,y+24,t1,{size:14,fill:D})}${K.txt(x+w/2,y+44,t2,{fill:D2})}`;
  s+=box(386,64,130,"SENSOR","10K thermistor")+box(556,64,130,"INPUT (AI)","reads °F")+box(436,160,200,"PI BLOCK","PB, Ti in software","#e8eef3")+box(386,262,130,"OUTPUT (AO)","2 to 10 V")+box(556,262,130,"ACTUATOR","positions the valve");
  s+=K.arrow("M516 92 H552","#7a8288",2)+K.arrow("M621 120 V156","#7a8288",2)+K.arrow("M480 216 L451 258","#7a8288",2)+K.arrow("M516 290 H552","#7a8288",2);
  s+=K.txt(536,350,"adds integral, trends, alarms, and remote setpoints");

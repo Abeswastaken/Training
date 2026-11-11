@@ -23,11 +23,11 @@ fw=fw.replace('Sliders go well past normal so you can see what a wrong setting o
 js=head+glob+ctl+"\n"+fw
 css=open('base.css').read()+open('extra.css').read()+'.vmeter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:13px}.vmeter select{flex:1;min-width:0;max-width:100%;font:13px var(--body);padding:6px;border-radius:5px;border:1px solid var(--panel-edge);background:var(--paper);color:var(--ink);min-height:36px}.vmeter output{font-family:var(--mono);font-size:17px;background:#b9c7a8;color:#111;padding:4px 10px;border-radius:4px;min-width:120px;text-align:right;text-transform:none;letter-spacing:0}'
 body=open('body_ctl.html').read()
-body=rep(body,'<button data-sim="ddc" aria-pressed="false">DDC</button>','<button data-sim="ddc" aria-pressed="false">DDC</button><button id="simPid" aria-pressed="false">PID tuning</button><button id="simCal" aria-pressed="false">Calibration</button>')
+body=rep(body,'<button data-sim="ddc" aria-pressed="false">DDC</button>','<button data-sim="ddc" aria-pressed="false">DDC</button><button id="simPid" aria-pressed="false">PID tuning</button><button id="simCal" aria-pressed="false">Calibration</button><button id="simLoops" aria-pressed="false">More loops</button>')
 _lay='\n</div>\n</div>\n\n<div class="modal" id="disc"'
-body=rep(body,_lay,'\n</div>\n'+open('ctl_pidcal.html').read()+'</div>\n\n<div class="modal" id="disc"')
-css+=open('ctl_pidcal.css').read()
-tail='<script>\n'+open('ctl_pid.js').read()+'</script>\n<script>\n'+open('ctl_cal.js').read()+'</script>\n'
+body=rep(body,_lay,'\n</div>\n'+open('ctl_pidcal.html').read()+open('ctl_loops.html').read()+'</div>\n\n<div class="modal" id="disc"')
+css+=open('ctl_pidcal.css').read()+open('ctl_loops.css').read()
+tail='<script>\n'+open('ctl_pid.js').read()+'</script>\n<script>\n'+open('ctl_cal.js').read()+'</script>\n'+'<script>\n'+open('ctl_loops.js').read()+'</script>\n'
 hd='''<title>Controls Trainer FB-Enable</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">

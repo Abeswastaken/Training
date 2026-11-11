@@ -29,6 +29,7 @@ b=b.replace('lastAlerts=""','lastAlerts=null')
 # the feeder turns on and off every couple of seconds with a broken return: log it once a minute at most
 B('if(add>0&&!S.feeding)log(sim,"Feeder adding water.");','if(add>0&&!S.feeding&&!(S.t-(S.feedLogT||-1e9)<60)){S.feedLogT=S.t;log(sim,"Feeder adding water.")}')
 exec(open('patch_svc.py').read())
+exec(open('patch_blow.py').read())
 # tag boiler feedback like the other trainers do
 B('body.append(FEEDBACK.entry,text);','body.append(FEEDBACK.entry,"[Boiler] "+text);')
 open('../dist/boiler-trainer.html','w').write(b)

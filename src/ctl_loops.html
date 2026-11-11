@@ -1,0 +1,21 @@
+<section class="lpSec" id="lpSec" hidden aria-label="More control loops">
+  <div class="stBar"><div class="seg" role="group" aria-label="System"><button data-lpsys="hw">Hot water loop</button><button data-lpsys="mau">Makeup air unit</button><button data-lpsys="rel">Exhaust / relief fan</button></div>
+    <div class="btns"><button class="btn" id="lpRun">Pause</button><select class="btn" id="lpSpeed" aria-label="Speed"><option value="1">1x</option><option value="10">10x</option><option value="60">60x</option><option value="300">300x</option></select><button class="btn" id="lpReset">Reset</button></div></div>
+  <p class="lpLead" id="lpLead"></p>
+  <div class="pidGrid">
+    <div class="pidMain">
+      <div class="drawing"><div class="scroller"><svg id="lpSvg" viewBox="0 0 760 340" role="img" aria-label="System drawing with color-coded control loops"></svg></div><div class="lpLegend" id="lpLegend"></div></div>
+      <div class="reads pidReads" id="lpReads"></div>
+      <div class="btns" id="lpResets"></div>
+      <div class="drawing"><div class="scroller"><svg id="lpTrend" viewBox="0 0 760 300" role="img" aria-label="Trend of each loop"></svg></div></div>
+      <div class="group"><h3>What just happened</h3><div class="lpLog" id="lpLog" aria-live="polite"></div></div>
+    </div>
+    <div class="pidSide">
+      <div class="group"><h3>Loops</h3><div id="lpLoops"></div></div>
+      <div class="group"><h3>Conditions</h3><div id="lpConds"></div></div>
+      <div class="group"><h3>Try it</h3><ol class="lpTasks" id="lpTasks"></ol></div>
+      <div class="group"><h3>Failures</h3><div class="checks" id="lpFaults"></div></div>
+      <div class="group"><h3>Worth knowing</h3><ul class="calNotes" id="lpNotes"></ul><h3>Sources</h3><ul class="calNotes" id="lpSrc"></ul></div>
+    </div>
+  </div>
+</section>

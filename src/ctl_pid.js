@@ -118,12 +118,12 @@ function frame(ts){if(!running){last=0;return}const dt=last?Math.min(0.1,(ts-las
  while(n-->0){if(l.free){Z.sp=ST.cfg.sp;step(Z,ST.cfg)}else{testTick(Z,ST.cfg);if(Z.t>=TEST_END){finish();return}}}
  draw();requestAnimationFrame(frame)}
 function start(){if(running)return;running=true;sliders();lessonCard();requestAnimationFrame(frame)}
-function show(on){const box=$("pidSec");if(!box)return;box.hidden=!on;if(on){document.querySelector(".layout").hidden=true;const c=$("calSec");if(c)c.hidden=true;
+function show(on){const box=$("pidSec");if(!box)return;box.hidden=!on;if(on){document.querySelector(".layout").hidden=true;const c=$("calSec");if(c)c.hidden=true;const lp=$("lpSec");if(lp)lp.hidden=true;$("simLoops")&&$("simLoops").setAttribute("aria-pressed",false);
   document.querySelectorAll("[data-sim]").forEach(b=>b.setAttribute("aria-pressed",false));$("simCal")&&$("simCal").setAttribute("aria-pressed",false);if(!Z)setLesson(ST.les);else draw()}else running=false;
  $("simPid").setAttribute("aria-pressed",on)}
 document.addEventListener("click",ev=>{const t=ev.target;
  if(t.closest("#simPid")){show(true);return}
- if(t.closest("[data-sim]")||t.closest("#simCal")){if(!$("pidSec").hidden)show(false);if(t.closest("[data-sim]"))document.querySelector(".layout").hidden=false;return}
+ if(t.closest("[data-sim]")||t.closest("#simCal")||t.closest("#simLoops")){if(!$("pidSec").hidden)show(false);if(t.closest("[data-sim]"))document.querySelector(".layout").hidden=false;return}
  if(!t.closest("#pidSec"))return;
  const lb=t.closest("[data-pl]");if(lb){setLesson(+lb.dataset.pl);return}
  const mb=t.closest("[data-pmode]");if(mb&&!mb.disabled){ST.cfg.mode=mb.dataset.pmode;save();if(LES().free){Z.I=ST.cfg.mode==="pi"||ST.cfg.mode==="pid"?Z.u-50:0;sliders();lessonCard()}else resetZone();return}

@@ -156,6 +156,13 @@ details .group{gap:10px}
 .sheet.mini h2{font-size:15px;margin-bottom:4px}
 .sheet.mini #sheetB>*:not(.rvBar){display:none}
 .sheet.mini .rvBar .rvMore{display:inline-block}
+/* Result of a check button, shown right under the buttons */
+.actRes{margin-top:8px;padding:8px 10px;border:1px solid var(--panel-edge);border-left:4px solid var(--ok);border-radius:6px;background:var(--paper);font-size:14px;line-height:1.4}
+.actRes b{display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:12px;color:var(--muted)}
+.actRes.w{border-left-color:var(--warn)}
+.actRes.flash{animation:actFlash .7s ease-out}
+@keyframes actFlash{from{background:color-mix(in srgb,var(--brass) 35%,var(--paper))}to{background:var(--paper)}}
+@media (prefers-reduced-motion:reduce){.actRes.flash{animation:none}}
 /* Lesson pages: Learn / See it / Try it / On the job */
 .lsWrap{max-width:1100px}
 .lsTop{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
@@ -1500,10 +1507,10 @@ if(L.tabs){const nav=document.querySelector(".lsTabs");nav.setAttribute("aria-la
 function showTab(t){if(L.tabs){if(!L.tabs.some(x=>x.id===t))return;ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
   L.tabs.forEach(x=>{$("tab-"+x.id).hidden=x.id!==t;const el=$("tb-"+x.id);if(x.id===t&&!el.dataset.m){el.dataset.m=1;x.mount(el)}});return}
  ST.tab=t;save();document.querySelectorAll("[data-ltab]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ltab===t));
- ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=k!==t);if(t==="see"&&!$("lsSee").dataset.m){$("lsSee").dataset.m=1;L.see.mount($("lsSee"))}
+ ["learn","see","try","job"].forEach(k=>$("tab-"+k).hidden=k!==t);if(t==="see"&&!$("lsSee").dataset.m){$("lsSee").dataset.m=1;L.see.mount($("lsSee"))}if(window.KLEG)document.querySelectorAll("#tab-"+t+" svg").forEach(KLEG);
  if(t==="try"&&!$("lsTry").dataset.m){$("lsTry").dataset.m=1;mountTasks()}if(t==="job"&&!$("lsJob").dataset.m){$("lsJob").dataset.m=1;mountJob()}}
 let stepState={};
-function drawStep(){const s=L.steps[ST.step];$("lsSvg").setAttribute("viewBox",s.vb||"0 0 720 380");$("lsSvg").innerHTML=s.draw(stepState)}
+function drawStep(){const s=L.steps[ST.step];$("lsSvg").setAttribute("viewBox",s.vb||"0 0 720 380");$("lsSvg").innerHTML=s.draw(stepState);if(window.KLEG)KLEG($("lsSvg"))}
 function showStep(i){ST.step=Math.max(0,Math.min(L.steps.length-1,i));save();const s=L.steps[ST.step];stepState={...(s.init||{})};
  $("lsStepNo").textContent=`Step ${ST.step+1} of ${L.steps.length}`;$("lsStepT").textContent=s.t;$("lsStepB").innerHTML=s.body;
  $("lsMath").hidden=!s.math;if(s.math){$("lsMathB").innerHTML=s.math;$("lsMath").open=false}
