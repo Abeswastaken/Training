@@ -94,6 +94,7 @@ _log=''.join(f'<article><time datetime="{d}">{l}, {d[:4]}</time><h3>{s_}</h3><p>
 os.makedirs(f'{OUT}/whats-new',exist_ok=True)
 open(f'{OUT}/whats-new/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+_style+'\n</head>\n<body>\n<main class="wrap">\n  <header class="plate"><i></i><i></i><i></i><i></i>\n    <a class="backHome" href="/">← All trainers</a>\n    <h1>What\'s new</h1>\n    <p class="lede">Every change to the site, newest first.</p>\n  </header>\n  <section class="log" aria-label="Change log">\n'+_log+'  </section>\n</main>\n</body>\n</html>\n')
 h=h.replace('<!--nlessons-->',str(len(LESSONS)))
+h=h.replace('<!--ncards-->',str(len(re.findall(r'<a class="card" href="/[a-z0-9-]+/">',h))))
 h=h.replace('<title>HVAC Trainers Home</title>','<title>HVAC Trainers</title>')
 open(f'{OUT}/index.html','w').write('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+h.replace('</style>','</style>\n</head>\n<body>',1)+'\n</body>\n</html>\n')
 open(f'{OUT}/CNAME','w').write('training.colvinj.com\n')
