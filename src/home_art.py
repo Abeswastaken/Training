@@ -620,7 +620,93 @@ def a():
     return s
 ART['motors']=a()
 
-ORDER=['refrigeration','ph-chart','mini-split','carlyle-06d','heating','boiler-trainer','airflow','psychrometrics','combustion','chiller','hx','controls','wiring','ladder','threephase','motors']
+
+# ---- Hydronics: wall-hung condensing boiler on a closed loop ----
+def a():
+    s=bg('#e4e7e3','#b1a99c',158)
+    s+=shadow(70,160,40,3)
+    # PVC vent pair through the wall
+    s+=cylv(52,0,9,22,'#eceff0',False)+cylv(66,0,9,22,'#eceff0',False)+rect(50,4,13,2.5,'#c8ccce')+rect(64,4,13,2.5,'#c8ccce')
+    # boiler cabinet with display
+    s+=box(34,20,70,92,16,'#eef1f2',4)
+    s+=rect(37,23,64,86,'none',3,'stroke="#c7cdd0" stroke-width=".8"')
+    s+=lcd(52,38,34,16,['180F','12 PSI'],'#9fd0ff','#0d2a4a',5)+circ(56,62,2.6,R('#3a4146'))+circ(64,62,2.6,R('#3a4146'))+circ(72,62,2.6,R('#3a4146'))
+    s+=rect(46,92,46,4,F('#d4d9dc'),1)+txt(52,82,'HOT WATER',4.4,'#5b666d')
+    # condensate drain to the floor
+    s+=pipe('M48 112L48 150L60 150',3,'#eceff0')
+    # supply out the bottom right, return in the bottom left
+    s+=pipe('M92 112L92 122L320 122',6.5,CU)+pipe('M320 140L64 140L64 112',6.5,CU)
+    for xx in (128,222,300):s+=path('M%s 118l5 4l-5 4z'%xx,'#d23a26')
+    for xx in (132,214,290):s+=path('M%s 136l-5 4l5 4z'%xx,'#8a2a1f')
+    s+=txt(286,116,'SUPPLY',5,'#a32a1d')+txt(286,152,'RETURN',5,'#6e2318')
+    # tridicator on the supply
+    s+=pipe('M114 122L114 108',3,BR)+gauge(114,100,9,-40,'#f7f5ee','#b8902e')
+    # relief valve with discharge pipe to near the floor
+    s+=rect(100,123,8,4,G(BR,'h'))+rect(98,126,12,10,G(BR,'v'),2)+rect(108,128,6,4,F('#c8372d'),1)+pipe('M104 136L104 150',3.5,CU)
+    # air separator with auto vent
+    s+=cylv(146,96,18,36,'#4f5d68')+rect(151,86,8,10,G(BR,'v'),1)+circ(155,84,3.6,R(BR))+flange(143,119,24,5,'#3c4850')
+    # circulator: flanges, volute, motor
+    s+=flange(180,115,4,14)+flange(206,115,4,14)+circ(195,122,10,R('#c63a2c'))+circ(195,122,3.4,R('#e9ecee'))+rect(188,98,14,16,G('#2d3439','h'),2)+rect(191,92,8,6,F('#3a4146'),1.5)+txt(186,129,'',4)
+    # diaphragm expansion tank hanging off the supply
+    s+=pipe('M246 122L246 104',3.5,CU)+cylv(232,50,28,54,'#2f6fd6')+path('M232 50Q232 40 246 40Q260 40 260 50Z',G('#2f6fd6','v'))+path('M232 104Q232 112 246 112Q260 112 260 104Z',G('#2b5fb8','v'))+rect(238,64,16,14,'#e9ecee',1)+line(240,68,252,68,'#59626880',.6)+line(240,72,249,72,'#59626880',.6)
+    s+=rect(244,32,4,9,G('#9aa3a9','v'))+line(232,30,262,30,'#7d868c',1.6)
+    # fill valve and backflow preventer on the cold line into the return
+    s+=pipe('M276 54L276 92L268 92L268 140',3,CU)+rect(262,96,12,14,G(BR,'v'),2)+rect(260,104,16,4,F('#2f6fd6'),1)+rect(270,70,12,10,G(BR,'v'),2)+rect(272,64,8,6,F('#c63a2c'),1.5)
+    s+=hexnut(124,117,6,10)+hexnut(220,117,6,10)+hexnut(124,135,6,10)
+    return s
+ART['hydronics']=a()
+# ---- Steam: cast-iron sectional steam boiler with its trim ----
+def a():
+    s=bg('#e3e1dc','#9f978b',156)
+    s+=shadow(150,158,90,4.5)
+    # wet return along the floor, Hartford loop up to the equalizer
+    s+=pipe('M0 150L118 150L118 140',6,BLK)
+    # equalizer down the left side
+    s+=pipe('M70 24L70 140L118 140L118 132',6,BLK)
+    # boiler: cast iron sections behind a jacket front
+    c='#3b4a3f'
+    s+=box(80,58,140,92,30,c,2)
+    for i in range(7):s+=line(84+i*20,60,84+i*20,148,sh(c,.6),.8)+line(85+i*20,60,85+i*20,148,sh(c,1.4),.4,'opacity=".6"')
+    s+=rect(110,104,52,34,F('#2a3230'),2)+bolts([(114,108),(158,108),(114,134),(158,134)],1.4)+circ(136,121,6,R('#1b2023'))+circ(136,121,3.6,R('#ff9d3c'))
+    # risers to the header and the insulated main
+    s+=pipe('M130 50L130 24L70 24',7,BLK)+pipe('M180 44L180 24L130 24',7,BLK)
+    s+=rect(180,17,140,14,G('#e8e4da','h'),2)+''.join(rect(196+i*28,16,3,16,'#a9a191') for i in range(5))
+    s+=hexnut(124,40,12,6,'#5a6268')+hexnut(174,34,12,6,'#5a6268')
+    # 15 psi safety valve on top
+    s+=rect(152,34,10,14,G(BR,'v'),1)+rect(148,28,18,7,G(BR,'h'),1.5)+rect(164,30,9,3,F('#3a4146'),1)
+    # pressuretrol on a pigtail siphon with a 0-30 psi gauge
+    s+=pipe('M206 48L206 40Q206 34 212 34Q218 34 218 40Q218 46 212 46',2.5,'#7a6a4a')+box(218,32,22,16,5,'#8e989e',2)+txt(221,42,'PSI',4.4,'#1d262c')+gauge(234,62,8,-122,'#f7f5ee','#2d3439')
+    # gauge glass with try cocks, left side
+    s+=rect(88,66,7,40,'#dfe8ee',1.2)+rect(88,86,7,20,'#5d97e6',1)+line(89.5,68,89.5,104,'#ffffff',.8,'opacity=".7"')
+    s+=rect(86,62,11,6,G(BR,'h'),1)+rect(86,104,11,6,G(BR,'h'),1)+circ(102,72,2.4,R(BR))+circ(102,84,2.4,R(BR))+circ(102,96,2.4,R(BR))
+    # float LWCO on the right side, with blowdown valve
+    s+=box(252,74,22,40,6,'#6e2a24',4)+rect(256,80,14,10,'#e9ecee',1)+line(258,84,268,84,'#59626880',.6)+pipe('M250 82L234 82',4,BLK)+pipe('M250 108L234 108',4,BLK)+pipe('M263 114L263 132',4,BLK)+rect(257,124,12,8,G(BR,'h'),1.5)
+    return s
+ART['steam']=a()
+# ---- Steam traps: three traps on a header, one cut open ----
+def a():
+    s=bg('#e6e8ea','#b9b2a6',150)
+    s+=shadow(80,152,36,3.5)+shadow(170,152,46,3.5)+shadow(264,152,28,3)
+    s+=pipe('M0 40L320 40',9,BLK)+''.join(hexnut(xx,33,7,14,'#5a6268') for xx in (54,150,256))
+    # inverted bucket trap: tall cast body, bolted bottom cap
+    s+=pipe('M60 44L60 120',5,BLK)+cylv(56,112,10,8,'#3b4146',False)
+    s+=cylv(50,60,52,72,'#3b4348')+rect(46,124,60,8,G('#2d3439','h'),1.5)+bolts([(51,128),(66,128),(86,128),(101,128)],1.3)
+    s+=pipe('M76 60L76 50L96 50',4,BLK)+rect(60,82,32,12,F('#d9dde0'),1)+txt(66,90.5,'IB',6,'#1d262c')
+    # F&T trap: wide body with cover plate, quarter cut away to show the float
+    x,y=128,82
+    s+=box(x,y,78,50,14,'#454e54',4)+rect(x-6,y-2,8,54,G('#2d3439','v'),1.5)+bolts([(x-2,y+4),(x-2,y+24),(x-2,y+44)],1.3)
+    s+=rect(x+34,y+6,40,40,'#dfe4e7',2)+rect(x+34,y+26,40,20,'#4f8ae0',1)+line(x+34,y+26,x+74,y+26,'#cfe0fa',.8)
+    s+=circ(x+48,y+24,9,R('#d4dadd'))+line(x+56,y+28,x+68,y+38,'#4b5459',1.6)+rect(x+66,y+36,5,6,F('#c9d0d5'),1)+ell(x+66,y+12,5,4,R('#c9d0d5'))
+    s+=line(x+34,y+6,x+34,y+46,'#262b2f',1)+line(x+34,y+6,x+74,y+6,'#262b2f',1)
+    s+=rect(x+8,y+8,22,10,F('#d9dde0'),1)+txt(x+11,y+15.5,'F&amp;T',5.4,'#1d262c')
+    s+=pipe('M150 44L150 70L%s 70L%s 82'%(x+10,x+10),5,BLK)+pipe('M%s 120L222 120L222 150'%(x+78),5,BLK)
+    # thermodynamic disc trap: small round body with a hex cap
+    s+=pipe('M256 44L256 108L246 108',5,BLK)+pipe('M282 108L300 108L300 150',5,BLK)
+    s+=rect(244,100,40,16,G('#b8c0c5','h'),3)+cylv(250,84,28,16,'#c3cacf')+rect(254,76,20,9,G('#9aa3a9','v'),1.5)+line(260,76,260,85,'#6d767c',.6)+line(268,76,268,85,'#6d767c',.6)+txt(258,112,'TD',5.4,'#1d262c')
+    s+=path('M290 96q6 -10 0 -18q-6 -8 2 -16','none','stroke="#c9d1d6" stroke-width="3" stroke-linecap="round" opacity=".7"')
+    return s
+ART['steam-traps']=a()
+ORDER=['refrigeration','ph-chart','mini-split','carlyle-06d','heating','airflow','psychrometrics','combustion','chiller','hx','hydronics','steam','steam-traps','controls','wiring','ladder','threephase','motors']
 DEFS='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'+''.join(defs.values())+'</defs></svg>'
 def svg(k):return '<svg class="art" viewBox="0 0 320 180" aria-hidden="true">'+ART[k]+'</svg>'
 if __name__=='__main__':

@@ -35,7 +35,7 @@ for _sec in ['ref','boil','hx','heat','comb','air','psy','ctl','wire','lad','tph
   _f=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),f'lessons_{_sec}.py')
   if _os.path.exists(_f):
     _ns={'RF':RF,'PL':PL,'MSF':MSF};exec(open(_f).read(),_ns);LESSONS+=_ns['L']
-TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js']),('comp-tool','Carlyle 06D compressor','carlyle-06d',RF+['lesson/comp_kit.js','lesson/comp_tool.js']),('psy-tool','Psychrometric chart','psychrometrics',['lesson/kit.js','lesson/air_kit.js','lesson/psy_kit.js','lesson/psy_tool.js'])]
+TOOLS=[('ph-tool','Pressure-enthalpy chart','ph-chart',RF+['lesson/ph_tool.js']),('ms-tool','Mini-split simulator','mini-split',RF+['lesson/ms.js','lesson/ms_tool.js']),('comp-tool','Carlyle 06D compressor','carlyle-06d',RF+['lesson/comp_kit.js','lesson/comp_tool.js']),('psy-tool','Psychrometric chart','psychrometrics',['lesson/kit.js','lesson/air_kit.js','lesson/psy_kit.js','lesson/psy_tool.js']),('trap-tool','Steam traps','steam-traps',['lesson/kit.js','lesson/trap_art.js','lesson/trap_tool.js'])]
 if __name__=='__main__':
   css=open('base.css').read()+open('lesson/lesson.css').read()
   body=open('lesson/lesson-body.html').read()

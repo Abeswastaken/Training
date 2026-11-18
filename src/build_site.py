@@ -10,8 +10,17 @@ def wrap(frag):
     return head,body
 SITES=[('refrigeration','refrigeration-trainer.html','Refrigeration'),('heating','heating-trainer.html','Heating'),('controls','controls-trainer.html','Controls'),
  ('wiring','wiring-trainer.html','Wiring Board'),('ladder','ladder-trainer.html','Ladder Builder'),('threephase','threephase-trainer.html','3-Phase Motor Control'),('motors','motors-trainer.html','Motors + VFD'),('boiler-trainer','boiler-trainer.html','Boiler'),('airflow','airflow-trainer.html','Airflow'),('combustion','combustion-trainer.html','Combustion and Gas'),('chiller','chiller-trainer.html','Chiller and Cooling Tower'),('hx','hx-trainer.html','Heat Exchangers')]
+# Hydronics and Steam: the boiler trainer locked to one system (the combined page stays at /boiler-trainer/ for old links).
+ONLY={'hydronics':('hyd','Hydronic Boiler Trainer','#simSteam,#simSta'),'steam':('steam','Steam Boiler Trainer','#simHyd')}
+SITES+=[('hydronics','boiler-trainer.html','Hydronics'),('steam','boiler-trainer.html','Steam')]
 for d,f,name in SITES:
     s=open(T+f).read()
+    if d in ONLY:
+        sim,h1,hide=ONLY[d]
+        a='cur=SIMS[startSim]||HYD;switchSim(cur.id);';assert s.count(a)==1,d
+        s=s.replace(a,f'cur=SIMS["{sim}"];switchSim(cur.id);')
+        s=s.replace('<title>Boiler Trainer FB-Enable</title>',f'<title>{h1} FB-Enable</title>',1).replace('<h1>Boiler Trainer ',f'<h1>{h1} ',1)
+        s=s.replace('</style>',hide+'{display:none!important}\n</style>',1)
     s=s.replace('<small style="font-size:12px;color:var(--muted);letter-spacing:.08em">FB-Enable</small>','')
     s=re.sub(r'<title>(.*?) FB-Enable</title>',r'<title>\1</title>',s,count=1)
     assert '>FB-Enable<' not in s and 'FB-Enable</title>' not in s,f
@@ -26,10 +35,15 @@ for slug,title,path,files in LESSONS+TOOLS:
     head,body=wrap(s)
     page='<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'+head+'\n</head>\n<body>\n'+body+'\n</body>\n</html>\n'
     os.makedirs(f'{OUT}/{path}',exist_ok=True);open(f'{OUT}/{path}/index.html','w').write(page)
+# old /boiler-trainer/<lesson>/ URLs forward to the lesson's new folder
+for sl,t,p,fs in LESSONS:
+    if p.split('/')[0] in ('hydronics','steam'):
+        os.makedirs(f'{OUT}/boiler-trainer/{p.split("/")[1]}',exist_ok=True)
+        open(f'{OUT}/boiler-trainer/{p.split("/")[1]}/index.html','w').write(f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Moved</title><link rel="canonical" href="/{p}/"><meta http-equiv="refresh" content="0; url=/{p}/"></head><body><p>This lesson moved to <a href="/{p}/">/{p}/</a>.</p></body></html>\n')
 # home
 h=open('home.html').read()
 h=re.sub(r'\s*<div class="mock">.*?</div>\n','\n',h,count=1,flags=re.S)
-for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('boiler-trainer','4wjw2HSYj2aUenYJB6tzc2'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('threephase','SCKwfycGjKMTrXEVSF9ovd'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4'),('chiller','FwymfU92pf9g7su4G34psU'),('hx','QHZgqT4nHpHyFkXHjksrNS')]:
+for d,url in [('refrigeration','LYU9ZjW3aQ8bJqC5Q5iszU'),('heating','Q5JVax7hThLeunQarc1fvT'),('controls','DamkVP1NTQ6rKw4SjNqyjo'),('wiring','5Bee3Hzv2vQscFB31JCkiD'),('ladder','VH5NNdtGGCvp2cR1wgf12J'),('threephase','SCKwfycGjKMTrXEVSF9ovd'),('motors','4SWomubu3YxGtYdp8TAWfW'),('airflow','7UT14W2drD8bSnHt5RJZrb'),('combustion','X1A5NuSUnAPLiaQyNFFTo4'),('chiller','FwymfU92pf9g7su4G34psU'),('hx','QHZgqT4nHpHyFkXHjksrNS')]:
     a=f'href="https://claude.ai/artifact/{url}" target="_blank" rel="noopener"'
     assert a in h,d; h=h.replace(a,f'href="/{d}/"')
 assert 'claude.ai' not in h
@@ -52,7 +66,11 @@ EXTRA={'refrigeration':['Gauges, PT charts and six refrigerants','Service calls 
  'carlyle-06d':['<b>Tabs:</b> Cutaway, Teardown, Specs','Animated cross-section: pistons, reed valves, gas and oil paths','Valve plate and oil pump teardown with torques','Model and serial number decoder, oil pressure by build date'],
  'psychrometrics':['<b>Tabs:</b> Chart, Process, Mixed air','Sensible, latent and total heat with constants corrected for elevation','Outside air percentage from three temperatures'],
  'ph-chart':['<b>Tabs:</b> Chart, Calculator, Property table','R-410A, R-454B, R-32, R-22, R-134a and R-404A','Calculator laid out like the class P/E sheet, with both methods side by side']}
+EXTRA['hydronics']=['Hot water boiler: circulator, expansion tank, air separator, fill valve','Water-level and pressure readings, LWCO and 30 psi relief valve','Failures, service calls and explosion scenarios']
+EXTRA['steam']=['<b>Tabs:</b> Steam, Steam stations','Gauge glass, LWCOs, pressuretrol, 15 psi safety valve, Hartford loop','One-pipe (parallel flow or counterflow) and two-pipe steam','Steam stations: PRV, trap and drip, in 2D and isometric','Failures, service calls and explosion scenarios']
+EXTRA['steam-traps']=['<b>Tabs:</b> Cutaways, Compare, Choose, Test']
 def tabs_of(d):
+    if d in ONLY:return []
     f={'boiler-trainer':'boiler'}.get(d,d)
     try:s=open(f'dist/{f}-trainer.html').read()
     except FileNotFoundError:return []
@@ -70,9 +88,10 @@ def lead_of(files):
         if m:return m.group(1)
     return ''
 NAMES={d:n for d,f,n in SITES}
-NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits';NAMES['carlyle-06d']='Carlyle 06D compressor';NAMES['psychrometrics']='Psychrometrics'
+NAMES['chiller']='Chiller and cooling tower';NAMES['combustion']='Combustion and gas';NAMES['ph-chart']='P-H charts';NAMES['mini-split']='Mini-splits';NAMES['carlyle-06d']='Carlyle 06D compressor';NAMES['psychrometrics']='Psychrometrics';NAMES['steam-traps']='Steam traps'
+ALSO={'hydronics':['steam/low-water-cutoffs'],'steam':['hydronics/relief-valves']}  # lessons that cover both systems
 def sysblock(d,card):
-    ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d]
+    ls=[(t,p,fs) for sl,t,p,fs in LESSONS if p.split('/')[0]==d or p in ALSO.get(d,[])]
     if not ls:return None
     tiles=''.join(f'<a class="ltile" href="/{p}/"><span class="ln">Lesson {i+1}</span><b>{t}</b><p>{lead_of(fs)}</p><em>/{p}</em></a>' for i,(t,p,fs) in enumerate(ls))
     cnt=f'{len(ls)} lesson'+('s' if len(ls)!=1 else '')
